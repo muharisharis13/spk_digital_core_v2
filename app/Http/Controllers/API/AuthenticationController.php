@@ -1,0 +1,95 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Enums\UsersStatusEnum;
+use App\Helpers\ResponseFormatter;
+use App\Helpers\ValidatorFailed;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
+class AuthenticationController extends Controller
+{
+    //
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', "register"]]);
+    }
+
+    public function register(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "username" => "required|regex:/^(?!_)(?!.*?_$)[a-zA-Z0-9_]{3,20}$/",
+                "password" => "required"
+            ]);
+
+            ValidatorFailed::validatorFailed($validator);
+            DB::beginTransaction();
+
+            $createUser = User::create([
+                "user_id" => DB::raw('UUID()'),
+                "username" => $request->username,
+                "password" => Hash::make($request->password),
+                "user_status" => UsersStatusEnum::ACTIVE
+            ]);
+
+
+            $data = [
+                "user" => $createUser
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "username" => "required",
+                "password" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "authentication failed", 401);
+            }
+
+
+            $credentials = $request->only(['username', 'password']);
+
+            if (!$token = auth('api')->attempt($credentials)) {
+                return ResponseFormatter::error("Unauthorized", "authentication failed", 401);
+            }
+
+            $userAccount = User::where("username", $request["username"])->first();
+
+            if (!$userAccount) {
+                return ResponseFormatter::error("User Not Found", "Not Found", 404);
+            }
+
+
+            $data = [
+                "token" => [
+                    "access_token" => $token,
+                    "type" => "Bearer",
+                    "expires_in" => auth("api")->factory()->getTTL() * 60
+                ],
+                "data" => $userAccount
+            ];
+
+            return  ResponseFormatter::success($data);
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error($th->getMessage(), "internal server", 500);
+        }
+    }
+}
