@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Unit extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
+    protected $table = 'unit';
 
     protected $fillable = [
         "unit_id",
@@ -21,7 +23,8 @@ class Unit extends Model
         "event_id",
         "motor_id",
         "dealer_neq_id",
-        "dealer_id"
+        "dealer_id",
+        "unit_code"
     ];
 
     protected $primaryKey="unit_id";

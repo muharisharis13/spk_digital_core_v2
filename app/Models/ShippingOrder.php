@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ShippingOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
+    protected $table = 'shipping_order';
     protected $fillable = [
         "shipping_order_id",
         "shipping_order_number",
