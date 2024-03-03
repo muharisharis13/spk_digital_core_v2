@@ -28,4 +28,13 @@ class Unit extends Model
     ];
 
     protected $primaryKey="unit_id";
+
+    protected $hidden = [
+        "unit_code"
+    ];
+
+    public function motor()
+    {
+        return $this->belongsTo(Motor::class, "motor_id");
+    }
 }

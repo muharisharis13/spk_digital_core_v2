@@ -21,4 +21,12 @@ class ShippingOrder extends Model
     ];
 
     protected $primaryKey = "shipping_order_id";
+
+    public function unit(){
+        return $this->hasMany(Unit::class,"shipping_order_id","shipping_order_id");
+    }
+
+    public function dealer(){
+        return $this->belongsTo(Dealer::class,"dealer_id");
+    }
 }

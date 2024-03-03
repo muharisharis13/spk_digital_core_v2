@@ -13,6 +13,7 @@ use App\Models\ShippingOrder;
 use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
@@ -21,10 +22,31 @@ use Illuminate\Support\Str;
 class ShippingOrderController extends Controller
 {
     //
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api',['except' => ['login']]);
-    // }
+  
+
+    public function getListShippingOrder(Request $request){
+        try {
+            
+            $getListPaginate = ShippingOrder::
+            with(["dealer","unit.motor"])
+            ->withCount([
+                'unit as unit_received_total' => function ($query) {
+                    $query->selectRaw('count(*)')
+                        ->where('unit_status', 'on_hand');
+                },
+                'unit as unit_total' => function ($query) {
+                    $query->selectRaw('count(*)');
+                },
+            ])
+            ->paginate(10);
+
+           
+
+            return ResponseFormatter::success($getListPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
 
     public function sycnShippingOrder(Request $request, $city)
@@ -193,6 +215,148 @@ class ShippingOrderController extends Controller
 
 
                     return ResponseFormatter::success($shipmentDataDealerMDN["data"]);
+                    break; 
+                case 'pku':
+                    $shipmentDataDealerPKU = Http::post('https://yimmdpackwebapi.ymcapps.net/dpackweb/api/v1/unitshipment?dealerCd=FD0601&accessToken=MjJjOTY4ZjBlYjUyZDQ4NTY2ODNkYzRkNmY5MjVhMjk4MGI2MDM3Zg==', $data);
+                    $shipmentDataDealerPKU = $shipmentDataDealerPKU->json();
+                    if ($shipmentDataDealerPKU["code"] == 2001) {
+                        return ResponseFormatter::error("But there are no data.");
+                    }
+                    foreach ($shipmentDataDealerPKU["data"] as $itemHeader) {
+                        
+                        foreach ($itemHeader["detail-datas"] as $itemDetail) {
+                            // check dealer
+                            $checkDealer = $this->checkDealer($itemHeader["h.customer_code_"]);
+                            // check motor
+                            $checkMotor = $this->checkMotor($itemDetail["d.model_code_"]);
+
+                            // jika dealer ada di database maka update datanya
+                            if (isset($checkDealer->dealer_id)) {
+                                $shippingOrder =  ShippingOrder::updateOrCreate([
+                                    "shipping_order_delivery_number" => $itemHeader["h.delivery_no_"]
+                                ], [
+                                    "shipping_order_number" => $itemDetail["d.sales_order_no_"],
+                                    "shipping_order_delivery_number" => $itemHeader["h.delivery_no_"],
+                                    "shipping_order_shipping_date" => $this->formatDate($itemHeader["h.shipping_date_"]),
+                                    "dealer_id" => $checkDealer->dealer_id,
+                                    "shipping_order_status"=>ShippingOrderStatusEnum::transit
+                                ]);
+
+                                if(isset($checkMotor->motor_id)){
+
+                                    foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
+                                        Unit::updateOrCreate([
+                                            "unit_frame" => $itemSubDetail["s.frame_no_"]
+                                        ],
+                                    [
+                                        "unit_color" =>$itemDetail["d.color_"],
+                                        "unit_frame"=>$itemSubDetail["s.frame_no_"],
+                                        "unit_engine" => $itemSubDetail["s.engine_no_"],
+                                        "shipping_order_id"=> $shippingOrder->shipping_order_id,
+                                        "motor_id" => $checkMotor->motor_id,
+                                        "unit_code"=>0,
+                                        "unit_status" => UnitStatusEnum::hold
+                                    ]);
+                                    }
+                                }
+                                else{
+
+                                    $createMotor = Motor::create([
+                                        "motor_id" => Str::uuid(),
+                                        "motor_code"=> $itemDetail["d.model_code_"],
+                                        "motor_name"=>$itemDetail["d.model_name_"],
+                                        "motor_status"=> MotorStatusEnum::ACTIVE
+                                    ]);
+
+                                    foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
+                                        Unit::updateOrCreate([
+                                            "unit_frame" => $itemSubDetail["s.frame_no_"]
+                                        ],
+                                    [
+                                        "unit_color" =>$itemDetail["d.color_"],
+                                        "unit_frame"=>$itemSubDetail["s.frame_no_"],
+                                        "unit_engine" => $itemSubDetail["s.engine_no_"],
+                                        "shipping_order_id"=> $shippingOrder->shipping_order_id,
+                                        "motor_id" => $createMotor->motor_id,
+                                        "unit_code"=>0,
+                                        "unit_status" => UnitStatusEnum::hold
+                                    ]);
+                                    }
+                                }
+
+                               
+                                
+                            } 
+                             // jika dealer tidak ada di database maka create datanya
+                            else {
+                                $createDealer = Dealer::create([
+                                    "dealer_id"=>Str::uuid(),
+                                    "dealer_name" => $itemHeader["h.customer_name_"],
+                                    "dealer_code" => $itemHeader["h.customer_code_"],
+                                    "dealer_type" => isset($itemHeader["h.consignee_"]) && strpos($itemHeader["h.consignee_"], "ALFA SCORPII") !== false ? 'mds' : 'independent'
+                                ]);
+
+                             
+
+                                $shippingOrder =  ShippingOrder::create( [
+                                    "shipping_order_id" => Str::uuid(),
+                                    "shipping_order_number" => $itemDetail["d.sales_order_no_"],
+                                    "shipping_order_delivery_number" => $itemHeader["h.delivery_no_"],
+                                    "shipping_order_shipping_date" => $this->formatDate($itemHeader["h.shipping_date_"]),
+                                    "dealer_id" => $createDealer->dealer_id,
+                                    "shipping_order_status"=>ShippingOrderStatusEnum::transit
+                                ]);
+
+                                if(isset($checkMotor->motor_id)){
+
+                                    foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
+                                        Unit::updateOrCreate([
+                                            "unit_frame" => $itemSubDetail["s.frame_no_"]
+                                        ],
+                                    [
+                                        "unit_color" =>$itemDetail["d.color_"],
+                                        "unit_frame"=>$itemSubDetail["s.frame_no_"],
+                                        "unit_engine" => $itemSubDetail["s.engine_no_"],
+                                        "shipping_order_id"=> $shippingOrder->shipping_order_id,
+                                        "motor_id" => $checkMotor->motor_id,
+                                        "unit_code"=>0,
+                                        "unit_status" => UnitStatusEnum::hold
+                                    ]);
+                                    }
+                                }
+                                else{
+
+                                    $createMotor = Motor::create([
+                                        "motor_id" => Str::uuid(),
+                                        "motor_code"=> $itemDetail["d.model_code_"],
+                                        "motor_name"=>$itemDetail["d.model_name_"],
+                                        "motor_status"=> MotorStatusEnum::ACTIVE
+                                    ]);
+
+                                    foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
+                                        Unit::updateOrCreate([
+                                            "unit_frame" => $itemSubDetail["s.frame_no_"]
+                                        ],
+                                    [
+                                        "unit_color" =>$itemDetail["d.color_"],
+                                        "unit_frame"=>$itemSubDetail["s.frame_no_"],
+                                        "unit_engine" => $itemSubDetail["s.engine_no_"],
+                                        "shipping_order_id"=> $shippingOrder->shipping_order_id,
+                                        "motor_id" => $createMotor->motor_id,
+                                        "unit_code"=>0,
+                                        "unit_status" => UnitStatusEnum::hold
+                                    ]);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    DB::commit();
+
+
+
+                    return ResponseFormatter::success($shipmentDataDealerPKU["data"]);
                     break; 
                     default:
                     return ResponseFormatter::error('parameter invalid', "Bad request", 400);

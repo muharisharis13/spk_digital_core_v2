@@ -32,7 +32,6 @@ class AuthenticationController extends Controller
             DB::beginTransaction();
 
             $createUser = User::create([
-                "user_id" => DB::raw('UUID()'),
                 "username" => $request->username,
                 "password" => Hash::make($request->password),
                 "user_status" => UsersStatusEnum::ACTIVE
@@ -65,26 +64,22 @@ class AuthenticationController extends Controller
             }
 
 
-            $credentials = $request->only(['username', 'password']);
+            
+            $user = User::where("username", $request->get("username"))
+                ->with("dealer_by_user.dealer")
+                ->first();
 
-            if (!$token = auth('api')->attempt($credentials)) {
-                return ResponseFormatter::error("Unauthorized", "authentication failed", 401);
+            if (!Hash::check($request->get("password"), $user->password, [])) {
+                throw new \Exception("Invalid Password");
             }
 
-            $userAccount = User::where("username", $request["username"])->first();
 
-            if (!$userAccount) {
-                return ResponseFormatter::error("User Not Found", "Not Found", 404);
-            }
-
+            $tokenResult = $user->createToken("authToken")->plainTextToken;
 
             $data = [
-                "token" => [
-                    "access_token" => $token,
-                    "type" => "Bearer",
-                    "expires_in" => auth("api")->factory()->getTTL() * 60
-                ],
-                "data" => $userAccount
+                "token" => $tokenResult,
+                "token_type" => "Bearer",
+                "user" => $user
             ];
 
             return  ResponseFormatter::success($data);

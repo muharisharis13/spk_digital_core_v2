@@ -20,13 +20,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(["auth:api"])->prefix("v1")->group(function () {
+Route::prefix("v1")->group(function () {
     Route::prefix("authentication")->group(function () {
         Route::post("/login", [AuthenticationController::class, "login"]);
         Route::post("/register", [AuthenticationController::class, "register"]);
     });
+    Route::middleware("auth:sanctum")->group(function(){
 
-    Route::prefix("shipping-order")->group(function(){
-        Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
+      
+    
+        Route::prefix("shipping-order")->group(function(){
+            Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
+            Route::get("/list",[ShippingOrderController::class,"getListShippingOrder"]);
+        });
     });
 });
