@@ -25,13 +25,18 @@ Route::prefix("v1")->group(function () {
         Route::post("/login", [AuthenticationController::class, "login"]);
         Route::post("/register", [AuthenticationController::class, "register"]);
     });
-    Route::middleware("auth:sanctum")->group(function(){
+    Route::middleware("auth:sanctum")->group(function () {
 
-      
-    
-        Route::prefix("shipping-order")->group(function(){
+
+
+        Route::prefix("shipping-order")->group(function () {
             Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
-            Route::get("/list",[ShippingOrderController::class,"getListShippingOrder"]);
+            Route::get("/list", [ShippingOrderController::class, "getListShippingOrder"]);
+            Route::get("/detail/{shipping_order_id}", [ShippingOrderController::class, "getDetailShippingOrder"]);
+        });
+
+        Route::prefix("unit")->group(function () {
+            Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"]);
         });
     });
 });

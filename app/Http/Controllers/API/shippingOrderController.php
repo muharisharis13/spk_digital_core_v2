@@ -26,6 +26,86 @@ class ShippingOrderController extends Controller
     //     $this->middleware('auth:api',['except' => ['login']]);
     // }
 
+    public function updateTerimaUnitShippingOrder(Request $request, $unit_id)
+    {
+        try {
+
+            DB::beginTransaction();
+            $updateUnit = Unit::where("unit_id", $unit_id)->update([
+                "unit_status" => UnitStatusEnum::on_hand
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($updateUnit, "Successfully updated !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getDetailShippingOrder(Request $request, $shipping_order_id)
+    {
+        try {
+            $getDetailShippingOrder = ShippingOrder::with(["dealer", "unit.motor"])
+                ->where("shipping_order_id", $shipping_order_id)
+                ->first();
+
+            return
+                ResponseFormatter::success($getDetailShippingOrder);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getListShippingOrder(Request $request)
+    {
+        try {
+            $limit = $request->input('limit');
+            ($limit) ? $limit : $limit = 5;
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $shipping_order_status = $request->input('shipping_order_status');
+            $startDate = $request->input('start_date_shipping');
+            $endDate = $request->input('end_date_shipping');
+            $searchQuery = $request->input('q');
+
+
+            $getListShippingOrder = ShippingOrder::with(["dealer", "unit.motor"])
+                ->where(function ($query) use ($searchQuery) {
+                    $query->where('shipping_order_status', 'LIKE', "%$searchQuery%")
+                        ->orWhere('shipping_order_number', 'LIKE', "%$searchQuery%")
+                        // Add more columns here as needed
+                        ->orWhere('shipping_order_delivery_number', 'LIKE', "%$searchQuery%")
+                        ->orWhere('shipping_order_shipping_date', 'LIKE', "%$searchQuery%")
+                        ->orWhere('shipping_order_status', 'LIKE', "%$searchQuery%");
+                })
+                ->where('shipping_order_status', 'LIKE', "%$shipping_order_status%")
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('shipping_order_shipping_date', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('shipping_order_shipping_date', '<=', $endDate);
+                })
+                ->withCount([
+                    'unit as unit_received_total' => function ($query) {
+                        $query->selectRaw('count(*)')
+                            ->where('unit_status', 'on_hand');
+                    },
+                    'unit as unit_total' => function ($query) {
+                        $query->selectRaw('count(*)');
+                    },
+                ])
+                ->orderBy($sortBy, $sortOrder)
+                ->paginate($limit);
+
+            return
+                ResponseFormatter::success($getListShippingOrder);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
 
 
     public function sycnShippingOrder(Request $request, $city)
