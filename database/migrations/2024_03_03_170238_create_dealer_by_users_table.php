@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
             $table->uuid("user_id")->nullable();
             $table->foreign("user_id")->references("user_id")->on("users")->onDelete("set null");
+            $table->boolean("isSelected")->default(false);
             $table->timestamps();
         });
     }

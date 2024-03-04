@@ -31,13 +31,23 @@ class ShippingOrderController extends Controller
         try {
 
             DB::beginTransaction();
+
+            $currentDate = Carbon::now()->format('Y-m-d');
+
             $updateUnit = Unit::where("unit_id", $unit_id)->update([
-                "unit_status" => UnitStatusEnum::on_hand
+                "unit_status" => UnitStatusEnum::on_hand,
+                "unit_note" => $request->unit_note,
+                "unit_received_date" => $currentDate
             ]);
 
             DB::commit();
 
-            return ResponseFormatter::success($updateUnit, "Successfully updated !");
+            if ($updateUnit === 0) {
+
+                return ResponseFormatter::error("Unit Not Found !", "Bad Request", 400);
+            } else {
+                return ResponseFormatter::success($updateUnit, "Successfully updated !");
+            }
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);

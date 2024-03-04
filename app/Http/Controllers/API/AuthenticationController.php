@@ -64,7 +64,7 @@ class AuthenticationController extends Controller
             }
 
 
-            
+
             $user = User::where("username", $request->get("username"))
                 ->with("dealer_by_user.dealer")
                 ->first();

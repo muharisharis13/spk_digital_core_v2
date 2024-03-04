@@ -27,11 +27,16 @@ class Unit extends Model
         "unit_code"
     ];
 
-    protected $primaryKey="unit_id";
+    protected $primaryKey = "unit_id";
 
     protected $hidden = [
         "unit_code"
     ];
+
+    public function shipping_order()
+    {
+        return $this->belongsTo(ShippingOrder::class, "shipping_order_id");
+    }
 
     public function motor()
     {
