@@ -34,6 +34,8 @@ class ShippingOrderController extends Controller
 
             DB::beginTransaction();
 
+
+
             $currentDate = Carbon::now()->format('Y-m-d');
 
             $updateUnit = Unit::where("unit_id", $unit_id)->update([

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\UnitContoller;
@@ -17,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('/hai', function (Request $request) {
+    return ResponseFormatter::success("hello");
 });
 
 Route::prefix("v1")->group(function () {
