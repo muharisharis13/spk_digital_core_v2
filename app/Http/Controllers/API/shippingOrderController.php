@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Enums\MotorStatusEnum;
 use App\Enums\ShippingOrderStatusEnum;
 use App\Enums\UnitStatusEnum;
+use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Dealer;
@@ -13,6 +14,7 @@ use App\Models\ShippingOrder;
 use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
@@ -71,6 +73,14 @@ class ShippingOrderController extends Controller
     public function getListShippingOrder(Request $request)
     {
         try {
+
+
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+
             $limit = $request->input('limit');
             ($limit) ? $limit : $limit = 5;
             $sortBy = $request->input('sort_by', 'created_at');
@@ -97,6 +107,7 @@ class ShippingOrderController extends Controller
                 ->when($endDate, function ($query) use ($endDate) {
                     return $query->whereDate('shipping_order_shipping_date', '<=', $endDate);
                 })
+                ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->withCount([
                     'unit as unit_received_total' => function ($query) {
                         $query->selectRaw('count(*)')
