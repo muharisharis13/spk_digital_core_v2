@@ -48,6 +48,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/motor", [Master::class, "getListPaginateMotor"]);
             Route::get("/neq", [Master::class, "getListDealerNeq"]);
             Route::get("/mds", [Master::class, "getListDealerMDS"]);
+            Route::get("/location-current", [Master::class, "getListLocationByUserLogin"]);
         });
     });
 });

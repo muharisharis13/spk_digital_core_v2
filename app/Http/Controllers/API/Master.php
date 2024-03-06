@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Dealer;
+use App\Models\DealerByUser;
 use App\Models\DealerNeq;
 use App\Models\Motor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Master extends Controller
 {
@@ -39,27 +41,37 @@ class Master extends Controller
         }
     }
 
+    public function getListLocationByUserLogin(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            $getDealerByUser = DealerByUser::where("user_id", $user->user_id)
+                ->with(["dealer"])
+                ->where("isSelected", 1)
+                ->first();
+
+            $dealerNeqList = DealerNeq::where("dealer_id", $getDealerByUser->dealer_id)->get();
+
+            $data = [
+                "dealer" => $getDealerByUser,
+                "dealer_neq" => $dealerNeqList
+            ];
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function getListDealerMDS(Request $request)
     {
         try {
-            $searchQuery = $request->input('q');
-            $limit = $request->input('limit');
-            ($limit) ? $limit : $limit = 5;
-            $paginate = $request->input("paginate");
 
-            if ($paginate === "true") {
-                $getListAllMDSMD = Dealer::where(function ($query) use ($searchQuery) {
-                    $query->where("dealer_name", "LIKE", "%$searchQuery%")
-                        ->orWhere("dealer_code", "LIKE", "%$searchQuery%");
-                })->paginate($limit);
-            } else {
-                $getListAllMDSMD = Dealer::where(function ($query) use ($searchQuery) {
-                    $query->where("dealer_name", "LIKE", "%$searchQuery%")
-                        ->orWhere("dealer_code", "LIKE", "%$searchQuery%");
-                })->get();
-            }
+            $getListAllDealer = DealerByUser::with(["dealer"])
+                ->get();
 
-            return ResponseFormatter::success($getListAllMDSMD);
+            return ResponseFormatter::success($getListAllDealer);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
