@@ -33,6 +33,25 @@ class Unit extends Model
         "unit_code"
     ];
 
+    public function unit_log()
+    {
+        return $this->hasMany(UnitLog::class, "unit_id", "unit_id");
+    }
+
+    public function dealer_neq()
+    {
+        return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
+    }
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, "event_id");
+    }
+
     public function shipping_order()
     {
         return $this->belongsTo(ShippingOrder::class, "shipping_order_id");

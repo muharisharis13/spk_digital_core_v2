@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string("unit_engine");
             $table->date("unit_received_date")->nullable();
             $table->text("unit_note")->nullable();
-            $table->string("unit_status");
+            $table->string("unit_status")->nullable();
             $table->uuid("shipping_order_id")->nullable();
             $table->foreign("shipping_order_id")->references("shipping_order_id")->on("shipping_order");
             $table->uuid("event_id")->nullable();

@@ -2,6 +2,7 @@
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AuthenticationController;
+use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\UnitContoller;
 use Illuminate\Http\Request;
@@ -41,6 +42,12 @@ Route::prefix("v1")->group(function () {
             Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"]);
             Route::get("/list", [UnitContoller::class, "getListPaginateUnit"]);
             Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"]);
+        });
+
+        Route::prefix("master")->group(function () {
+            Route::get("/motor", [Master::class, "getListPaginateMotor"]);
+            Route::get("/neq", [Master::class, "getListDealerNeq"]);
+            Route::get("/mds", [Master::class, "getListDealerMDS"]);
         });
     });
 });

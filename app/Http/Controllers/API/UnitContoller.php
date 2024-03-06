@@ -16,7 +16,7 @@ class UnitContoller extends Controller
     public function getDetailUnit(Request $request, $unit_id)
     {
         try {
-            $getDetailUnit = Unit::with(["motor", "shipping_order.dealer"])
+            $getDetailUnit = Unit::with(["motor", "shipping_order.dealer", "unit_log.user"])
                 ->where("unit_id", $unit_id)->first();
 
             return ResponseFormatter::success($getDetailUnit);
@@ -44,12 +44,14 @@ class UnitContoller extends Controller
             $searchQuery = $request->input('q');
 
 
-            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer"])->where(function ($query) use ($searchQuery) {
-                $query->where('unit_color', 'LIKE', "%$searchQuery%")
-                    ->orWhere('unit_engine', 'LIKE', "%$searchQuery%")
-                    ->orWhere('unit_status', 'LIKE', "%$searchQuery%")
-                    ->orWhere('unit_frame', 'LIKE', "%$searchQuery%");
-            })
+            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer"])
+                ->whereNotNull("unit_status")
+                ->where(function ($query) use ($searchQuery) {
+                    $query->where('unit_color', 'LIKE', "%$searchQuery%")
+                        ->orWhere('unit_engine', 'LIKE', "%$searchQuery%")
+                        ->orWhere('unit_status', 'LIKE', "%$searchQuery%")
+                        ->orWhere('unit_frame', 'LIKE', "%$searchQuery%");
+                })
                 ->where(function ($query) use ($location) {
                     $query->where('dealer_id', "LIKE", "%$location%")
                         ->orWhere('dealer_neq_id', "LIKE", "%$location%")
@@ -66,7 +68,7 @@ class UnitContoller extends Controller
                 ->where("unit_status", "LIKE", "%$unit_status%")
 
                 ->when($date, function ($query) use ($date) {
-                    return $query->whereDate('created_at', 'LIKE', "%$date%");
+                    return $query->whereDate('unit_received_date', 'LIKE', "%$date%");
                 })
                 ->paginate($limit);
 

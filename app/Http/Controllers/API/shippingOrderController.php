@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\MotorStatusEnum;
 use App\Enums\ShippingOrderStatusEnum;
+use App\Enums\UnitLogActionEnum;
+use App\Enums\UnitLogStatusEnum;
 use App\Enums\UnitStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
@@ -12,6 +14,7 @@ use App\Models\Dealer;
 use App\Models\Motor;
 use App\Models\ShippingOrder;
 use App\Models\Unit;
+use App\Models\UnitLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +39,8 @@ class ShippingOrderController extends Controller
 
 
 
+            $user = Auth::user();
+
             $currentDate = Carbon::now()->format('Y-m-d');
 
             $updateUnit = Unit::where("unit_id", $unit_id)->update([
@@ -43,6 +48,40 @@ class ShippingOrderController extends Controller
                 "unit_note" => $request->unit_note,
                 "unit_received_date" => $currentDate
             ]);
+            $getUnit = Unit::where("unit_id", $unit_id)->with(["shipping_order", "dealer", "event"])->first();
+
+            UnitLog::create([
+                "unit_id" => $unit_id,
+                "user_id" => $user->user_id,
+                "unit_log_number" => isset($getUnit->shipping_order->shipping_order_number) ? $getUnit->shipping_order->shipping_order_number : null,
+                "unit_log_dealer_name" => isset($getUnit->dealer->dealer_name) ? $getUnit->dealer->dealer_name : null,
+                "unit_log_dealer_neq_name" => isset($getUnit->dealer_neq->dealer_neq_name) ? $getUnit->dealer_neq->dealer_neq_name : null,
+                "unit_log_event_name" => isset($getUnit->event->event_name) ? $getUnit->event->event_name : null,
+                "unit_log_action" => UnitLogActionEnum::terima_unit,
+                "unit_log_status" => UnitLogStatusEnum::ON_HAND
+            ]);
+
+            $getUnitByShippingOrderId = Unit::where("shipping_order_id", $getUnit->shipping_order_id)->get();
+
+            $allOnHand = true;
+            foreach ($getUnitByShippingOrderId as $unitLoop) {
+                if ($unitLoop->unit_status !== 'on_hand') {
+                    $allOnHand = false;
+                    break; // Jika ada satu unit yang tidak on_hand, hentikan loop
+                }
+            }
+
+            if ($allOnHand) {
+                ShippingOrder::where("shipping_order_id", $getUnit->shipping_order_id)->update([
+                    "shipping_order_status" => ShippingOrderStatusEnum::complete
+                ]);
+            } else {
+                ShippingOrder::where("shipping_order_id", $getUnit->shipping_order_id)->update([
+                    "shipping_order_status" => ShippingOrderStatusEnum::partly
+                ]);
+            }
+
+
 
             DB::commit();
 
@@ -196,7 +235,6 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "unit_status" => UnitStatusEnum::hold
                                             ]
                                         );
                                     }
@@ -221,7 +259,6 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "unit_status" => UnitStatusEnum::hold
                                             ]
                                         );
                                     }
@@ -261,7 +298,6 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "unit_status" => UnitStatusEnum::hold
                                             ]
                                         );
                                     }
@@ -286,7 +322,6 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "unit_status" => UnitStatusEnum::hold
                                             ]
                                         );
                                     }
