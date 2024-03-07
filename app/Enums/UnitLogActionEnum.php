@@ -16,4 +16,5 @@ class UnitLogActionEnum
     const terima_unit = "terima_unit";
     const create_spk = "create_spk";
     const spk = "spk";
+    const retur = "retur";
 }
