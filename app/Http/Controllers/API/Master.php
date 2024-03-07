@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dealer;
 use App\Models\DealerByUser;
 use App\Models\DealerNeq;
+use App\Models\MainDealer;
 use App\Models\Motor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,31 @@ class Master extends Controller
 {
     //
 
+    public function GelistPaginateMainDealer(Request $request)
+    {
+        try {
+            $searchQuery = $request->input('q');
+            $limit = $request->input('limit');
+            ($limit) ? $limit : $limit = 5;
+            $paginate = $request->input("paginate");
+
+            if ($paginate === "true") {
+                $getListMainDealer = MainDealer::where(function ($query) use ($searchQuery) {
+                    $query->where("main_dealer_name", "LIKE", "%$searchQuery%")
+                        ->orWhere("main_dealer_identifier", "LIKE", "%$searchQuery%");
+                })->paginate($limit);
+            } else {
+                $getListMainDealer = MainDealer::where(function ($query) use ($searchQuery) {
+                    $query->where("main_dealer_name", "LIKE", "%$searchQuery%")
+                        ->orWhere("main_dealer_identifier", "LIKE", "%$searchQuery%");
+                })->get();
+            }
+
+            return ResponseFormatter::success($getListMainDealer);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
     public function getListPaginateMotor(Request $request)
     {
         try {

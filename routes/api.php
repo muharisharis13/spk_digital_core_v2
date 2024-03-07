@@ -3,6 +3,7 @@
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\Master;
+use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\UnitContoller;
 use Illuminate\Http\Request;
@@ -49,6 +50,13 @@ Route::prefix("v1")->group(function () {
             Route::get("/neq", [Master::class, "getListDealerNeq"]);
             Route::get("/mds", [Master::class, "getListDealerMDS"]);
             Route::get("/location-current", [Master::class, "getListLocationByUserLogin"]);
+            Route::get("/main-dealer", [Master::class, "GelistPaginateMainDealer"]);
+        });
+
+        Route::prefix("repair")->group(function () {
+            Route::post("/create", [RepairController::class, "createRepair"]);
+            Route::get("/detail/{repair_id}", [RepairController::class, "getDetailRepair"]);
+            Route::get("/unit/list", [RepairController::class, "getPaginateRepairUnit"]);
         });
     });
 });
