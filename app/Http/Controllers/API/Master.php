@@ -50,7 +50,7 @@ class Master extends Controller
             $limit = $request->input('limit');
             ($limit) ? $limit : $limit = 5;
             $paginate = $request->input("paginate");
-            $sortBy = $request->input('sort_by', 'created_at');
+            $sortBy = $request->input('sort_by', 'motor_name');
             $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
