@@ -20,6 +20,68 @@ class RepairController extends Controller
 {
     //
 
+    public function updateRepair(Request $request, $repair_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "main_dealer_id" => "required",
+                "repair_reason" => "required",
+                "repair_unit" => "required|array",
+                "repair_unit.*.unit_id" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+
+            Repair::where("repair_id", $repair_id)->update([
+                "main_dealer_id" => $request->main_dealer_id,
+                "repair_reason" => $request->repair_reason,
+            ]);
+            $getDetailRepair = Repair::where("repair_id", $repair_id)
+                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
+                ->first();
+
+            if (!isset($getDetailRepair->repair_id)) {
+                return
+                    ResponseFormatter::error("Repair Not Found !", "Bad Request", 400);
+            }
+
+            RepairLog::create([
+                "user_id" => $user->user_id,
+                "repair_log_action" => RepairLogEnum::create,
+                "repair_log_note" => "update repair",
+                "repair_id" => $getDetailRepair->repair_id
+            ]);
+
+            foreach ($request->repair_unit as $item) {
+                if (!isset($item["repair_unit_id"])) {
+                    $createRepairUnit[] = RepairUnitList::create([
+                        "repair_id" => $getDetailRepair->repair_id,
+                        "unit_id" => $item["unit_id"]
+                    ]);
+                }
+            }
+
+
+            DB::commit();
+
+            $getDetailRepair = Repair::where("repair_id", $repair_id)
+                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
+                ->first();
+
+
+            return ResponseFormatter::success($getDetailRepair, "Successfully updated !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function getDetailRepair(Request $request, $repair_id)
     {
         try {
@@ -100,7 +162,7 @@ class RepairController extends Controller
             $createRepairLog = RepairLog::create([
                 "user_id" => $user->user_id,
                 "repair_log_action" => RepairLogEnum::create,
-                "repair_log_note" => NULL,
+                "repair_log_note" => "create new repair",
                 "repair_id" => $createRepair->repair_id
             ]);
 
