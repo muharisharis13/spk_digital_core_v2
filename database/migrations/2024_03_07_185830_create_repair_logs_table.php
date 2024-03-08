@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('repair_logs', function (Blueprint $table) {
             $table->uuid("repair_log_id")->primary();
             $table->uuid("repair_id")->nullable();
-            $table->foreign("repair_id")->references("repair_id")->on("repairs");
+            $table->foreign("repair_id")->references("repair_id")->on("repairs")->onDelete("set null");
             $table->uuid("user_id")->nullable();
-            $table->foreign("user_id")->references("user_id")->on("users");
+            $table->foreign("user_id")->references("user_id")->on("users")->onDelete("set null");
             $table->string("repair_log_action");
             $table->string("repair_log_note")->nullable();
             $table->timestamps();

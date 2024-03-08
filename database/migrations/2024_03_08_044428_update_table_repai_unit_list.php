@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('repair_unit_lists', function (Blueprint $table) {
-            $table->uuid("repair_unit_list_id")->primary();
-            $table->uuid("repair_id")->nullable();
+        //
+        Schema::table('repair_unit_lists', function (Blueprint $table) {
+            $table->dropForeign(['repair_id']);
+            $table->dropForeign(['unit_id']);
+
+
+            $table->uuid("repair_id")->nullable()->change();
             $table->foreign("repair_id")->references("repair_id")->on("repairs")->onDelete("set null");
-            $table->uuid("unit_id")->nullable();
+            $table->uuid("unit_id")->nullable()->change();
             $table->foreign("unit_id")->references("unit_id")->on("unit")->onDelete("set null");
-            $table->timestamps();
         });
     }
 
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('repair_unit_lists');
+        //
     }
 };

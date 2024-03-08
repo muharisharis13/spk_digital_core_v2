@@ -4,6 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\RepairLogEnum;
 use App\Enums\RepairStatusEnum;
+use App\Enums\UnitLogActionEnum;
+use App\Enums\UnitLogStatusEnum;
+use App\Enums\UnitStatusEnum;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
@@ -11,6 +14,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Repair;
 use App\Models\RepairLog;
 use App\Models\RepairUnitList;
+use App\Models\Unit;
+use App\Models\UnitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +24,77 @@ use Illuminate\Support\Facades\Validator;
 class RepairController extends Controller
 {
     //
+
+    public function deleteRepairUnit(Request $request, $repair_unit_id)
+    {
+        try {
+            DB::beginTransaction();
+            $deteleteRepairUnit = RepairUnitList::where("repair_unit_list_id", $repair_unit_id)
+                ->with(["repair"])
+                ->first();
+
+            $user = Auth::user();
+
+
+            Unit::where("unit_id", $deteleteRepairUnit["unit_id"])->update([
+                "unit_status" => UnitStatusEnum::on_hand
+            ]);
+            UnitLog::create([
+                "unit_id" => $deteleteRepairUnit["unit_id"],
+                "user_id" => $user->user_id,
+                "unit_log_number" => $deteleteRepairUnit->repair->repair_number,
+                "unit_log_action" => UnitLogActionEnum::repair,
+                "unit_log_status" => UnitLogStatusEnum::ON_HAND
+            ]);
+
+            $deteleteRepairUnit->delete();
+            DB::commit();
+
+            return ResponseFormatter::success($deteleteRepairUnit);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function deleteRepair(Request $request, $repair_id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+
+            $deleteRepair = Repair::where("repair_id", $repair_id)
+                ->where("repair_status", RepairStatusEnum::create)
+                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
+                ->first();
+
+
+            foreach ($deleteRepair->repair_unit as $item) {
+                Unit::where("unit_id", $item["unit_id"])->update([
+                    "unit_status" => UnitStatusEnum::on_hand
+                ]);
+                UnitLog::create([
+                    "unit_id" => $item["unit_id"],
+                    "user_id" => $user->user_id,
+                    "unit_log_number" => $deleteRepair->repair_number,
+                    "unit_log_action" => UnitLogActionEnum::repair,
+                    "unit_log_status" => UnitLogStatusEnum::ON_HAND
+                ]);
+            }
+
+            $deleteRepair->delete();
+
+
+
+            DB::commit();
+
+            return ResponseFormatter::success($deleteRepair);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function updateRepair(Request $request, $repair_id)
     {
@@ -63,6 +139,16 @@ class RepairController extends Controller
                     $createRepairUnit[] = RepairUnitList::create([
                         "repair_id" => $getDetailRepair->repair_id,
                         "unit_id" => $item["unit_id"]
+                    ]);
+                    Unit::where("unit_id", $item["unit_id"])->update([
+                        "unit_status" => UnitStatusEnum::hold
+                    ]);
+                    UnitLog::create([
+                        "unit_id" => $item["unit_id"],
+                        "user_id" => $user->user_id,
+                        "unit_log_number" => $getDetailRepair->repair_number,
+                        "unit_log_action" => UnitLogActionEnum::repair,
+                        "unit_log_status" => UnitLogStatusEnum::HOLD
                     ]);
                 }
             }
@@ -166,10 +252,21 @@ class RepairController extends Controller
                 "repair_id" => $createRepair->repair_id
             ]);
 
+
             foreach ($request->repair_unit as $item) {
                 $createRepairUnit[] = RepairUnitList::create([
                     "repair_id" => $createRepair->repair_id,
                     "unit_id" => $item["unit_id"]
+                ]);
+                Unit::where("unit_id", $item["unit_id"])->update([
+                    "unit_status" => UnitStatusEnum::hold
+                ]);
+                UnitLog::create([
+                    "unit_id" => $item["unit_id"],
+                    "user_id" => $user->user_id,
+                    "unit_log_number" => $createRepair->repair_number,
+                    "unit_log_action" => UnitLogActionEnum::repair,
+                    "unit_log_status" => UnitLogStatusEnum::HOLD
                 ]);
             }
 
