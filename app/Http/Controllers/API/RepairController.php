@@ -42,20 +42,20 @@ class RepairController extends Controller
             $endDate = $request->input('end_date');
             $repair_status = $request->input("repair_status");
             $searchQuery = $request->input('q');
-            $getPaginateRepair = RepairUnitList::with(["repair.dealer", "unit.motor", "repair.main_dealer"])
+            $getPaginateRepair = Repair::with(["repair_unit", "repair_log.user", "dealer", "main_dealer"])
+                ->where(function ($query) use ($searchQuery) {
+                    $query->where('repair_number', 'LIKE', "%$searchQuery%")
+                        ->orWhere('repair_status', 'LIKE', "%$searchQuery%")
+                        ->whereHas("main_dealer", function ($queryMainDealer) use ($searchQuery) {
+                            return $queryMainDealer->where("main_dealer_name", 'LIKE', "%$searchQuery%");
+                        });
+                })
+                ->where("repair_status", "LIKE", "%$repair_status%")
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
                 })
                 ->when($endDate, function ($query) use ($endDate) {
                     return $query->whereDate('created_at', '<=', $endDate);
-                })
-                ->whereHas("repair", function ($query) use ($repair_status) {
-                    $query->where("repair_status", "LIKE", "%$repair_status%");
-                })
-                ->where(function ($query) use ($searchQuery) {
-                    $query->whereHas("repair", function ($query) use ($searchQuery) {
-                        $query->where("repair_number", "LIKE", "%$searchQuery%");
-                    });
                 })
                 ->paginate($limit);
 

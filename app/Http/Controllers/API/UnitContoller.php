@@ -41,6 +41,8 @@ class UnitContoller extends Controller
             $motor = $request->input("motor");
             $location = $request->input("location");
             $unit_status = $request->input("unit_status");
+            $unit_frame = $request->input("unit_frame");
+            $motor_id = $request->input("motor_id");
             $searchQuery = $request->input('q');
 
 
@@ -64,9 +66,9 @@ class UnitContoller extends Controller
                 ->whereHas("motor", function ($query) use ($motor) {
                     $query->where("motor_name", "LIKE", "%$motor%");
                 })
-
                 ->where("unit_status", "LIKE", "%$unit_status%")
-
+                ->where("motor_id", "LIKe", "%$motor_id%")
+                ->where("unit_frame", "LIKe", "%$unit_frame%")
                 ->when($date, function ($query) use ($date) {
                     return $query->whereDate('unit_received_date', 'LIKE', "%$date%");
                 })

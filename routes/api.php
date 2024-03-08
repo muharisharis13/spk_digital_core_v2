@@ -56,7 +56,7 @@ Route::prefix("v1")->group(function () {
         Route::prefix("repair")->group(function () {
             Route::post("/create", [RepairController::class, "createRepair"]);
             Route::get("/detail/{repair_id}", [RepairController::class, "getDetailRepair"]);
-            Route::get("/unit/list", [RepairController::class, "getPaginateRepairUnit"]);
+            Route::get("/list", [RepairController::class, "getPaginateRepairUnit"]);
         });
     });
 });
