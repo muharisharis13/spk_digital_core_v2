@@ -44,6 +44,8 @@ class UnitContoller extends Controller
             $unit_frame = $request->input("unit_frame");
             $motor_id = $request->input("motor_id");
             $searchQuery = $request->input('q');
+            $sortBy = $request->input('sort_by', 'unit_id');
+            $sortOrder = $request->input('sort_order', 'asc');
 
 
             $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer"])
@@ -72,6 +74,7 @@ class UnitContoller extends Controller
                 ->when($date, function ($query) use ($date) {
                     return $query->whereDate('unit_received_date', 'LIKE', "%$date%");
                 })
+                ->orderBy($sortBy, $sortOrder)
                 ->paginate($limit);
 
 
