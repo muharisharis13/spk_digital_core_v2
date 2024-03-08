@@ -25,6 +25,46 @@ class RepairController extends Controller
 {
     //
 
+    public function updateStatusRepair(Request $request, $repair_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "repair_status" => "required|in:request,approve,cancel"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            $user = Auth::user();
+
+            DB::beginTransaction();
+
+            $updateRepairStatus = Repair::where("repair_id", $repair_id)->first();
+
+
+            RepairLog::create([
+                "user_id" => $user->user_id,
+                "repair_log_action" => $request->repair_status,
+                "repair_log_note" => "Change Status",
+                "repair_id" => $updateRepairStatus->repair_id
+            ]);
+
+            $updateRepairStatus->update([
+                'repair_status' => $request->repair_status,
+                'repair_number' => str_replace('TEMP-', "", $updateRepairStatus->repair_number)
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::error($updateRepairStatus, "Successfully Updated !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function deleteRepairUnit(Request $request, $repair_unit_id)
     {
         try {
@@ -237,7 +277,7 @@ class RepairController extends Controller
                 "main_dealer_id" => $request->main_dealer_id,
                 "repair_reason" => $request->repair_reason,
                 "repair_status" => RepairStatusEnum::create,
-                "repair_number" => GenerateNumber::generate("REPAIR", $getDealer->dealer->dealer_name),
+                "repair_number" => GenerateNumber::generate("TEMP-REPAIR", $getDealer->dealer->dealer_name),
                 "dealer_id" => $getDealer->dealer_id
             ]);
 
