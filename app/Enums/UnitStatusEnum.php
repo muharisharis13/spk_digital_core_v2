@@ -12,5 +12,4 @@ class UnitStatusEnum extends Enum
   const spk = 'spk';
   const retour = 'retour';
   const repair = 'repair';
-  const event = 'event';
 }

@@ -3,35 +3,59 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class GenerateNumber
 {
-    public static function generate($repairType, $companyName)
+    public static function generate($repairType, $companyName, $table, $column)
     {
-        // Mendapatkan nomor urut dari cache, defaultnya 0
-        $sequence = Cache::get('sequence', 0);
+        // Format bulan dan tahun saat ini
+        $monthYear = date('m/Y');
 
-        // Increment nomor urut
-        $sequence++;
+        // Ambil nomor urut terakhir dari tabel
+        $lastSequence = DB::table($table)->latest()->first();
 
-        // Jika bulan berbeda dengan bulan sebelumnya, reset nomor urut menjadi 1
-        $currentMonth = date('m');
-        $lastMonth = Cache::get('last_month');
-        if ($currentMonth != $lastMonth) {
+        // Jika tidak ada nomor urut terakhir atau bulan berbeda, mulai dari 1
+        if (!$lastSequence || strpos($lastSequence->$column, $monthYear) === false) {
             $sequence = 1;
-            Cache::put('last_month', $currentMonth);
+        } else {
+            // Jika bulan masih sama, ambil nomor urut terakhir dan tambahkan 1
+            $parts = explode('/', $lastSequence->$column);
+            $sequence = intval($parts[0]) + 1;
         }
 
         // Format nomor urut
         $sequenceString = str_pad($sequence, 4, '0', STR_PAD_LEFT);
 
-        // Format bulan dan tahun
-        $monthYear = date('m/Y');
-
-        // Menyimpan nomor urut ke dalam cache
-        Cache::put('sequence', $sequence);
-
         // Mengembalikan string dengan format yang diinginkan
-        return $sequenceString . '/' . $repairType . '/' . $companyName . '/' . $monthYear;
+        $generatedNumber = $sequenceString . '/' . $repairType . '/' . $companyName . '/' . $monthYear;
+
+        // Check nomor urut di database
+        $isUnique = self::check($generatedNumber, $table, $column);
+
+        // Jika nomor urut sudah ada di database, coba generate nomor baru
+        if (!$isUnique) {
+            return self::generate($repairType, $companyName, $table, $column);
+        }
+
+        return $generatedNumber;
+    }
+
+    public static function check($repairNumber, $table, $column)
+    {
+        // Pisahkan nomor urut dari string yang diberikan
+        $parts = explode('/', $repairNumber);
+        $sequenceString = $parts[0];
+
+        // Ambil nomor urut dari database
+        $repairNumberRecord = DB::table($table)->where("$column", $sequenceString)->first();
+
+        if ($repairNumberRecord) {
+            // Jika nomor urut ditemukan di database, kembalikan false
+            return false;
+        } else {
+            // Jika nomor urut tidak ditemukan di database, kembalikan true
+            return true;
+        }
     }
 }

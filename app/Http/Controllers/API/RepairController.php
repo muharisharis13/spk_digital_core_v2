@@ -282,7 +282,7 @@ class RepairController extends Controller
                 "main_dealer_id" => $request->main_dealer_id,
                 "repair_reason" => $request->repair_reason,
                 "repair_status" => RepairStatusEnum::create,
-                "repair_number" => GenerateNumber::generate("TEMP-REPAIR", GenerateAlias::generate($getDealer->dealer->dealer_name)),
+                "repair_number" => GenerateNumber::generate("TEMP-REPAIR", GenerateAlias::generate($getDealer->dealer->dealer_name), "repairs", "repair_number"),
                 "dealer_id" => $getDealer->dealer_id
             ]);
 

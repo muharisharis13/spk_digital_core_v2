@@ -2,6 +2,7 @@
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AuthenticationController;
+use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\ShippingOrderController;
@@ -61,6 +62,12 @@ Route::prefix("v1")->group(function () {
             Route::delete("/unit/delete/{repair_unit_id}", [RepairController::class, "deleteRepairUnit"]);
             Route::get("/detail/{repair_id}", [RepairController::class, "getDetailRepair"]);
             Route::get("/list", [RepairController::class, "getPaginateRepairUnit"]);
+        });
+
+        Route::prefix("delivery")->group(function () {
+            Route::post("/create", [DeliveryController::class, "CreateDelivery"]);
+            Route::get("/list", [DeliveryController::class, "GetListPagianteDelivery"]);
+            Route::get("/detail/{delivery_id}", [DeliveryController::class, "DetailDelivery"]);
         });
     });
 });

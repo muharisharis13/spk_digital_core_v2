@@ -23,17 +23,19 @@ class Master extends Controller
             $limit = $request->input('limit');
             ($limit) ? $limit : $limit = 5;
             $paginate = $request->input("paginate");
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
                 $getListMainDealer = MainDealer::where(function ($query) use ($searchQuery) {
                     $query->where("main_dealer_name", "LIKE", "%$searchQuery%")
                         ->orWhere("main_dealer_identifier", "LIKE", "%$searchQuery%");
-                })->paginate($limit);
+                })->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
                 $getListMainDealer = MainDealer::where(function ($query) use ($searchQuery) {
                     $query->where("main_dealer_name", "LIKE", "%$searchQuery%")
                         ->orWhere("main_dealer_identifier", "LIKE", "%$searchQuery%");
-                })->get();
+                })->orderBy($sortBy, $sortOrder)->get();
             }
 
             return ResponseFormatter::success($getListMainDealer);
@@ -48,17 +50,19 @@ class Master extends Controller
             $limit = $request->input('limit');
             ($limit) ? $limit : $limit = 5;
             $paginate = $request->input("paginate");
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
                 $getListMotor = Motor::where(function ($query) use ($searchQuery) {
                     $query->where("motor_name", "LIKE", "%$searchQuery%")
                         ->orWhere("motor_code", "LIKE", "%$searchQuery%");
-                })->paginate($limit);
+                })->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
                 $getListMotor = Motor::where(function ($query) use ($searchQuery) {
                     $query->where("motor_name", "LIKE", "%$searchQuery%")
                         ->orWhere("motor_code", "LIKE", "%$searchQuery%");
-                })->get();
+                })->orderBy($sortBy, $sortOrder)->get();
             }
 
             return ResponseFormatter::success($getListMotor);
@@ -71,10 +75,13 @@ class Master extends Controller
     {
         try {
             $user = Auth::user();
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
 
             $getDealerByUser = DealerByUser::where("user_id", $user->user_id)
                 ->with(["dealer"])
                 ->where("isSelected", 1)
+                ->orderBy($sortBy, $sortOrder)
                 ->first();
 
             $dealerNeqList = DealerNeq::where("dealer_id", $getDealerByUser->dealer_id)->get();
@@ -93,9 +100,11 @@ class Master extends Controller
     public function getListDealerMDS(Request $request)
     {
         try {
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
 
             $getListAllDealer = DealerByUser::with(["dealer"])
-                ->get();
+                ->orderBy($sortBy, $sortOrder)->get();
 
             return ResponseFormatter::success($getListAllDealer);
         } catch (\Throwable $e) {
@@ -110,17 +119,21 @@ class Master extends Controller
             $limit = $request->input('limit');
             ($limit) ? $limit : $limit = 5;
             $paginate = $request->input("paginate");
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
                 $getListAllMDSMD = DealerNeq::where(function ($query) use ($searchQuery) {
                     $query->where("dealer_neq_name", "LIKE", "%$searchQuery%")
                         ->orWhere("dealer_neq_code", "LIKE", "%$searchQuery%");
-                })->paginate($limit);
+                })
+                    ->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
                 $getListAllMDSMD = DealerNeq::where(function ($query) use ($searchQuery) {
                     $query->where("dealer_neq_name", "LIKE", "%$searchQuery%")
                         ->orWhere("dealer_neq_code", "LIKE", "%$searchQuery%");
-                })->get();
+                })
+                    ->orderBy($sortBy, $sortOrder)->get();
             }
 
             return ResponseFormatter::success($getListAllMDSMD);
