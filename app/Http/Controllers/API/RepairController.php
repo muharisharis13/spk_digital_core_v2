@@ -7,6 +7,7 @@ use App\Enums\RepairStatusEnum;
 use App\Enums\UnitLogActionEnum;
 use App\Enums\UnitLogStatusEnum;
 use App\Enums\UnitStatusEnum;
+use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
@@ -277,7 +278,7 @@ class RepairController extends Controller
                 "main_dealer_id" => $request->main_dealer_id,
                 "repair_reason" => $request->repair_reason,
                 "repair_status" => RepairStatusEnum::create,
-                "repair_number" => GenerateNumber::generate("TEMP-REPAIR", $getDealer->dealer->dealer_name),
+                "repair_number" => GenerateNumber::generate("TEMP-REPAIR", GenerateAlias::generate($getDealer->dealer->dealer_name)),
                 "dealer_id" => $getDealer->dealer_id
             ]);
 
