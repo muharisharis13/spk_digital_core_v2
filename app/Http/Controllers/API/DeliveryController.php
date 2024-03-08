@@ -45,6 +45,7 @@ class DeliveryController extends Controller
             $searchQuery = $request->input('q');
             $sortBy = $request->input('sort_by', 'repair_id');
             $sortOrder = $request->input('sort_order', 'asc');
+            $delivery_type = $request->input("delivery_type");
 
             $getPaginateDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit", "dealer"])
                 ->where(function ($query) use ($searchQuery) {
@@ -59,6 +60,7 @@ class DeliveryController extends Controller
                             });
                         });
                 })
+                ->where("delivery_type", $delivery_type)
                 ->where("delivery_status", "LIKE", "%$delivery_status%")
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
