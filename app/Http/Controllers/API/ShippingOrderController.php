@@ -172,6 +172,7 @@ class ShippingOrderController extends Controller
 
     public function sycnShippingOrder(Request $request, $city)
     {
+        ini_set('max_execution_time', 0);
         try {
 
             $validator  = Validator::make($request->all(), [
@@ -207,7 +208,7 @@ class ShippingOrderController extends Controller
                             // check dealer
                             $checkDealer = $this->checkDealer($itemHeader["h.customer_code_"]);
                             // check motor
-                            $checkMotorByMotorName = $this->checkMotorByMotorName($itemDetail["d.model_code_"]);
+                            $checkMotorByMotorName = $this->checkMotorByMotorName($itemDetail["d.model_name_"]);
 
                             // jika dealer ada di database maka update datanya
                             if (isset($checkDealer->dealer_id)) {
@@ -242,7 +243,7 @@ class ShippingOrderController extends Controller
 
                                     $createMotor = Motor::create([
                                         "motor_id" => Str::uuid(),
-                                        "motor_code" => $itemDetail["d.model_code_"],
+                                        // "motor_code" => $itemDetail["d.model_code_"],
                                         "motor_name" => $itemDetail["d.model_name_"],
                                         "motor_status" => MotorStatusEnum::ACTIVE
                                     ]);
@@ -305,7 +306,7 @@ class ShippingOrderController extends Controller
 
                                     $createMotor = Motor::create([
                                         "motor_id" => Str::uuid(),
-                                        "motor_code" => $itemDetail["d.model_code_"],
+                                        // "motor_code" => $itemDetail["d.model_code_"],
                                         "motor_name" => $itemDetail["d.model_name_"],
                                         "motor_status" => MotorStatusEnum::ACTIVE
                                     ]);
