@@ -246,7 +246,7 @@ class RepairController extends Controller
             $endDate = $request->input('end_date');
             $repair_status = $request->input("repair_status");
             $searchQuery = $request->input('q');
-            $sortBy = $request->input('sort_by', 'repair_id');
+            $sortBy = $request->input('sort_by', 'repair_number');
             $sortOrder = $request->input('sort_order', 'asc');
             $getPaginateRepair = Repair::with(["repair_unit", "repair_log.user", "dealer", "main_dealer"])
                 ->where(function ($query) use ($searchQuery) {
