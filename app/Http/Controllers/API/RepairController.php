@@ -137,6 +137,7 @@ class RepairController extends Controller
                 ]);
                 RepairUnitList::where("repair_id", $repair_id)->delete();
             }
+            RepairLog::where("repair_id", $repair_id)->delete();
 
             $deleteRepair->delete();
 
