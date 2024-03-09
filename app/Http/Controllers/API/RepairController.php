@@ -248,7 +248,7 @@ class RepairController extends Controller
             $searchQuery = $request->input('q');
             $sortBy = $request->input('sort_by', 'repair_number');
             $sortOrder = $request->input('sort_order', 'asc');
-            $getPaginateRepair = Repair::with(["repair_unit", "repair_log.user", "dealer", "main_dealer"])
+            $getPaginateRepair = Repair::latest()->with(["repair_unit", "repair_log.user", "dealer", "main_dealer"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('repair_number', 'LIKE', "%$searchQuery%")
                         ->orWhere('repair_status', 'LIKE', "%$searchQuery%")
