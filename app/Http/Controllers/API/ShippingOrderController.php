@@ -207,7 +207,7 @@ class ShippingOrderController extends Controller
                             // check dealer
                             $checkDealer = $this->checkDealer($itemHeader["h.customer_code_"]);
                             // check motor
-                            $checkMotor = $this->checkMotor($itemDetail["d.model_code_"]);
+                            $checkMotorByMotorName = $this->checkMotorByMotorName($itemDetail["d.model_code_"]);
 
                             // jika dealer ada di database maka update datanya
                             if (isset($checkDealer->dealer_id)) {
@@ -221,7 +221,7 @@ class ShippingOrderController extends Controller
                                     "shipping_order_status" => ShippingOrderStatusEnum::transit
                                 ]);
 
-                                if (isset($checkMotor->motor_id)) {
+                                if (isset($checkMotorByMotorName->motor_id)) {
 
                                     foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
                                         Unit::firstOrCreate(
@@ -233,7 +233,7 @@ class ShippingOrderController extends Controller
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"],
                                                 "unit_engine" => $itemSubDetail["s.engine_no_"],
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
-                                                "motor_id" => $checkMotor->motor_id,
+                                                "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
                                             ]
                                         );
@@ -284,7 +284,7 @@ class ShippingOrderController extends Controller
                                     "shipping_order_status" => ShippingOrderStatusEnum::transit
                                 ]);
 
-                                if (isset($checkMotor->motor_id)) {
+                                if (isset($checkMotorByMotorName->motor_id)) {
 
                                     foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
                                         Unit::firstOrCreate(
@@ -296,7 +296,7 @@ class ShippingOrderController extends Controller
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"],
                                                 "unit_engine" => $itemSubDetail["s.engine_no_"],
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
-                                                "motor_id" => $checkMotor->motor_id,
+                                                "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
                                             ]
                                         );
@@ -343,6 +343,14 @@ class ShippingOrderController extends Controller
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
+    }
+
+    protected function checkMotorByMotorName($motor_name)
+    {
+        $response = Motor::where("motor_name", $motor_name)->get()->first();
+
+
+        return $response;
     }
 
     protected function checkMotor($model_code)

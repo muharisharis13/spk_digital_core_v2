@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid("motor_id")->primary();
             $table->string("motor_name");
             $table->string("motor_status");
-            $table->string("motor_code")->unique();
+            $table->string("motor_code")->unique()->nullable();
             $table->timestamps();
         });
     }
