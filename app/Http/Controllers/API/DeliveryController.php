@@ -43,11 +43,11 @@ class DeliveryController extends Controller
             $endDate = $request->input('end_date');
             $delivery_status = $request->input("delivery_status");
             $searchQuery = $request->input('q');
-            $sortBy = $request->input('sort_by', 'repair_id');
+            $sortBy = $request->input('sort_by', 'delivery_id');
             $sortOrder = $request->input('sort_order', 'asc');
             $delivery_type = $request->input("delivery_type");
 
-            $getPaginateDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit", "dealer"])
+            $getPaginateDelivery = Delivery::latest()->with(["repair.main_dealer", "repair.repair_unit", "dealer"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('delivery_driver_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('delivery_number', 'LIKE', "%$searchQuery%")
