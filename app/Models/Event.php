@@ -12,12 +12,17 @@ class Event extends Model
 
     protected $table = 'event';
 
-    protected $fillable = [
-        "event_id",
-        "event_name",
-        "event_address",
-        "dealer_id"
-    ];
+    protected $guarded = [];
 
-    protected $primaryKey="event_id";
+    protected $primaryKey = "event_id";
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
+
+    public function event_unit()
+    {
+        return $this->hasMany(EventListUnit::class, "event_id", "event_id");
+    }
 }

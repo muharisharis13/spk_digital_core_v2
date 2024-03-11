@@ -248,6 +248,13 @@ class RepairController extends Controller
             $searchQuery = $request->input('q');
             $sortBy = $request->input('sort_by', 'repair_number');
             $sortOrder = $request->input('sort_order', 'asc');
+
+
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
             $getPaginateRepair = Repair::latest()->with(["repair_unit", "repair_log.user", "dealer", "main_dealer"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('repair_number', 'LIKE', "%$searchQuery%")
@@ -263,7 +270,7 @@ class RepairController extends Controller
                 ->when($endDate, function ($query) use ($endDate) {
                     return $query->whereDate('created_at', '<=', $endDate);
                 })
-
+                ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->orderBy($sortBy, $sortOrder)
                 ->paginate($limit);
 

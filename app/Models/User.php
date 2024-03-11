@@ -17,7 +17,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use  HasFactory, HasRoles,HasApiTokens,Notifiable, HasUuids;
+    use  HasFactory, HasRoles, HasApiTokens, Notifiable, HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -34,8 +34,9 @@ class User extends Authenticatable implements JWTSubject
 
     protected $primaryKey = "user_id";
 
-    public function dealer_by_user(){
-        return $this->hasMany(DealerByUser::class,"user_id","user_id");
+    public function dealer_by_user()
+    {
+        return $this->hasOne(DealerByUser::class, "user_id", "user_id");
     }
 
     /**

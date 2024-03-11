@@ -21,10 +21,56 @@ class DeliveryController extends Controller
 {
     //
 
+    public function changeStatusDelivery(Request $request, $delivery_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "delivery_status" => "required|in:request,cancel"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+
+            $updateStatusDelivery = Delivery::where("delivery_id", $delivery_id)->first();
+
+            // update log
+            $createDeliveryLog = deliveryLog::create([
+                "delivery_id" => $updateStatusDelivery->delivery_id,
+                "user_id" => $user->user_id,
+                "delivery_log_action" =>  $request->delivery_status,
+                "delivery_note" => "Change status to " . $request->delivery_status
+            ]);
+
+            $updateStatusDelivery->update([
+                "delivery_status" => $request->delivery_status
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "delivery" => $updateStatusDelivery,
+                "delivery_log" => $createDeliveryLog
+            ];
+
+            return ResponseFormatter::success($data, "Success Change Status !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function DetailDelivery(Request $request, $delivery_id)
     {
         try {
-            $getDetailDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit", "dealer"])
+            $getDetailDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit", "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
+
+                $query->latest();
+            }])
                 ->where("delivery_id", $delivery_id)
                 ->first();
 
@@ -46,8 +92,11 @@ class DeliveryController extends Controller
             $sortBy = $request->input('sort_by', 'delivery_id');
             $sortOrder = $request->input('sort_order', 'asc');
             $delivery_type = $request->input("delivery_type");
+            $user = Auth::user();
 
-            $getPaginateDelivery = Delivery::latest()->with(["repair.main_dealer", "repair.repair_unit", "dealer"])
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $getPaginateDelivery = Delivery::latest()->with(["repair.main_dealer", "repair.repair_unit", "dealer", "event"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('delivery_driver_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('delivery_number', 'LIKE', "%$searchQuery%")
@@ -68,6 +117,7 @@ class DeliveryController extends Controller
                 ->when($endDate, function ($query) use ($endDate) {
                     return $query->whereDate('created_at', '<=', $endDate);
                 })
+                ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->orderBy($sortBy, $sortOrder)
                 ->paginate($limit);
 
@@ -83,7 +133,7 @@ class DeliveryController extends Controller
             $validator = Validator::make($request->all(), [
                 "delivery_driver_name" => "required",
                 "delivery_vehicle" => "required",
-                "repair_id" => "required",
+                // "repair_id" => "required",
                 "delivery_type" => "required|in:repair,retur,event,spk"
             ]);
 
@@ -105,6 +155,7 @@ class DeliveryController extends Controller
                 "delivery_number" => GenerateNumber::generate("TEMP-DELIVERY", GenerateAlias::generate($getDealer->dealer->dealer_name), "deliveries", "delivery_number"),
                 "dealer_id" => $getDealer->dealer_id,
                 "repair_id" => $request->repair_id,
+                "event_id" => $request->event_id,
                 "delivery_status" => DeliveryStatusEnum::create,
                 "delivery_type" => $request->delivery_type
             ]);

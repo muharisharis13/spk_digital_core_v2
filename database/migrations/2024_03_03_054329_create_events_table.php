@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string("event_address");
             $table->uuid("dealer_id")->nullable();
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
+
             $table->timestamps();
         });
     }

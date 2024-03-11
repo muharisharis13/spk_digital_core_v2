@@ -3,6 +3,7 @@
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\DeliveryController;
+use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\ShippingOrderController;
@@ -68,6 +69,15 @@ Route::prefix("v1")->group(function () {
             Route::post("/create", [DeliveryController::class, "CreateDelivery"]);
             Route::get("/list", [DeliveryController::class, "GetListPagianteDelivery"]);
             Route::get("/detail/{delivery_id}", [DeliveryController::class, "DetailDelivery"]);
+            Route::put("/status/{delivery_id}", [DeliveryController::class, "changeStatusDelivery"]);
+        });
+
+        Route::prefix("event")->group(function () {
+            Route::post("/create", [EventController::class, "createEvent"]);
+            Route::get("/list", [EventController::class, "getPaginateEvent"]);
+            Route::get("/detail/{event_id}", [EventController::class, "getDetailEvent"]);
+            Route::put("/status/{event_id}", [EventController::class, "updateStatusEvent"]);
+            Route::delete("/unit/delete/{event_list_unit_id}", [EventController::class, "deleteUnitEvent"]);
         });
     });
 });

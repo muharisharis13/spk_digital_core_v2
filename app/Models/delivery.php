@@ -28,4 +28,9 @@ class delivery extends Model
     {
         return $this->belongsTo(Repair::class, "repair_id");
     }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, "event_id");
+    }
 }
