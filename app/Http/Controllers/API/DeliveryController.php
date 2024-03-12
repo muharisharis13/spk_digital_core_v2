@@ -21,6 +21,27 @@ class DeliveryController extends Controller
 {
     //
 
+    public function deleteDelivery(Request $request, $delivery_id)
+    {
+        try {
+            $getDetailDelivery = delivery::where("delivery_id", $delivery_id)->first();
+
+            if ($getDetailDelivery->delivery_status === DeliveryStatusEnum::request) {
+                return ResponseFormatter::error("Cannot delete delivery because delivery status request");
+            }
+
+            DB::beginTransaction();
+
+            $getDetailDelivery->delete();
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailDelivery, "Successfully Deleted Delivery");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function changeStatusDelivery(Request $request, $delivery_id)
     {
         try {
@@ -123,6 +144,59 @@ class DeliveryController extends Controller
 
             return ResponseFormatter::success($getPaginateDelivery);
         } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function updateDelivery(Request $request, $delivery_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "delivery_driver_name" => "required",
+                "delivery_vehicle" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+            DB::beginTransaction();
+
+            $getDetailDelivery = delivery::where("delivery_id", $delivery_id)->first();
+
+            $user = Auth::user();
+
+            if ($getDetailDelivery->delivery_status === DeliveryStatusEnum::request) {
+                return ResponseFormatter::error("Cannot update delivery because delivery status request");
+            }
+
+            $getDetailDelivery->update([
+                "delivery_driver_name" => $request->delivery_driver_name,
+                "delivery_vehicle" => $request->delivery_vehicle,
+                "delivery_note" => $request->delivery_note,
+                "delivery_completeness" => $request->delivery_completeness,
+                "delivery_status" => DeliveryStatusEnum::create,
+            ]);
+
+            $createLogDelivery = deliveryLog::create([
+                "user_id" => $user->user_id,
+                "delivery_log_action" => DeliveryLogActionEnum::create,
+                "delivery_note" => "update Delivery",
+                "delivery_id" => $getDetailDelivery->delivery_id
+            ]);
+
+            DB::commit();
+
+
+            $data = [
+                "delivery" => $getDetailDelivery,
+                "delivery_log" => $createLogDelivery
+            ];
+
+            return ResponseFormatter::success($data, "Successfully updated !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }

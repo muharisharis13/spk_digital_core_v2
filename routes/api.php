@@ -70,6 +70,8 @@ Route::prefix("v1")->group(function () {
             Route::get("/list", [DeliveryController::class, "GetListPagianteDelivery"]);
             Route::get("/detail/{delivery_id}", [DeliveryController::class, "DetailDelivery"]);
             Route::put("/status/{delivery_id}", [DeliveryController::class, "changeStatusDelivery"]);
+            Route::put("/update/{delivery_id}", [DeliveryController::class, "updateDelivery"]);
+            Route::delete("/delete/{delivery_id}", [DeliveryController::class, "deleteDelivery"]);
         });
 
         Route::prefix("event")->group(function () {
