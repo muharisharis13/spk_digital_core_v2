@@ -176,7 +176,6 @@ class DeliveryController extends Controller
                 "delivery_vehicle" => $request->delivery_vehicle,
                 "delivery_note" => $request->delivery_note,
                 "delivery_completeness" => $request->delivery_completeness,
-                "delivery_status" => DeliveryStatusEnum::create,
             ]);
 
             $createLogDelivery = deliveryLog::create([
