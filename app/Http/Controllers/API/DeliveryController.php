@@ -67,7 +67,7 @@ class DeliveryController extends Controller
     public function DetailDelivery(Request $request, $delivery_id)
     {
         try {
-            $getDetailDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit", "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
+            $getDetailDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit.unit.motor", "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
 
                 $query->latest();
             }])
