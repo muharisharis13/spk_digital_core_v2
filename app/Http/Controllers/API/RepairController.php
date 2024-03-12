@@ -48,7 +48,7 @@ class RepairController extends Controller
             RepairLog::create([
                 "user_id" => $user->user_id,
                 "repair_log_action" => $request->repair_status,
-                "repair_log_note" => "Change Status",
+                "repair_log_note" => $request->reason,
                 "repair_id" => $updateRepairStatus->repair_id
             ]);
 
