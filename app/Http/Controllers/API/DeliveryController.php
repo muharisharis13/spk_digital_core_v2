@@ -134,7 +134,7 @@ class DeliveryController extends Controller
                 "delivery_driver_name" => "required",
                 "delivery_vehicle" => "required",
                 // "repair_id" => "required",
-                "delivery_type" => "required|in:repair,retur,event,spk"
+                // "delivery_type" => "required|in:repair,retur,event,spk"
             ]);
 
 
@@ -145,6 +145,13 @@ class DeliveryController extends Controller
             $user = Auth::user();
             $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
 
+
+            $deliveryType = "";
+            if ($request->event_id) {
+                $deliveryType = "event";
+            } elseif ($request->repair_id) {
+                $deliveryType = "repair";
+            }
 
             DB::beginTransaction();
             $createDelivery = delivery::create([
@@ -157,7 +164,7 @@ class DeliveryController extends Controller
                 "repair_id" => $request->repair_id,
                 "event_id" => $request->event_id,
                 "delivery_status" => DeliveryStatusEnum::create,
-                "delivery_type" => $request->delivery_type
+                "delivery_type" => $deliveryType
             ]);
 
             $createDeliveryLog = deliveryLog::create([
