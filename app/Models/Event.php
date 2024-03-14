@@ -15,7 +15,7 @@ class Event extends Model
     protected $guarded = [];
 
     protected $primaryKey = "event_id";
-    protected $with = ["event_log"];
+    protected $with = ["event_log.user"];
 
     public function dealer()
     {
