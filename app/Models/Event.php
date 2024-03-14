@@ -15,6 +15,7 @@ class Event extends Model
     protected $guarded = [];
 
     protected $primaryKey = "event_id";
+    protected $with = ["event_log"];
 
     public function dealer()
     {
@@ -24,5 +25,10 @@ class Event extends Model
     public function event_unit()
     {
         return $this->hasMany(EventListUnit::class, "event_id", "event_id");
+    }
+
+    public function event_log()
+    {
+        return $this->hasMany(EventLog::class, "event_id", "event_id");
     }
 }

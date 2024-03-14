@@ -76,10 +76,12 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("event")->group(function () {
             Route::post("/create", [EventController::class, "createEvent"]);
+            Route::put("/update/{event_id}", [EventController::class, "updateEvent"]);
             Route::get("/list", [EventController::class, "getPaginateEvent"]);
             Route::get("/detail/{event_id}", [EventController::class, "getDetailEvent"]);
             Route::put("/status/{event_id}", [EventController::class, "updateStatusEvent"]);
             Route::delete("/unit/delete/{event_list_unit_id}", [EventController::class, "deleteUnitEvent"]);
+            Route::delete("/delete/{event_id}", [EventController::class, "deleteEvent"]);
         });
     });
 });

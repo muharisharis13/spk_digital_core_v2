@@ -70,8 +70,11 @@ class AuthenticationController extends Controller
                 ->first();
 
             if (!Hash::check($request->get("password"), $user->password, [])) {
-                throw new \Exception("Invalid Password");
+                return ResponseFormatter::error("Invalid Password", "Authentication Failed", 401);
             }
+            // if (!Hash::check($request->get("password"), $user->password, [])) {
+            //     throw new \Exception("Invalid Password");
+            // }
 
 
             $tokenResult = $user->createToken("authToken")->plainTextToken;

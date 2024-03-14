@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventListUnit;
 use App\Models\EventLog;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -109,12 +110,97 @@ class EventController extends Controller
         }
     }
 
+    public function deleteEvent(Request $request, $event_id)
+    {
+        try {
+            DB::beginTransaction();
+            $getDetailEvent = Event::where("event_id", $event_id)->first();
+
+            $getDetailEvent->delete();
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailEvent, "Delete Successfully");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function updateEvent(Request $request, $event_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "event_start" => "required|date",
+                // "event_end" => "required|date",
+                "event_name" => "required",
+                "event_address" => "required",
+                "event_unit.*.unit_id" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailEvent = Event::where("event_id", $event_id)
+                ->with(["dealer", "event_unit.unit.motor"])
+                ->first();
+
+            if (!isset($getDetailEvent->event_id)) {
+                return ResponseFormatter::error("Event Not Found !", "Bad Request", 400);
+            }
+
+
+            foreach ($request->event_unit as $item) {
+                if (!isset($item["event_unit_list_id"])) {
+                    $createEventUnit[] = EventListUnit::create([
+                        "event_id" => $getDetailEvent->event_id,
+                        "unit_id" => $item["unit_id"]
+                    ]);
+                }
+            }
+
+            // update form event
+            $getDetailEvent->update([
+                "event_name" => $request->event_name,
+                "event_address" => $request->event_address,
+                "event_start" => $request->event_start,
+                "event_description" => $request->event_description,
+            ]);
+            $user = Auth::user();
+
+            // add event log
+            EventLog::create([
+                "event_id" => $getDetailEvent->event_id,
+                "user_id" => $user->user_id,
+                "event_log_action" => EventStatusEnum::create,
+                "event_log_note" => "Update Event"
+            ]);
+
+            DB::commit();
+
+
+            $data = [
+                "event" => $getDetailEvent,
+                "event_unit" => $createEventUnit
+            ];
+
+
+            return ResponseFormatter::success($data, "Successfully updated !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function createEvent(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 "event_start" => "required|date",
-                "event_end" => "required|date",
+                // "event_end" => "required|date",
                 "event_name" => "required",
                 "event_address" => "required",
                 "event_unit.*.unit_id" => "required"
@@ -136,7 +222,7 @@ class EventController extends Controller
                 "event_name" => $request->event_name,
                 "event_address" => $request->event_address,
                 "event_start" => $request->event_start,
-                "event_end" => $request->event_end,
+                "event_end" => Carbon::now(),
                 "dealer_id" => $getDealerSelected->dealer_id,
                 "event_status" => EventStatusEnum::create,
                 "event_description" => $request->event_description,
