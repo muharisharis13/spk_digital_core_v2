@@ -48,7 +48,8 @@ class EventReturnController extends Controller
 
             foreach ($request->event_return_unit as $item) {
                 $createEventReturnUnit[] = EventReturnListUnit::create([
-                    'event_return_id' => ""
+                    'event_return_id' => $createEventReturn->event_return_id,
+                    "unit_id" => $item["unit_id"]
                 ]);
             }
         } catch (\Throwable $e) {
