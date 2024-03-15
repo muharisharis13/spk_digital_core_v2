@@ -10,6 +10,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\EventReturn;
 use App\Models\EventReturnListUnit;
+use App\Models\EventReturnLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,7 @@ class EventReturnController extends Controller
                 "event_id" => $request->event_id,
                 "event_return_number" => GenerateNumber::generate("EVENT-RETURN", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "event_returns", "event_return_number"),
                 "event_return_status" => EventReturnStatusEnum::create,
+                "dealer_id" => $getDealerSelected->dealer_id
             ]);
 
             foreach ($request->event_return_unit as $item) {
@@ -52,6 +54,23 @@ class EventReturnController extends Controller
                     "unit_id" => $item["unit_id"]
                 ]);
             }
+
+            // create log event return
+            $eventReturnLog = EventReturnLog::create([
+                "event_return_id" => $createEventReturn->event_return_id,
+                "user_id" => $user->user_id,
+                "event_return_log_action" => EventReturnStatusEnum::create,
+                "event_return_log_note" => "Create Event Return"
+            ]);
+
+
+            $data = [
+                "event_return" => $createEventReturn,
+                "event_return_unit" => $createEventReturnUnit,
+                "event_return_log" => $eventReturnLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully created");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
