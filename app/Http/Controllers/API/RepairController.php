@@ -255,7 +255,9 @@ class RepairController extends Controller
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
-            $getPaginateRepair = Repair::latest()->with(["repair_unit", "repair_log.user", "dealer", "main_dealer"])
+            $getPaginateRepair = Repair::latest()->with(["repair_unit" => function ($query) {
+                $query->where("is_return", false);
+            }, "repair_log.user", "dealer", "main_dealer"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('repair_number', 'LIKE', "%$searchQuery%")
                         ->orWhere('repair_status', 'LIKE', "%$searchQuery%")

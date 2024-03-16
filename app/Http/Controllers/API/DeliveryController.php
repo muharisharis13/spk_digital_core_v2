@@ -12,6 +12,8 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\delivery;
 use App\Models\deliveryLog;
+use App\Models\DeliveryRepair;
+use App\Models\DeliveryRepairReturn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -88,7 +90,9 @@ class DeliveryController extends Controller
     public function DetailDelivery(Request $request, $delivery_id)
     {
         try {
-            $getDetailDelivery = Delivery::with(["repair.main_dealer", "repair.repair_unit.unit.motor", "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
+            $getDetailDelivery = Delivery::with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit" => function ($query) {
+                $query->where("is_return", false);
+            }, "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
 
                 $query->latest();
             }])
@@ -117,16 +121,16 @@ class DeliveryController extends Controller
 
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-            $getPaginateDelivery = Delivery::latest()->with(["repair.main_dealer", "repair.repair_unit", "dealer", "event"])
+            $getPaginateDelivery = Delivery::latest()->with(["delivery_repair.repair.main_dealer", "dealer", "event"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('delivery_driver_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('delivery_number', 'LIKE', "%$searchQuery%")
-                        ->orWhereHas("repair", function ($queryRepair) use ($searchQuery) {
-                            return $queryRepair->where("repair_number", 'LIKE', "%$searchQuery%");
-                        })
-                        ->orWhereHas("repair", function ($queryRepair) use ($searchQuery) {
-                            return $queryRepair->whereHas("main_dealer", function ($queryMainDealer) use ($searchQuery) {
-                                return $queryMainDealer->where("main_dealer_name", "LIKE", "%$searchQuery%");
+                        ->orWhereHas("delivery_repair", function ($delivery_repair) use ($searchQuery) {
+                            return $delivery_repair->whereHas("repair", function ($queryRepair) use ($searchQuery) {
+                                $queryRepair->where("repair_number", 'LIKE', "%$searchQuery%")
+                                    ->orWhereHas("main_dealer", function ($queryMainDealer) use ($searchQuery) {
+                                        $queryMainDealer->where("main_dealer_name", 'LIKE', "%$searchQuery%");
+                                    });
                             });
                         });
                 })
@@ -234,11 +238,23 @@ class DeliveryController extends Controller
                 "delivery_completeness" => $request->delivery_completeness,
                 "delivery_number" => GenerateNumber::generate("TEMP-DELIVERY", GenerateAlias::generate($getDealer->dealer->dealer_name), "deliveries", "delivery_number"),
                 "dealer_id" => $getDealer->dealer_id,
-                "repair_id" => $request->repair_id,
-                "event_id" => $request->event_id,
+                // "repair_id" => $request->repair_id,
+                // "event_id" => $request->event_id,
                 "delivery_status" => DeliveryStatusEnum::create,
                 "delivery_type" => $deliveryType
             ]);
+
+            if (isset($request->repair_id)) {
+                $createDeliveryRepair = DeliveryRepair::create([
+                    "delivery_id" => $createDelivery->delivery_id,
+                    "repair_id" => $request->repair_id
+                ]);
+            } else if (isset($request->repair_return_id)) {
+                $createDeliveryRepair = DeliveryRepairReturn::create([
+                    "delivery_id" => $createDelivery->delivery_id,
+                    "repair_return_id" => $request->repair_return_id
+                ]);
+            }
 
             $createDeliveryLog = deliveryLog::create([
                 "user_id" => $user->user_id,
@@ -251,6 +267,7 @@ class DeliveryController extends Controller
 
             $data = [
                 "delivery" => $createDelivery,
+                "delivery_repair" => $createDeliveryRepair,
                 "delivery_log" => $createDeliveryLog
             ];
 

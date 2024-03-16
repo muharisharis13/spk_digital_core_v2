@@ -6,6 +6,7 @@ use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\RepairController;
+use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\UnitContoller;
 use Illuminate\Http\Request;
@@ -63,6 +64,19 @@ Route::prefix("v1")->group(function () {
             Route::delete("/unit/delete/{repair_unit_id}", [RepairController::class, "deleteRepairUnit"]);
             Route::get("/detail/{repair_id}", [RepairController::class, "getDetailRepair"]);
             Route::get("/list", [RepairController::class, "getPaginateRepairUnit"]);
+
+            Route::prefix("return")->group(function () {
+                Route::get("/list", [RepairReturnController::class, "getPaginateRepairReturn"]);
+                Route::post("/create", [RepairReturnController::class, "createRepairReturn"]);
+                Route::put("/update/{repair_return_id}", [RepairReturnController::class, "updateRepairReturn"]);
+                Route::put("/status/{repair_return_id}", [RepairReturnController::class, "updateStatusRepairReturn"]);
+                Route::get("/detail/{repair_return_id}", [RepairReturnController::class, "getDetailRepairReturn"]);
+                Route::delete("/delete/unit/{repair_return_unit_id}", [RepairReturnController::class, "deleteRepairReturnUnit"]);
+                Route::delete("/delete/{repair_return_id}", [RepairReturnController::class, "deleteRepairReturn"]);
+                Route::prefix("repair-unit")->group(function () {
+                    Route::get("/list", [RepairReturnController::class, "getRepairUnit"]);
+                });
+            });
         });
 
         Route::prefix("delivery")->group(function () {
