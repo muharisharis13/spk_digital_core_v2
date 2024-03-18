@@ -224,8 +224,8 @@ class DeliveryController extends Controller
 
 
             $deliveryType = "";
-            if ($request->event_id) {
-                $deliveryType = "event";
+            if ($request->repair_return_id) {
+                $deliveryType = "repair_return";
             } elseif ($request->repair_id) {
                 $deliveryType = "repair";
             }
