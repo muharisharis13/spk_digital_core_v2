@@ -31,8 +31,8 @@ class Repair extends Model
     {
         return $this->hasMany(RepairLog::class, "repair_id", "repair_id");
     }
-    public function delivery()
+    public function delivery_repair()
     {
-        return $this->hasOne(Delivery::class, "repair_id", "repair_id");
+        return $this->hasOne(DeliveryRepair::class, "repair_id", "repair_id");
     }
 }

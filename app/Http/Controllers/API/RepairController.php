@@ -237,7 +237,7 @@ class RepairController extends Controller
     {
         try {
             $getDetailRepairUnit = Repair::where("repair_id", $repair_id)
-                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user", "delivery"])
+                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user", "delivery_repair.delivery"])
                 ->first();
 
             return ResponseFormatter::success($getDetailRepairUnit);
