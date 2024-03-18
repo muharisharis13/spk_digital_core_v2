@@ -199,11 +199,7 @@ class EventController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "event_start" => "required|date",
-                // "event_end" => "required|date",
-                "event_name" => "required",
-                "event_address" => "required",
-                "event_unit.*.unit_id" => "required"
+                "master_event_id" => "required",
             ]);
 
 

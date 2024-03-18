@@ -54,6 +54,11 @@ Route::prefix("v1")->group(function () {
             Route::get("/mds", [Master::class, "getListDealerMDS"]);
             Route::get("/location-current", [Master::class, "getListLocationByUserLogin"]);
             Route::get("/main-dealer", [Master::class, "GelistPaginateMainDealer"]);
+
+            Route::prefix("event")->group(function () {
+                Route::post("/create", [Master::class, "createEvent"]);
+                Route::get("/list", [Master::class, "getEventPaginate"]);
+            });
         });
 
         Route::prefix("repair")->group(function () {

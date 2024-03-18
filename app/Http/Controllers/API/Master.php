@@ -2,19 +2,88 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Dealer;
 use App\Models\DealerByUser;
 use App\Models\DealerNeq;
 use App\Models\MainDealer;
+use App\Models\MasterEvent;
 use App\Models\Motor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class Master extends Controller
 {
     //
+
+    public function getEventPaginate(Request $request)
+    {
+        try {
+            $searchQuery = $request->input('q');
+            $limit = $request->input('limit');
+            ($limit) ? $limit : $limit = 5;
+            $paginate = $request->input("paginate");
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
+
+            if ($paginate === "true") {
+                $getListEvent = MasterEvent::where(function ($query) use ($searchQuery) {
+                    $query->where("master_event_name", "LIKE", "%$searchQuery%")
+                        ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
+                })->orderBy($sortBy, $sortOrder)->paginate($limit);
+            } else {
+                $getListEvent = MasterEvent::where(function ($query) use ($searchQuery) {
+                    $query->where("master_event_name", "LIKE", "%$searchQuery%")
+                        ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
+                })->orderBy($sortBy, $sortOrder)->get();
+            }
+
+            return ResponseFormatter::success($getListEvent);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function createEvent(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "master_event_date" => "required|date",
+                "master_event_name" => "required",
+                "master_event_location" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $createEvent = MasterEvent::create([
+                "master_event_date" => $request->master_event_date,
+                "master_event_name" => $request->master_event_name,
+                "master_event_location" => $request->master_event_location,
+                "dealer_id" => $getDealerByUserSelected->dealer_id,
+                "master_event_note" => $request->master_event_note
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($createEvent, "Successfully created event !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function GelistPaginateMainDealer(Request $request)
     {
