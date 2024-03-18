@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('event_list_units', function (Blueprint $table) {
-            $table->uuid("event_list_unit_id")->primary();
-            $table->uuid("event_id")->nullable();
+        Schema::create('delivery_events', function (Blueprint $table) {
+            $table->uuid("delivery_event_id")->primary();
+            $table->uuid('delivery_id')->nullable();
+            $table->foreign("delivery_id")->references("delivery_id")->on("deliveries")->onDelete("set null");
+            $table->uuid('event_id')->nullable();
             $table->foreign("event_id")->references("event_id")->on("event")->onDelete("set null");
-            $table->uuid("unit_id")->nullable();
-            $table->foreign("unit_id")->references("unit_id")->on("unit")->onDelete("set null");
-            $table->boolean("is_return")->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('event_list_units');
+        Schema::dropIfExists('delivery_events');
     }
 };

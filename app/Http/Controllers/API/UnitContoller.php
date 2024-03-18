@@ -46,9 +46,10 @@ class UnitContoller extends Controller
             $searchQuery = $request->input('q');
             $sortBy = $request->input('sort_by', 'unit_id');
             $sortOrder = $request->input('sort_order', 'asc');
+            $has_event = $request->input("has_event", "true");
 
 
-            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer"])
+            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer", "event_list_unit.event.master_event"])
                 ->whereNotNull("unit_status")
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('unit_color', 'LIKE', "%$searchQuery%")
@@ -69,13 +70,25 @@ class UnitContoller extends Controller
                     $query->where("motor_name", "LIKE", "%$motor%");
                 })
                 ->where("unit_status", "LIKE", "%$unit_status%")
-                ->where("motor_id", "LIKe", "%$motor_id%")
-                ->where("unit_frame", "LIKe", "%$unit_frame%")
+                ->where("motor_id", "LIKE", "%$motor_id%")
+                ->where("unit_frame", "LIKE", "%$unit_frame%")
                 ->when($date, function ($query) use ($date) {
                     return $query->whereDate('unit_received_date', 'LIKE', "%$date%");
                 })
-                ->orderBy($sortBy, $sortOrder)
-                ->paginate($limit);
+                // ->whereHas("event_list_unit", function ($query) {
+                //     $query->whereNotNull("event_id");
+                // })
+                ->orderBy($sortBy, $sortOrder);
+
+            if ($has_event === "true") {
+                $getListPaginateUnit->whereHas("event_list_unit", function ($query) {
+                    $query->whereNotNull("event_id");
+                });
+            } elseif ($has_event === "false") {
+                $getListPaginateUnit->whereDoesntHave("event_list_unit");
+            }
+
+            $getListPaginateUnit = $getListPaginateUnit->paginate($limit);
 
 
             return ResponseFormatter::success($getListPaginateUnit);

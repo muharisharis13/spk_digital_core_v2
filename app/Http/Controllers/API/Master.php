@@ -31,12 +31,12 @@ class Master extends Controller
             $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
-                $getListEvent = MasterEvent::where(function ($query) use ($searchQuery) {
+                $getListEvent = MasterEvent::with(["event.event_unit"])->where(function ($query) use ($searchQuery) {
                     $query->where("master_event_name", "LIKE", "%$searchQuery%")
                         ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
                 })->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
-                $getListEvent = MasterEvent::where(function ($query) use ($searchQuery) {
+                $getListEvent = MasterEvent::with(["event.event_unit"])->where(function ($query) use ($searchQuery) {
                     $query->where("master_event_name", "LIKE", "%$searchQuery%")
                         ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
                 })->orderBy($sortBy, $sortOrder)->get();

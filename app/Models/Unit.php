@@ -30,7 +30,8 @@ class Unit extends Model
     protected $primaryKey = "unit_id";
 
     protected $hidden = [
-        "unit_code"
+        "unit_code",
+        "event_id"
     ];
 
     public function unit_log()
@@ -47,9 +48,9 @@ class Unit extends Model
         return $this->belongsTo(Dealer::class, "dealer_id");
     }
 
-    public function event()
+    public function event_list_unit()
     {
-        return $this->belongsTo(Event::class, "event_id");
+        return $this->hasOne(EventListUnit::class, "unit_id", "unit_id");
     }
 
     public function shipping_order()

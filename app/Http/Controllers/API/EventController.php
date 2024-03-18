@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventListUnit;
 use App\Models\EventLog;
+use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +42,7 @@ class EventController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "event_status" => "required|in:cancel,request"
+                "event_status" => "required|in:cancel,approve"
             ]);
 
 
@@ -91,17 +92,30 @@ class EventController extends Controller
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
-            $getPaginateEvent = Event::latest()->with(["dealer", "event_unit.unit.motor"])
-                ->where("dealer_id", $getDealerByUserSelected->dealer_id)
-                ->where(function ($query) use ($searchQuery) {
-                    $query->where('event_name', 'LIKE', "%$searchQuery%")
-                        ->orWhere('event_status', 'LIKE', "%$searchQuery%")
-                        ->orWhere('event_address', 'LIKE', "%$searchQuery%")
-                        ->orWhere('event_number', 'LIKE', "%$searchQuery%");
+            $getPaginateEvent = Event::latest()->with(["master_event", "event_unit.unit.motor"])
+                ->where("event_number", "LIKE", "%$searchQuery%")
+                ->orWhereHas("master_event", function ($query) use ($searchQuery) {
+                    return $query->where('master_event_name', 'LIKE', "%$searchQuery%")
+                        ->orWhere('master_event_location', 'LIKE', "%$searchQuery%")
+                        ->orWhere('master_event_date', 'LIKE', "%$searchQuery%");
                 })
-                ->when($date, function ($query) use ($date) {
-                    return $query->whereDate('event_start', 'LIKE', "%$date%");
+                ->orWhereHas("master_event", function ($query) use ($getDealerByUserSelected) {
+                    return $query->where("dealer_id", $getDealerByUserSelected->dealer_id);
                 })
+                ->where("master_event_id", "!=", null)
+                ->when($searchQuery, function ($queryDate) use ($searchQuery) {
+                    return $queryDate->whereDate('created_at', 'LIKE', "%$searchQuery%");
+                })
+                ->withCount([
+                    "event_unit as event_unit_total" => function ($query) {
+                        $query
+                            ->selectRaw('count(*)');
+                    },
+                    "event_unit as event_unit_return_total" => function ($query) {
+                        $query->where("is_return", true)
+                            ->selectRaw('count(*)');
+                    },
+                ])
                 ->paginate($limit);
 
             return ResponseFormatter::success($getPaginateEvent);
@@ -114,7 +128,16 @@ class EventController extends Controller
     {
         try {
             DB::beginTransaction();
-            $getDetailEvent = Event::where("event_id", $event_id)->first();
+            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit"])->first();
+
+            if (!isset($getDetailEvent->event_id)) {
+                return ResponseFormatter::success("Event not found !", "Bad request", 400);
+            }
+
+
+            foreach ($getDetailEvent->event_unit as $item) {
+                EventListUnit::where(["event_id", $item["event_id"]])->delete();
+            }
 
             $getDetailEvent->delete();
 
@@ -131,12 +154,11 @@ class EventController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "event_start" => "required|date",
-                // "event_end" => "required|date",
-                "event_name" => "required",
-                "event_address" => "required",
+                "master_event_id" => "required",
+                "event_unit" => "required|array",
                 "event_unit.*.unit_id" => "required"
             ]);
+
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
@@ -144,32 +166,28 @@ class EventController extends Controller
 
             DB::beginTransaction();
 
-            $getDetailEvent = Event::where("event_id", $event_id)
-                ->with(["dealer", "event_unit.unit.motor"])
-                ->first();
+            $user = Auth::user();
 
-            if (!isset($getDetailEvent->event_id)) {
-                return ResponseFormatter::error("Event Not Found !", "Bad Request", 400);
-            }
 
+
+            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit", "master_event"])->first();
+
+
+            // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-                if (!isset($item["event_unit_list_id"])) {
-                    $createEventUnit[] = EventListUnit::create([
-                        "event_id" => $getDetailEvent->event_id,
-                        "unit_id" => $item["unit_id"]
-                    ]);
+                if (!isset($item['event_list_unit_id'])) {
+                    // check unit apakah sudah ada di event
+
+                    $checkUnit = Unit::where("unit_id", $item["unit_id"])->with("event_list_unit.event.master_event")->first();
+                    if (!isset($checkUnit->event_list_unit->event->master_event->master_event_id)) {
+                        $createEventUnit[] = EventListUnit::create([
+                            "event_id" => $getDetailEvent->event_id,
+                            "unit_id" => $item["unit_id"]
+                        ]);
+                    }
                 }
             }
-
-            // update form event
-            $getDetailEvent->update([
-                "event_name" => $request->event_name,
-                "event_address" => $request->event_address,
-                "event_start" => $request->event_start,
-                "event_description" => $request->event_description,
-            ]);
-            $user = Auth::user();
 
             // add event log
             EventLog::create([
@@ -179,16 +197,18 @@ class EventController extends Controller
                 "event_log_note" => "Update Event"
             ]);
 
+            $getDetailEvent->update([
+                "master_event_id" => $request->master_event_id
+            ]);
+
+
             DB::commit();
 
 
-            $data = [
-                "event" => $getDetailEvent,
-                "event_unit" => $createEventUnit
-            ];
-
-
-            return ResponseFormatter::success($data, "Successfully updated !");
+            // $data = [
+            //     "event" => $getDetailEvent,
+            // ];
+            return ResponseFormatter::success($getDetailEvent, "Successfully updated !");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
@@ -200,6 +220,8 @@ class EventController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "master_event_id" => "required",
+                "event_unit" => "required|array",
+                "event_unit.*.unit_id" => "required"
             ]);
 
 
@@ -225,10 +247,16 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-                $createEventUnit[] = EventListUnit::create([
-                    "event_id" => $createEvent->event_id,
-                    "unit_id" => $item["unit_id"]
-                ]);
+                // check unit apakah sudah ada di event
+
+                $checkUnit = Unit::where("unit_id", $item["unit_id"])->with("event_list_unit.event.master_event")->first();
+
+                if (!isset($checkUnit->event_list_unit->event->master_event->master_event_id)) {
+                    $createEventUnit[] = EventListUnit::create([
+                        "event_id" => $createEvent->event_id,
+                        "unit_id" => $item["unit_id"]
+                    ]);
+                }
             }
 
             // add event log

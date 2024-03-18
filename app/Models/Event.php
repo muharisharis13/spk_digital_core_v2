@@ -15,7 +15,8 @@ class Event extends Model
     protected $guarded = [];
 
     protected $primaryKey = "event_id";
-    protected $with = ["event_log.user"];
+    // protected $with = ["event_log.user"];
+    protected $hidden = ["event_name", "event_address", "dealer_id", "event_start", "event_end", "event_description"];
 
     public function dealer()
     {
@@ -30,5 +31,10 @@ class Event extends Model
     public function event_log()
     {
         return $this->hasMany(EventLog::class, "event_id", "event_id");
+    }
+
+    public function master_event()
+    {
+        return $this->belongsTo(MasterEvent::class, "master_event_id");
     }
 }

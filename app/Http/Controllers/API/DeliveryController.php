@@ -11,6 +11,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\delivery;
+use App\Models\DeliveryEvent;
 use App\Models\deliveryLog;
 use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
@@ -122,7 +123,7 @@ class DeliveryController extends Controller
 
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-            $getPaginateDelivery = Delivery::latest()->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit", "dealer", "event", "delivery_repair_return.repair_return"])
+            $getPaginateDelivery = Delivery::latest()->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit", "dealer", "delivery_event.event.master_event", "delivery_event.event.event_unit", "delivery_repair_return.repair_return"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('delivery_driver_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('delivery_number', 'LIKE', "%$searchQuery%")
@@ -241,6 +242,8 @@ class DeliveryController extends Controller
                 $deliveryType = DeliveryTypeEnum::repair_return;
             } elseif ($request->repair_id) {
                 $deliveryType = DeliveryTypeEnum::repair;
+            } elseif ($request->event_id) {
+                $deliveryType = DeliveryTypeEnum::event;
             }
 
             DB::beginTransaction();
@@ -257,18 +260,6 @@ class DeliveryController extends Controller
                 "delivery_type" => $deliveryType
             ]);
 
-            if (isset($request->repair_id)) {
-                $createDeliveryRepair = DeliveryRepair::create([
-                    "delivery_id" => $createDelivery->delivery_id,
-                    "repair_id" => $request->repair_id
-                ]);
-            } else if (isset($request->repair_return_id)) {
-                $createDeliveryRepair = DeliveryRepairReturn::create([
-                    "delivery_id" => $createDelivery->delivery_id,
-                    "repair_return_id" => $request->repair_return_id
-                ]);
-            }
-
             $createDeliveryLog = deliveryLog::create([
                 "user_id" => $user->user_id,
                 "delivery_log_action" => DeliveryLogActionEnum::create,
@@ -276,13 +267,39 @@ class DeliveryController extends Controller
                 "delivery_id" => $createDelivery->delivery_id
             ]);
 
-            DB::commit();
-
             $data = [
                 "delivery" => $createDelivery,
-                "delivery_repair" => $createDeliveryRepair,
                 "delivery_log" => $createDeliveryLog
             ];
+
+
+            if (isset($request->repair_id)) {
+                $createDeliveryRepair = DeliveryRepair::create([
+                    "delivery_id" => $createDelivery->delivery_id,
+                    "repair_id" => $request->repair_id
+                ]);
+
+                $data['delivery_repair'] = $createDeliveryRepair;
+            } else if (isset($request->repair_return_id)) {
+                $createDeliveryRepair = DeliveryRepairReturn::create([
+                    "delivery_id" => $createDelivery->delivery_id,
+                    "repair_return_id" => $request->repair_return_id
+                ]);
+                $data['delivery_repair'] = $createDeliveryRepair;
+            } else if (isset($request->event_id)) {
+                $createDeliveryEvent = DeliveryEvent::create([
+                    "event_id" => $request->event_id,
+                    "delivery_id" => $createDelivery->delivery_id
+                ]);
+                $data['delivery_event'] = $createDeliveryEvent;
+            }
+
+
+
+            DB::commit();
+
+
+
 
             return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
