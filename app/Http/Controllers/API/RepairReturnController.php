@@ -66,7 +66,7 @@ class RepairReturnController extends Controller
         try {
 
             $validator  = Validator::make($request->all(), [
-                "repair_return_status" => "required|in:create,confirm,cancel"
+                "repair_return_status" => "required|in:create,approve,cancel"
             ]);
 
             if ($validator->fails()) {
