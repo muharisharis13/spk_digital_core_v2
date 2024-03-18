@@ -225,9 +225,9 @@ class DeliveryController extends Controller
 
             $deliveryType = "";
             if ($request->repair_return_id) {
-                $deliveryType = "repair_return";
+                $deliveryType = DeliveryTypeEnum::repair_return;
             } elseif ($request->repair_id) {
-                $deliveryType = "repair";
+                $deliveryType = DeliveryTypeEnum::repair;
             }
 
             DB::beginTransaction();
