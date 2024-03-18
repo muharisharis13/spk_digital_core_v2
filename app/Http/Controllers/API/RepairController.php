@@ -285,6 +285,18 @@ class RepairController extends Controller
                 ->when($endDate, function ($query) use ($endDate) {
                     return $query->whereDate('created_at', '<=', $endDate);
                 })
+                ->withCount([
+                    "repair_unit as repair_unit_total" => function ($query) {
+                        $query
+                            ->where("is_return", false)
+                            ->selectRaw('count(*)');
+                    },
+                    "repair_unit as repair_return_unit_total" => function ($query) {
+                        $query
+                            ->where("is_return", true)
+                            ->selectRaw('count(*)');
+                    },
+                ])
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->orderBy($sortBy, $sortOrder)
                 ->paginate($limit);
