@@ -240,6 +240,10 @@ class RepairController extends Controller
                 ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user", "delivery_repair.delivery"])
                 ->first();
 
+            if (!$getDetailRepairUnit) {
+                return ResponseFormatter::error("Repair not found !", "Bad request !", 400);
+            }
+
             return ResponseFormatter::success($getDetailRepairUnit);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
