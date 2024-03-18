@@ -31,7 +31,7 @@ class RepairController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                "repair_status" => "required|in:request,approve,cancel"
+                "repair_status" => "required|in:approve,cancel"
             ]);
 
             if ($validator->fails()) {
@@ -59,6 +59,15 @@ class RepairController extends Controller
                 foreach ($getListRepairUnit as $itemRepairUnit) {
                     Unit::where("unit_id", $itemRepairUnit->unit_id)->update([
                         "unit_status" => UnitStatusEnum::on_hand
+                    ]);
+                }
+            }
+
+            if ($request->repair_status === "approve") {
+                $getListRepairUnit = RepairUnitList::where("repair_id", $repair_id)->get();
+                foreach ($getListRepairUnit as $itemRepairUnit) {
+                    Unit::where("unit_id", $itemRepairUnit->unit_id)->update([
+                        "unit_status" => UnitStatusEnum::repair
                     ]);
                 }
             }

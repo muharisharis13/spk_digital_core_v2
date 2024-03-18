@@ -152,7 +152,19 @@ class RepairReturnController extends Controller
         try {
             $user = Auth::user();
             $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $searchQuery = $request->input('q');
+
+
             $getRepairUnit = RepairUnitList::latest()
+                ->where(function ($query) use ($searchQuery) {
+                    $query->whereHas("unit", function ($queryUnit) use ($searchQuery) {
+                        $queryUnit->where("unit_frame", "LIKE", "%$searchQuery%")
+                            ->orWhereHas("motor", function ($queryMotor) use ($searchQuery) {
+                                $queryMotor->where("motor_name", "LIKE", "%$searchQuery%");
+                            });
+                    });
+                })
                 ->where("is_return", false)
                 ->with(["repair", "unit.motor"])
                 ->whereHas("repair", function ($query) use ($getDealer) {

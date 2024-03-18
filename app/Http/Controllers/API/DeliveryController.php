@@ -48,7 +48,7 @@ class DeliveryController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "delivery_status" => "required|in:request,cancel"
+                "delivery_status" => "required|in:approve,cancel"
             ]);
 
             if ($validator->fails()) {
