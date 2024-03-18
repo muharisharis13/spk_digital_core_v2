@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\RepairReturnStatusEnum;
+use App\Enums\UnitStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RepairReturn;
 use App\Models\RepairReturnUnit;
 use App\Models\RepairUnitList;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -77,6 +79,14 @@ class RepairReturnController extends Controller
             $getDetailRepairReturn = RepairReturn::where("repair_return_id", $repair_return_id)->first();
 
             DB::beginTransaction();
+
+            if ($request->repair_return_status === "approve") {
+                foreach ($getDetailRepairReturn->repair_return_unit as $item) {
+                    Unit::where("unit_id", isset($item->repair_unit->unit->unit_id))->update([
+                        "unit_status" => UnitStatusEnum::on_hand
+                    ]);
+                }
+            }
 
             $getDetailRepairReturn->update([
                 "repair_return_status" => $request->repair_return_status,

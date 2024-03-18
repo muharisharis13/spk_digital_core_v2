@@ -14,7 +14,7 @@ class RepairReturn extends Model
 
     protected $primaryKey = "repair_return_id";
 
-    protected $with = ["repair_return_unit", "dealer"];
+    protected $with = ["repair_return_unit.repair_unit.unit", "dealer"];
 
     public function dealer()
     {
