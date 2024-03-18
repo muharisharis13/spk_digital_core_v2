@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\RepairReturnStatusEnum;
+use App\Enums\RepairStatusEnum;
 use App\Enums\UnitStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
@@ -178,7 +179,8 @@ class RepairReturnController extends Controller
                 ->where("is_return", false)
                 ->with(["repair", "unit.motor"])
                 ->whereHas("repair", function ($query) use ($getDealer) {
-                    $query->where("dealer_id", $getDealer->dealer_id);
+                    $query->where("dealer_id", $getDealer->dealer_id)
+                        ->where("repair_status", RepairStatusEnum::approve);
                 })
                 ->get();
 
