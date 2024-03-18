@@ -70,7 +70,8 @@ class DeliveryController extends Controller
             ]);
 
             $updateStatusDelivery->update([
-                "delivery_status" => $request->delivery_status
+                "delivery_status" => $request->delivery_status,
+                'delivery_number' => str_replace('TEMP-', "", $updateStatusDelivery->delivery_number)
             ]);
 
             DB::commit();
