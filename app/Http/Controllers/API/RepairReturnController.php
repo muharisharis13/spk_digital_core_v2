@@ -197,6 +197,11 @@ class RepairReturnController extends Controller
         try {
             $getDetailRepairReturn = RepairReturn::where("repair_return_id", $repair_return_id)->first();
 
+
+            if (!$getDetailRepairReturn) {
+                return ResponseFormatter::error("Repair return not found !", "Bad request !", 400);
+            }
+
             return ResponseFormatter::success($getDetailRepairReturn);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
