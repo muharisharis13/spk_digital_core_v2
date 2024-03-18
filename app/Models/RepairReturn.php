@@ -14,7 +14,7 @@ class RepairReturn extends Model
 
     protected $primaryKey = "repair_return_id";
 
-    protected $with = ["repair_return_unit.repair_unit.unit", "dealer"];
+    protected $with = ["repair_return_unit.repair_unit.unit", "dealer", "delivery_repair_return"];
 
     public function dealer()
     {
@@ -24,5 +24,10 @@ class RepairReturn extends Model
     public function repair_return_unit()
     {
         return $this->hasMany(RepairReturnUnit::class, "repair_return_id");
+    }
+
+    public function delivery_repair_return()
+    {
+        return $this->hasOne(DeliveryRepairReturn::class, "repair_return_id");
     }
 }
