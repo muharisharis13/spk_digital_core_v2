@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('event', function (Blueprint $table) {
             $table->text("event_description")->nullable();
-            $table->date("event_start");
-            $table->date("event_end");
+            $table->date("event_start")->nullable();
+            $table->date("event_end")->nullable();
         });
     }
 

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('event', function (Blueprint $table) {
             $table->uuid("event_id")->primary();
-            $table->string("event_name");
-            $table->string("event_address");
+            $table->string("event_name")->nullable();
+            $table->string("event_address")->nullable();
             $table->uuid("dealer_id")->nullable();
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
 
