@@ -92,7 +92,7 @@ class DeliveryController extends Controller
         try {
             $getDetailDelivery = Delivery::with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit" => function ($query) {
                 $query->where("is_return", false);
-            }, "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
+            }, "delivery_repair.repair.repair_unit.unit.motor", "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
 
                 $query->latest();
             }])
