@@ -288,7 +288,6 @@ class RepairController extends Controller
                 ->withCount([
                     "repair_unit as repair_unit_total" => function ($query) {
                         $query
-                            ->where("is_return", false)
                             ->selectRaw('count(*)');
                     },
                     "repair_unit as repair_return_unit_total" => function ($query) {

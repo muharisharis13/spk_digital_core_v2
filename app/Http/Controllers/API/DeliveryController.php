@@ -95,7 +95,7 @@ class DeliveryController extends Controller
             }, "delivery_repair.repair.repair_unit.unit.motor", "dealer", "event.event_unit.unit.motor", "delivery_log" => function ($query) {
 
                 $query->latest();
-            }])
+            }, "delivery_repair_return.repair_return"])
                 ->where("delivery_id", $delivery_id)
                 ->first();
 
@@ -144,6 +144,18 @@ class DeliveryController extends Controller
                 })
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->orderBy($sortBy, $sortOrder)
+                // ->whereHas("delivery_repair", function ($queryDeliveryRepair) {
+                //     $queryDeliveryRepair->withCount([
+                //         "repair.repair_unit as repair_unit_total" => function ($query) {
+                //             $query->selectRaw('count(*)');
+                //         }
+                //     ]);
+                // })
+                // ->withCount([
+                //     "delivery_repair.repair.repair_unit as repair_unit_total" => function ($query) {
+                //         return $query->selectRaw('count(*)');
+                //     }
+                // ])
                 ->paginate($limit);
 
             return ResponseFormatter::success($getPaginateDelivery);
