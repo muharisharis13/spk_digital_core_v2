@@ -185,6 +185,9 @@ class EventController extends Controller
                             "event_id" => $getDetailEvent->event_id,
                             "unit_id" => $item["unit_id"]
                         ]);
+                    } else {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit dengan ID {$item['unit_id']} sudah terdaftar dalam event.", "Bad Request", 400);
                     }
                 }
             }
@@ -256,6 +259,9 @@ class EventController extends Controller
                         "event_id" => $createEvent->event_id,
                         "unit_id" => $item["unit_id"]
                     ]);
+                } else {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Unit dengan ID {$item['unit_id']} sudah terdaftar dalam event.", "Bad Request", 400);
                 }
             }
 
@@ -273,8 +279,11 @@ class EventController extends Controller
 
             $data = [
                 "event" => $createEvent,
-                "event_unit" => $createEventUnit
             ];
+
+            if (!empty($createEventUnit)) {
+                $data["event_unit"] =  $createEventUnit;
+            }
             return ResponseFormatter::success($data, "Successfully created !");
         } catch (\Throwable $e) {
             DB::rollBack();
