@@ -83,9 +83,11 @@ class RepairReturnController extends Controller
 
             if ($request->repair_return_status === "approve") {
                 foreach ($getDetailRepairReturn->repair_return_unit as $item) {
-                    Unit::where("unit_id", isset($item->repair_unit->unit->unit_id))->update([
-                        "unit_status" => UnitStatusEnum::on_hand
-                    ]);
+                    if (isset($item["repair_unit"]->unit->unit_id)) {
+                        Unit::where("unit_id", $item["repair_unit"]->unit->unit_id)->update([
+                            "unit_status" => UnitStatusEnum::on_hand
+                        ]);
+                    }
                 }
             }
 
