@@ -29,6 +29,11 @@ class delivery extends Model
         return $this->hasOne(DeliveryRepair::class, "delivery_id");
     }
 
+    public function delivery_repair_return()
+    {
+        return $this->hasOne(DeliveryRepairReturn::class, "delivery_id");
+    }
+
     public function event()
     {
         return $this->belongsTo(Event::class, "event_id");

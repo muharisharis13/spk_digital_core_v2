@@ -21,6 +21,6 @@ class DeliveryRepairReturn extends Model
 
     public function repair_return()
     {
-        return $this->belongsTo(Repair::class, "repair_return_id");
+        return $this->belongsTo(RepairReturn::class, "repair_return_id");
     }
 }
