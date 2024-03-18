@@ -121,7 +121,7 @@ class DeliveryController extends Controller
 
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-            $getPaginateDelivery = Delivery::latest()->with(["delivery_repair.repair.main_dealer", "dealer", "event", "delivery_repair_return.repair_return"])
+            $getPaginateDelivery = Delivery::latest()->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit", "dealer", "event", "delivery_repair_return.repair_return"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('delivery_driver_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('delivery_number', 'LIKE', "%$searchQuery%")

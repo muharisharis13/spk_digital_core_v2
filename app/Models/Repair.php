@@ -15,6 +15,8 @@ class Repair extends Model
     protected $primaryKey = "repair_id";
 
 
+
+
     public function main_dealer()
     {
         return $this->belongsTo(MainDealer::class, "main_dealer_id");
