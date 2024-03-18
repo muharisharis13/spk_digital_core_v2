@@ -215,11 +215,7 @@ class EventController extends Controller
 
 
             $createEvent = Event::create([
-                "event_name" => $request->event_name,
-                "event_address" => $request->event_address,
-                "event_start" => $request->event_start,
-                "event_end" => Carbon::now(),
-                "dealer_id" => $getDealerSelected->dealer_id,
+                "master_event_id" => $request->master_event_id,
                 "event_status" => EventStatusEnum::create,
                 "event_description" => $request->event_description,
                 "event_number" => GenerateNumber::generate("EVENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "event", "event_number")
