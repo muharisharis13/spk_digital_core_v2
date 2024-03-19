@@ -32,6 +32,6 @@ class EventReturn extends Model
 
     public function delivery_event_return()
     {
-        return $this->belongsTo(DeliveryEventReturn::class, "event_return_id");
+        return $this->hasOne(DeliveryEventReturn::class, "event_return_id");
     }
 }

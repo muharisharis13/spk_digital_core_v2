@@ -116,7 +116,7 @@ class EventReturnController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "event_return_unit" => "required|array",
-                "event_return_unit.*.unit_id" => "required"
+                "event_return_unit.*.event_list_unit_id" => "required"
             ]);
 
 
@@ -130,14 +130,14 @@ class EventReturnController extends Controller
 
                 if (!isset($item["event_return_list_unit_id"])) {
                     // merubah status unit di table repair_unit_list
-                    EventListUnit::where("unit_id", $item["unit_id"])
+                    EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])
                         ->update([
                             "is_return" => true
                         ]);
 
                     EventReturnListUnit::create([
                         "event_return_id" => $event_return_id,
-                        "unit_id" => $item["unit_id"]
+                        "event_list_unit_id" => $item["event_list_unit_id"]
                     ]);
                 }
             }
@@ -179,7 +179,7 @@ class EventReturnController extends Controller
             $validator = Validator::make($request->all(), [
                 "master_event_id" => "required",
                 "event_return_unit" => "required|array",
-                "event_return_unit.*.unit_id" => "required"
+                "event_return_unit.*.event_list_unit_id" => "required"
             ]);
 
 
@@ -202,13 +202,13 @@ class EventReturnController extends Controller
             foreach ($request->event_return_unit as $item) {
                 // update event unit ke is return true
 
-                EventListUnit::where("unit_id", $item["unit_id"])->update([
+                EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])->update([
                     "is_return" => true
                 ]);
 
                 $createEventReturnUnit[] = EventReturnListUnit::create([
                     "event_return_id" => $createEventReturn->event_return_id,
-                    "unit_id" => $item["unit_id"]
+                    "event_list_unit_id" => $item["event_list_unit_id"]
                 ]);
             }
 

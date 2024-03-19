@@ -301,7 +301,7 @@ class DeliveryController extends Controller
                     "delivery_id" => $createDelivery->delivery_id
                 ]);
                 $data['delivery_event'] = $createDeliveryEvent;
-            } else if (isset($request->event_id)) {
+            } else if (isset($request->event_return_id)) {
                 $createDeliveryEvent = DeliveryEventReturn::create([
                     "event_return_id" => $request->event_return_id,
                     "delivery_id" => $createDelivery->delivery_id

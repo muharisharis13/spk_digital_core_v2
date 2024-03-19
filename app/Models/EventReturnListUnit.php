@@ -13,15 +13,15 @@ class EventReturnListUnit extends Model
 
     protected $primaryKey = "event_return_list_unit_id";
 
-    protected $with = ["unit.motor"];
+    protected $with = ["event_list_unit.unit.motor"];
 
     public function event_return()
     {
         return $this->belongsTo(EventReturn::class, "event_return_id");
     }
 
-    public function unit()
+    public function event_list_unit()
     {
-        return $this->belongsTo(Unit::class, "unit_id");
+        return $this->belongsTo(EventListUnit::class, "event_list_unit_id");
     }
 }
