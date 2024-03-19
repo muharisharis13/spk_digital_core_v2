@@ -45,7 +45,8 @@ class EventReturnController extends Controller
                             $query->where("master_event_id", $master_event_id);
                             $query->where("dealer_id", $getDealer->dealer_id);
                         });
-                });
+                })
+                ->where("is_return", false);
 
 
 
