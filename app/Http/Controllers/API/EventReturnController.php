@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\EventReturnStatusEnum;
+use App\Enums\EventStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -81,9 +82,18 @@ class EventReturnController extends Controller
     public function getAllUnitEvent(Request $request)
     {
         try {
+
+            $user = Auth::user();
+            $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
+
+
             $getAllUnitEvent = EventListUnit::latest();
 
-            $getAllUnitEvent = $getAllUnitEvent->with(["event"]);
+            $getAllUnitEvent = $getAllUnitEvent->with(["event"])
+                ->whereHas("repair", function ($query) use ($getDealer) {
+                    $query->where("dealer_id", $getDealer->dealer_id)
+                        ->where("event_status", EventStatusEnum::approve);
+                });
 
 
 
