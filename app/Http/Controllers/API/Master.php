@@ -48,6 +48,42 @@ class Master extends Controller
         }
     }
 
+    public function updateEvent(Request $request, $master_event_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "master_event_date" => "required|date",
+                "master_event_name" => "required",
+                "master_event_location" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailMasterEvent = MasterEvent::where("masster_event_id", $master_event_id)->first();
+
+            $getDetailMasterEvent->update([
+                "master_event_date" => $request->master_event_date,
+                "master_event_name" => $request->master_event_name,
+                "master_event_location" => $request->master_event_location,
+                "master_event_note" => $request->master_event_note
+            ]);
+
+
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailMasterEvent, "Successfully updated event !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function createEvent(Request $request)
     {
         try {

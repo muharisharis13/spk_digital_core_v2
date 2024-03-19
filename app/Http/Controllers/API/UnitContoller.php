@@ -80,13 +80,13 @@ class UnitContoller extends Controller
                 // })
                 ->orderBy($sortBy, $sortOrder);
 
-            if ($has_event === "true") {
-                $getListPaginateUnit->whereHas("event_list_unit", function ($query) {
-                    $query->whereNotNull("event_id");
-                });
-            } elseif ($has_event === "false") {
-                $getListPaginateUnit->whereDoesntHave("event_list_unit");
-            }
+            // if ($has_event === "true") {
+            //     $getListPaginateUnit->whereHas("event_list_unit", function ($query) {
+            //         $query->whereNotNull("event_id");
+            //     });
+            // } elseif ($has_event === "false") {
+            //     $getListPaginateUnit->whereDoesntHave("event_list_unit");
+            // }
 
             $getListPaginateUnit = $getListPaginateUnit->paginate($limit);
 

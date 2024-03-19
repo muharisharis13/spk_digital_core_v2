@@ -57,6 +57,7 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("event")->group(function () {
                 Route::post("/create", [Master::class, "createEvent"]);
+                Route::put("/update/{master_event_id}", [Master::class, "updateEvent"]);
                 Route::get("/list", [Master::class, "getEventPaginate"]);
             });
         });
