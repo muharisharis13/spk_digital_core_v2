@@ -11,11 +11,16 @@ class EventReturnLog extends Model
     use HasFactory, HasUuids;
     protected $guarded = [];
 
-    protected $primaryKey = "event_return_id";
+    protected $primaryKey = "event_return_log_id";
 
 
     public function event_return()
     {
         return $this->belongsTo(EventReturn::class, "event_return_id");
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id");
     }
 }

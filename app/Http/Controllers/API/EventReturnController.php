@@ -22,6 +22,219 @@ class EventReturnController extends Controller
 {
     //
 
+    public function updateStatusEventReturn(Request $request, $event_return_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "event_return_status" => "required|in:cancel,approve"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+            $getDetailEventReturn = EventReturn::with(["master_event", "event_return_unit", "event_return_log.user"])->where("event_return_id", $event_return_id)->first();
+
+            $getDetailEventReturn->update([
+                "event_return_status" => $request->event_return_status
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailEventReturn, "Success Update Status !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getDetailEventReturn(Request $request, $event_return_id)
+    {
+        try {
+            $getDetail = EventReturn::latest()
+                ->with(["master_event", "event_return_unit", "event_return_log.user"])
+                ->withCount([
+                    "event_return_unit as event_return_unit_total" => function ($query) {
+                        $query
+                            ->selectRaw('count(*)');
+                    },
+                ])
+                ->where("event_return_id", $event_return_id);
+
+
+            $getDetail = $getDetail->first();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getPaginateEventReturn(Request $request)
+    {
+        try {
+            $limit = $request->input('limit');
+            ($limit) ? $limit : $limit = 5;
+            $date = $request->input('date');
+            $event_return_status = $request->input("event_return_status");
+            $searchQuery = $request->input('q');
+
+            $getPaginateEventReturn = EventReturn::latest()
+                ->with(["master_event"])
+                ->withCount([
+                    "event_return_unit as event_return_unit_total" => function ($query) {
+                        $query
+                            ->selectRaw('count(*)');
+                    },
+                ])
+                ->when($date, function ($query) use ($date) {
+                    return $query->whereDate('created_at', 'LIKE', "%$date%");
+                })
+                ->where("event_return_status", "LIKE", "%$event_return_status%")
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    return $query->where('event_return_number', 'LIKE', "%$searchQuery%")
+                        ->orWhere("event_return_status", "LIKE", "%$searchQuery%")
+                        ->orWhereHas("master_event", function ($query) use ($searchQuery) {
+                            $query->where("master_event_name", "LIKE", "%$searchQuery%")
+                                ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
+                        });
+                });
+
+
+            $getPaginateEventReturn = $getPaginateEventReturn->paginate($limit);
+
+            return ResponseFormatter::success($getPaginateEventReturn);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function updateEventReturn(Request $request, $event_return_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "event_return_unit" => "required|array",
+                "event_return_unit.*.unit_id" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            foreach ($request->event_return_unit as $item) {
+
+                if (!isset($item["event_return_list_unit_id"])) {
+                    // merubah status unit di table repair_unit_list
+                    EventListUnit::where("unit_id", $item["unit_id"])
+                        ->update([
+                            "is_return" => true
+                        ]);
+
+                    EventReturnListUnit::create([
+                        "event_return_id" => $event_return_id,
+                        "unit_id" => $item["unit_id"]
+                    ]);
+                }
+            }
+            $user = Auth::user();
+
+            // create event return log
+            EventReturnLog::create([
+                "event_return_id" => $event_return_id,
+                "user_id" => $user->user_id,
+                "event_return_log_action" => EventReturnStatusEnum::create,
+                "event_return_log_note" => "update event return"
+            ]);
+
+            DB::commit();
+
+            $getDetail = EventReturn::latest()
+                ->with(["master_event", "event_return_unit", "event_return_log.user"])
+                ->withCount([
+                    "event_return_unit as event_return_unit_total" => function ($query) {
+                        $query
+                            ->selectRaw('count(*)');
+                    },
+                ])
+                ->where("event_return_id", $event_return_id);
+
+
+            $getDetail = $getDetail->first();
+
+            return ResponseFormatter::success($getDetail, "Successfully updated !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function createEventReturn(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "master_event_id" => "required",
+                "event_return_unit" => "required|array",
+                "event_return_unit.*.unit_id" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $createEventReturn = EventReturn::create([
+                "master_event_id" => $request->master_event_id,
+                "event_return_number" => GenerateNumber::generate("EVENT-RETURN", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "event_returns", "event_return_number"),
+                "event_return_status" => EventReturnStatusEnum::create,
+                "dealer_id" => $getDealerSelected->dealer_id
+            ]);
+
+            foreach ($request->event_return_unit as $item) {
+                // update event unit ke is return true
+
+                EventListUnit::where("unit_id", $item["unit_id"])->update([
+                    "is_return" => true
+                ]);
+
+                $createEventReturnUnit[] = EventReturnListUnit::create([
+                    "event_return_id" => $createEventReturn->event_return_id,
+                    "unit_id" => $item["unit_id"]
+                ]);
+            }
+
+            // create event return log
+            $createEventLog = EventReturnLog::create([
+                "event_return_id" => $createEventReturn->event_return_id,
+                "user_id" => $user->user_id,
+                "event_return_log_action" => EventReturnStatusEnum::create,
+                "event_return_log_note" => "create event return"
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "event_return" => $createEventReturn,
+                "event_return_unit" => $createEventReturnUnit,
+                "event_return_log" => $createEventLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully created !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
 
     public function getAllUnitEvent(Request $request, $master_event_id)
     {

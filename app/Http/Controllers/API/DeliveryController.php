@@ -12,6 +12,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\delivery;
 use App\Models\DeliveryEvent;
+use App\Models\DeliveryEventReturn;
 use App\Models\deliveryLog;
 use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
@@ -160,6 +161,8 @@ class DeliveryController extends Controller
                 $getPaginateDelivery->with(["delivery_repair_return.repair_return"]);
             } else if ($delivery_type === 'event') {
                 $getPaginateDelivery->with(["delivery_event.event.master_event", "delivery_event.event.event_unit"]);
+            } else if ($delivery_type === 'event_return') {
+                $getPaginateDelivery->with(["delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);
@@ -248,6 +251,8 @@ class DeliveryController extends Controller
                 $deliveryType = DeliveryTypeEnum::repair;
             } elseif ($request->event_id) {
                 $deliveryType = DeliveryTypeEnum::event;
+            } elseif ($request->event_return_id) {
+                $deliveryType = DeliveryTypeEnum::event_return;
             }
 
             DB::beginTransaction();
@@ -293,6 +298,12 @@ class DeliveryController extends Controller
             } else if (isset($request->event_id)) {
                 $createDeliveryEvent = DeliveryEvent::create([
                     "event_id" => $request->event_id,
+                    "delivery_id" => $createDelivery->delivery_id
+                ]);
+                $data['delivery_event'] = $createDeliveryEvent;
+            } else if (isset($request->event_id)) {
+                $createDeliveryEvent = DeliveryEventReturn::create([
+                    "event_return_id" => $request->event_return_id,
                     "delivery_id" => $createDelivery->delivery_id
                 ]);
                 $data['delivery_event'] = $createDeliveryEvent;

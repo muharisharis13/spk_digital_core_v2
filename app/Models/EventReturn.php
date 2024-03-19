@@ -13,8 +13,20 @@ class EventReturn extends Model
 
     protected $primaryKey = "event_return_id";
 
-    public function event()
+    protected $hidden = ["event_id"];
+
+    public function master_event()
     {
-        return $this->belongsTo(Event::class, "event_id");
+        return $this->belongsTo(MasterEvent::class, "master_event_id");
+    }
+
+    public function event_return_unit()
+    {
+        return $this->hasMany(EventReturnListUnit::class, "event_return_id");
+    }
+
+    public function event_return_log()
+    {
+        return $this->hasMany(EventReturnLog::class, "event_return_id");
     }
 }

@@ -38,4 +38,8 @@ class delivery extends Model
     {
         return $this->hasOne(DeliveryEvent::class, "delivery_id");
     }
+    public function delivery_event_return()
+    {
+        return $this->hasOne(DeliveryEventReturn::class, "delivery_id");
+    }
 }
