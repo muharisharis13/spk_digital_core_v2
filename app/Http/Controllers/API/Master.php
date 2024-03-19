@@ -31,7 +31,10 @@ class Master extends Controller
             $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
-                $getListEvent = MasterEvent::with(["event.event_unit"])->where(function ($query) use ($searchQuery) {
+                $getListEvent = MasterEvent::with(["event" => function ($query) {
+                    $query->where("event_status", "approve");
+                    $query->withCount('event_unit as event_unit_total');
+                }, "event.event_unit"])->where(function ($query) use ($searchQuery) {
                     $query->where("master_event_name", "LIKE", "%$searchQuery%")
                         ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
                 })->orderBy($sortBy, $sortOrder)->paginate($limit);
@@ -44,6 +47,37 @@ class Master extends Controller
 
             return ResponseFormatter::success($getListEvent);
         } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function updateStatusEvent(Request $request, $master_event_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "master_event_status" => "required|boolean",
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailMasterEvent = MasterEvent::where("master_event_id", $master_event_id)->first();
+
+            $getDetailMasterEvent->update([
+                "master_event_status" => $request->master_event_status,
+            ]);
+
+
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailMasterEvent, "Successfully updated event status !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
@@ -64,7 +98,7 @@ class Master extends Controller
 
             DB::beginTransaction();
 
-            $getDetailMasterEvent = MasterEvent::where("masster_event_id", $master_event_id)->first();
+            $getDetailMasterEvent = MasterEvent::where("master_event_id", $master_event_id)->first();
 
             $getDetailMasterEvent->update([
                 "master_event_date" => $request->master_event_date,

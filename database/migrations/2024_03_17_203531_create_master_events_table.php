@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text("master_event_note")->nullable();
             $table->uuid("dealer_id")->nullable();
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
+            $table->boolean("master_event_status")->default(true);
             $table->timestamps();
         });
     }
