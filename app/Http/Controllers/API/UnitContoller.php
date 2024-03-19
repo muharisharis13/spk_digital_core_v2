@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\EventStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
@@ -49,7 +50,11 @@ class UnitContoller extends Controller
             $has_event = $request->input("has_event", "true");
 
 
-            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer", "event_list_unit.event.master_event"])
+            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer", "event_list_unit" => function ($query) {
+                $query->whereHas("event", function ($query) {
+                    $query->where("event_status", EventStatusEnum::approve);
+                });
+            }, "event_list_unit.event.master_event"])
                 ->whereNotNull("unit_status")
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('unit_color', 'LIKE', "%$searchQuery%")

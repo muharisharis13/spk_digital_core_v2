@@ -52,7 +52,31 @@ class EventController extends Controller
 
             DB::beginTransaction();
 
-            $getDetailEvent = Event::where("event_id", $event_id)->first();
+            $getDetailEvent = Event::with(["event_unit.event.master_event"])->where("event_id", $event_id)->first();
+
+            // check apakah unit tersebut sudah approve di event lain apa belum
+            if (isset($getDetailEvent->event_unit) && $getDetailEvent->event_unit->count() > 0) {
+                foreach ($getDetailEvent->event_unit as $eventUnit) {
+                    $unit = $eventUnit->unit_id;
+
+                    $checkDuplicate = EventListUnit::whereHas('event', function ($query) use ($unit) {
+                        $query->where('event_status', 'approve');
+                    })
+                        ->where('unit_id', $unit)
+                        ->where('event_id', '!=', $event_id)
+                        ->exists();
+
+                    if ($checkDuplicate) {
+                        // Jika unit tersebut sudah di-approve di event lain
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit already approved in another event", "Bad Request", 400);
+                    }
+                }
+            } else {
+                DB::rollBack();
+                return
+                    ResponseFormatter::error("Paling tidak memiliki satu unit untuk di approve", "Bad Request", 400);
+            }
 
             $getDetailEvent->update([
                 "event_status" => $request->event_status
@@ -70,7 +94,7 @@ class EventController extends Controller
     public function getDetailEvent(Request $request, $event_id)
     {
         try {
-            $getDetailEvent = Event::where("event_id", $event_id)->with(["dealer", "event_unit.unit.motor"])->first();
+            $getDetailEvent = Event::where("event_id", $event_id)->with(["dealer", "event_unit.unit.event_list_unit.event", "event_unit.unit.motor"])->first();
 
             return ResponseFormatter::success($getDetailEvent);
         } catch (\Throwable $e) {
@@ -250,19 +274,24 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
+
+                $createEventUnit[] = EventListUnit::create([
+                    "event_id" => $createEvent->event_id,
+                    "unit_id" => $item["unit_id"]
+                ]);
                 // check unit apakah sudah ada di event
 
-                $checkUnit = Unit::where("unit_id", $item["unit_id"])->with("event_list_unit.event.master_event")->first();
+                // $checkUnit = Unit::where("unit_id", $item["unit_id"])->with("event_list_unit.event.master_event")->first();
 
-                if (!isset($checkUnit->event_list_unit->event->master_event->master_event_id)) {
-                    $createEventUnit[] = EventListUnit::create([
-                        "event_id" => $createEvent->event_id,
-                        "unit_id" => $item["unit_id"]
-                    ]);
-                } else {
-                    DB::rollBack();
-                    return ResponseFormatter::error("Unit dengan ID {$item['unit_id']} sudah terdaftar dalam event.", "Bad Request", 400);
-                }
+                // if (!isset($checkUnit->event_list_unit->event->master_event->master_event_id)) {
+                //     $createEventUnit[] = EventListUnit::create([
+                //         "event_id" => $createEvent->event_id,
+                //         "unit_id" => $item["unit_id"]
+                //     ]);
+                // } else {
+                //     DB::rollBack();
+                //     return ResponseFormatter::error("Unit dengan ID {$item['unit_id']} sudah terdaftar dalam event.", "Bad Request", 400);
+                // }
             }
 
             // add event log
