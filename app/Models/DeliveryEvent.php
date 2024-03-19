@@ -17,4 +17,9 @@ class DeliveryEvent extends Model
     {
         return $this->belongsTo(Event::class, "event_id");
     }
+
+    public function delivery()
+    {
+        return $this->belongsTo(delivery::class, "delivery_id");
+    }
 }
