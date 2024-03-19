@@ -4,6 +4,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
+use App\Http\Controllers\API\EventReturnController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
@@ -103,6 +104,13 @@ Route::prefix("v1")->group(function () {
             Route::put("/status/{event_id}", [EventController::class, "updateStatusEvent"]);
             Route::delete("/unit/delete/{event_list_unit_id}", [EventController::class, "deleteUnitEvent"]);
             Route::delete("/delete/{event_id}", [EventController::class, "deleteEvent"]);
+
+
+            Route::prefix("return")->group(function () {
+                Route::prefix("event-unit")->group(function () {
+                    Route::get("/list", [EventReturnController::class, "getAllUnitEvent"]);
+                });
+            });
         });
     });
 });

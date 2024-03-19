@@ -8,6 +8,7 @@ use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\EventListUnit;
 use App\Models\EventReturn;
 use App\Models\EventReturnListUnit;
 use App\Models\EventReturnLog;
@@ -73,6 +74,24 @@ class EventReturnController extends Controller
             return ResponseFormatter::success($data, "Successfully created");
         } catch (\Throwable $e) {
             DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getAllUnitEvent(Request $request)
+    {
+        try {
+            $getAllUnitEvent = EventListUnit::latest();
+
+            $getAllUnitEvent = $getAllUnitEvent->with(["event"]);
+
+
+
+
+            $getAllUnitEvent = $getAllUnitEvent->get();
+
+            return ResponseFormatter::success($getAllUnitEvent);
+        } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
