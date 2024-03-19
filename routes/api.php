@@ -107,8 +107,9 @@ Route::prefix("v1")->group(function () {
 
 
             Route::prefix("return")->group(function () {
+                // Route::post("/create", [EventReturnController::class, "createEventReturn"]);
                 Route::prefix("event-unit")->group(function () {
-                    Route::get("/list", [EventReturnController::class, "getAllUnitEvent"]);
+                    Route::get("/list/{master_event_id}", [EventReturnController::class, "getAllUnitEvent"]);
                 });
             });
         });
