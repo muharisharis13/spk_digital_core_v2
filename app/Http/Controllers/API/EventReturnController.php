@@ -54,7 +54,7 @@ class EventReturnController extends Controller
     {
         try {
             $getDetail = EventReturn::latest()
-                ->with(["master_event", "event_return_unit", "event_return_log.user"])
+                ->with(["master_event", "event_return_unit", "event_return_log.user", "delivery_event_return.delivery"])
                 ->withCount([
                     "event_return_unit as event_return_unit_total" => function ($query) {
                         $query

@@ -29,4 +29,9 @@ class EventReturn extends Model
     {
         return $this->hasMany(EventReturnLog::class, "event_return_id");
     }
+
+    public function delivery_event_return()
+    {
+        return $this->belongsTo(DeliveryEventReturn::class, "event_return_id");
+    }
 }
