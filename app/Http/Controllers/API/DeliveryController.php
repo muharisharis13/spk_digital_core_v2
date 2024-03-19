@@ -123,7 +123,14 @@ class DeliveryController extends Controller
 
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-            $getPaginateDelivery = Delivery::latest()->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit", "dealer", "delivery_event.event.master_event", "delivery_event.event.event_unit", "delivery_repair_return.repair_return"])
+
+
+            $getPaginateDelivery = Delivery::latest();
+
+
+
+
+            $getPaginateDelivery->with(["dealer"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('delivery_driver_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('delivery_number', 'LIKE', "%$searchQuery%")
@@ -145,20 +152,17 @@ class DeliveryController extends Controller
                     return $query->whereDate('created_at', '<=', $endDate);
                 })
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
-                ->orderBy($sortBy, $sortOrder)
-                // ->whereHas("delivery_repair", function ($queryDeliveryRepair) {
-                //     $queryDeliveryRepair->withCount([
-                //         "repair.repair_unit as repair_unit_total" => function ($query) {
-                //             $query->selectRaw('count(*)');
-                //         }
-                //     ]);
-                // })
-                // ->withCount([
-                //     "delivery_repair.repair.repair_unit as repair_unit_total" => function ($query) {
-                //         return $query->selectRaw('count(*)');
-                //     }
-                // ])
-                ->paginate($limit);
+                ->orderBy($sortBy, $sortOrder);
+
+            if ($delivery_type === 'repair') {
+                $getPaginateDelivery->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit"]);
+            } else if ($delivery_type === 'repair_return') {
+                $getPaginateDelivery->with(["delivery_repair_return.repair_return"]);
+            } else if ($delivery_type === 'event') {
+                $getPaginateDelivery->with(["delivery_event.event.master_event", "delivery_event.event.event_unit"]);
+            }
+
+            $getPaginateDelivery = $getPaginateDelivery->paginate($limit);
 
             return ResponseFormatter::success($getPaginateDelivery);
         } catch (\Throwable $e) {
