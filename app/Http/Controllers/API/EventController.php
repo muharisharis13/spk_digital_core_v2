@@ -94,7 +94,7 @@ class EventController extends Controller
     public function getDetailEvent(Request $request, $event_id)
     {
         try {
-            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit.unit.event_list_unit.event", "event_unit.unit.motor", "master_event", "event_log"])->first();
+            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit.unit.event_list_unit.event", "event_unit.unit.motor", "master_event", "event_log", "delivery_event.event.master_event"])->first();
 
             return ResponseFormatter::success($getDetailEvent);
         } catch (\Throwable $e) {

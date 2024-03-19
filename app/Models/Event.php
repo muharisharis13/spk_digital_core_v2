@@ -37,4 +37,9 @@ class Event extends Model
     {
         return $this->belongsTo(MasterEvent::class, "master_event_id");
     }
+
+    public function delivery_event()
+    {
+        return $this->hasOne(DeliveryEvent::class, "event_id", "event_id");
+    }
 }
