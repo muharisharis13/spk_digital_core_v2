@@ -53,7 +53,7 @@ class UnitContoller extends Controller
             $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer", "event_list_unit" => function ($query) {
                 $query->whereHas("event", function ($query) {
                     $query->where("event_status", EventStatusEnum::approve);
-                });
+                })->where("is_return", false);
             }, "event_list_unit.event.master_event"])
                 ->whereNotNull("unit_status")
                 ->where(function ($query) use ($searchQuery) {
@@ -80,9 +80,6 @@ class UnitContoller extends Controller
                 ->when($date, function ($query) use ($date) {
                     return $query->whereDate('unit_received_date', 'LIKE', "%$date%");
                 })
-                // ->whereHas("event_list_unit", function ($query) {
-                //     $query->whereNotNull("event_id");
-                // })
                 ->orderBy($sortBy, $sortOrder);
 
             // if ($has_event === "true") {
