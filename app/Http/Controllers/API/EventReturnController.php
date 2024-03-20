@@ -292,7 +292,7 @@ class EventReturnController extends Controller
 
             $getAllUnitEvent = EventListUnit::latest();
 
-            $getAllUnitEvent = $getAllUnitEvent->with(["event.master_event", "event" => function ($query) use ($getDealer) {
+            $getAllUnitEvent = $getAllUnitEvent->with(["event.master_event", "unit.motor", "event" => function ($query) use ($getDealer) {
                 $query->whereHas("master_event", function ($query) use ($getDealer) {
                     $query->where("dealer_id", $getDealer->dealer_id);
                 });
