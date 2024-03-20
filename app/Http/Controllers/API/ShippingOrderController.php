@@ -48,7 +48,7 @@ class ShippingOrderController extends Controller
                 "unit_note" => $request->unit_note,
                 "unit_received_date" => $currentDate
             ]);
-            $getUnit = Unit::where("unit_id", $unit_id)->with(["shipping_order", "dealer", "event"])->first();
+            $getUnit = Unit::where("unit_id", $unit_id)->with(["shipping_order", "dealer"])->first();
 
             if (!$getUnit) {
                 return
