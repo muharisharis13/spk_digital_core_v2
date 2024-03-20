@@ -113,6 +113,7 @@ Route::prefix("v1")->group(function () {
                 Route::get("/detail/{event_return_id}", [EventReturnController::class, "getDetailEventReturn"]);
                 Route::put("/status/{event_return_id}", [EventReturnController::class, "updateStatusEventReturn"]);
                 Route::put("/update/{event_return_id}", [EventReturnController::class, "updateEventReturn"]);
+                Route::delete("/delete/{event_return_id}", [EventReturnController::class, "deleteEventReturn"]);
                 Route::prefix("event-unit")->group(function () {
                     Route::get("/list/{master_event_id}", [EventReturnController::class, "getAllUnitEvent"]);
                 });

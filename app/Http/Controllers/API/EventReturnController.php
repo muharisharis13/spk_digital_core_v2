@@ -22,6 +22,44 @@ class EventReturnController extends Controller
 {
     //
 
+
+    public function deleteEventReturn(Request $request, $event_return_id)
+    {
+        try {
+            $getDetail = EventReturn::latest()
+                ->with(["master_event", "event_return_unit", "event_return_log.user", "delivery_event_return.delivery"])
+                ->withCount([
+                    "event_return_unit as event_return_unit_total" => function ($query) {
+                        $query
+                            ->selectRaw('count(*)');
+                    },
+                ])
+                ->where("event_return_id", $event_return_id)
+                ->first();
+
+
+            DB::beginTransaction();
+
+            foreach ($getDetail->event_return_unit as $item) {
+                // kembalikan status is return dari true ke false
+
+                EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])->update([
+                    "is_return" => false
+                ]);
+                // delete unit event retuurn dlu
+
+                EventReturnListUnit::where("event_return_list_unit_id", $item["event_return_list_unit_id"])->delete();
+            }
+
+            $getDetail->delete();
+
+            return ResponseFormatter::success($getDetail, "Successfully deleted Event Return !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function updateStatusEventReturn(Request $request, $event_return_id)
     {
         try {
