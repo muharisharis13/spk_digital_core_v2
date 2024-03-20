@@ -109,6 +109,18 @@ class EventReturnController extends Controller
             DB::beginTransaction();
             $getDetailEventReturn = EventReturn::with(["master_event", "event_return_unit", "event_return_log.user"])->where("event_return_id", $event_return_id)->first();
 
+            if (!$getDetailEventReturn) {
+                return ResponseFormatter::success("event return not found", "Bad Request", 400);
+            }
+
+            foreach ($getDetailEventReturn->event_return_unit as $item) {
+                // update event unit ke is return true
+
+                EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])->update([
+                    "is_return" => true
+                ]);
+            }
+
             $getDetailEventReturn->update([
                 "event_return_status" => $request->event_return_status
             ]);
@@ -274,9 +286,9 @@ class EventReturnController extends Controller
             foreach ($request->event_return_unit as $item) {
                 // update event unit ke is return true
 
-                EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])->update([
-                    "is_return" => true
-                ]);
+                // EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])->update([
+                //     "is_return" => true
+                // ]);
 
                 $createEventReturnUnit[] = EventReturnListUnit::create([
                     "event_return_id" => $createEventReturn->event_return_id,
