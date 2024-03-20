@@ -29,7 +29,8 @@ class EventReturnController extends Controller
             $getDetailEventReturnUnit = EventReturnListUnit::where("event_return_list_unit_id", $event_return_list_unit_id)->first();
             DB::beginTransaction();
             if (!$getDetailEventReturnUnit) {
-                return ResponseFormatter::success("Event return unit not found !", "Bad Request", 400);
+                DB::rollBack();
+                return ResponseFormatter::error("Event return unit not found !", "Bad Request", 400);
             }
 
             // update event unit di kembalikan menjadi false
