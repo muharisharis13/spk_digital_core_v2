@@ -66,7 +66,9 @@ class AuthenticationController extends Controller
 
 
             $user = User::where("username", $request->get("username"))
-                ->with("dealer_by_user.dealer")
+                ->with(["dealer_by_user.dealer", "dealer_by_user" => function ($query) {
+                    $query->where("isSelected", true);
+                }])
                 ->first();
 
             if (!Hash::check($request->get("password"), $user->password, [])) {

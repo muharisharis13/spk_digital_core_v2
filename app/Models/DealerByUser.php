@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class DealerByUser extends Model
 {
-    use HasFactory,HasUuids;
+    use HasFactory, HasUuids;
 
     protected $guarded = [];
-    
+
     protected $primaryKey = "dealer_by_user_id";
 
-    protected $hidden = [
-        "user_id"
-    ];
+    // protected $hidden = [
+    //     "user_id"
+    // ];
 
-    
+
     public function dealer()
     {
         return $this->belongsTo(Dealer::class, "dealer_id");
