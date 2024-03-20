@@ -26,15 +26,17 @@ class Master extends Controller
             $getDetailMasterEvent = MasterEvent::where("master_event_id", $master_event_id)
                 ->with(["event" => function ($query) {
                     $query->where("event_status", "approve")
-                        ->whereHas("event_unit", function ($query) {
-                            $query->where("is_return", false);
-                        })
                         ->with(["event_unit" => function ($query) {
                             $query->with(["unit" => function ($query) {
                                 $query->with("motor"); // Mengambil detail motor untuk setiap unit
-                            }]);
+                            }])
+                                ->where("is_return", false);
                         }])
-                        ->withCount('event_unit as event_unit_total'); // Menghitung total event unit
+                        ->withCount(['event_unit as event_unit_total' => function ($query) {
+                            $query
+                                ->where("is_return", false)
+                                ->selectRaw('count(*)');
+                        }]); // Menghitung total event unit
                 }])
                 ->first();
 
