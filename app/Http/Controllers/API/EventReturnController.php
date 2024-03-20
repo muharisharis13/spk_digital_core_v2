@@ -288,6 +288,7 @@ class EventReturnController extends Controller
 
             $user = Auth::user();
             $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
+            $search = $request->input("q");
 
 
             $getAllUnitEvent = EventListUnit::latest();
@@ -305,7 +306,14 @@ class EventReturnController extends Controller
                             $query->where("dealer_id", $getDealer->dealer_id);
                         });
                 })
-                ->where("is_return", false);
+                ->where("is_return", false)
+                ->when($search, function ($query) use ($search) {
+                    return $query->whereHas("unit", function ($query) use ($search) {
+                        $query->whereHas("motor", function ($query) use ($search) {
+                            $query->where("motor_name", "LIKe", "%$search%");
+                        });
+                    });
+                });
 
 
 
