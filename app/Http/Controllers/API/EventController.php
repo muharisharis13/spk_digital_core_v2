@@ -63,7 +63,7 @@ class EventController extends Controller
                         $query->where('event_status', 'approve');
                     })
                         ->where('unit_id', $unit)
-                        ->where('event_id', '!=', $event_id)
+                        ->where('event_id', $event_id)
                         ->exists();
 
                     if ($checkDuplicate) {
