@@ -40,6 +40,11 @@ class EventReturnController extends Controller
 
             DB::beginTransaction();
 
+            if ($getDetail->event_return_status === "approve") {
+                DB::rollBack();
+                return ResponseFormatter::error("Tidak Dapat Delete event return yang sudah approve", "Bad Request", 400);
+            }
+
             foreach ($getDetail->event_return_unit as $item) {
                 // kembalikan status is return dari true ke false
 
@@ -52,6 +57,9 @@ class EventReturnController extends Controller
             }
 
             $getDetail->delete();
+
+
+            DB::commit();
 
             return ResponseFormatter::success($getDetail, "Successfully deleted Event Return !");
         } catch (\Throwable $e) {
