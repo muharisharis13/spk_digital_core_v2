@@ -50,6 +50,11 @@ class ShippingOrderController extends Controller
             ]);
             $getUnit = Unit::where("unit_id", $unit_id)->with(["shipping_order", "dealer", "event"])->first();
 
+            if (!$getUnit) {
+                return
+                    ResponseFormatter::error("Unit Not Found !", "Bad Request", 400);
+            }
+
             UnitLog::create([
                 "unit_id" => $unit_id,
                 "user_id" => $user->user_id,
