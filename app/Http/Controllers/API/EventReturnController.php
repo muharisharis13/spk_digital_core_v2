@@ -22,6 +22,32 @@ class EventReturnController extends Controller
 {
     //
 
+    public function deleteEventReturnUnit(Request $request, $event_return_list_unit_id)
+    {
+        try {
+
+            $getDetailEventReturnUnit = EventReturnListUnit::where("event_return_list_unit_id", $event_return_list_unit_id)->first();
+            DB::beginTransaction();
+            if (!$getDetailEventReturnUnit) {
+                return ResponseFormatter::success("Event return unit not found !", "Bad Request", 400);
+            }
+
+            // update event unit di kembalikan menjadi false
+            EventListUnit::where("event_list_unit_id", $getDetailEventReturnUnit["event_list_unit_id"])->update([
+                "is_return" => false
+            ]);
+
+            $getDetailEventReturnUnit->delete();
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailEventReturnUnit, "Successfully delete event return unit !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
 
     public function deleteEventReturn(Request $request, $event_return_id)
     {
