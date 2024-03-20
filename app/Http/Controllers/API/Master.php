@@ -58,10 +58,16 @@ class Master extends Controller
             $sortOrder = $request->input('sort_order', 'asc');
 
             if ($paginate === "true") {
-                $getListEvent = MasterEvent::with(["event" => function ($query) {
-                    $query->where("event_status", "approve");
-                    $query->withCount('event_unit as event_unit_total');
-                }, "event.event_unit"])->where(function ($query) use ($searchQuery) {
+                $getListEvent = MasterEvent::with([
+                    "event" => function ($query) {
+                        $query->where("event_status", "approve");
+                        $query->withCount('event_unit as event_unit_total');
+                        $query->whereHas("event_unit", function ($query) {
+                            $query->where("is_return", false);
+                        });
+                    },
+                    "event.event_unit"
+                ])->where(function ($query) use ($searchQuery) {
                     $query->where("master_event_name", "LIKE", "%$searchQuery%")
                         ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
                 })->orderBy($sortBy, $sortOrder)->paginate($limit);
