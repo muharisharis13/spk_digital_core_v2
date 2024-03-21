@@ -29,7 +29,7 @@ Route::get('/hai', function (Request $request) {
     return ResponseFormatter::success("hello");
 });
 
-Route::prefix("v1")->group(function () {
+Route::middleware(['cors'])->prefix("v1")->group(function () {
     Route::prefix("authentication")->group(function () {
         Route::post("/login", [AuthenticationController::class, "login"]);
         Route::post("/register", [AuthenticationController::class, "register"]);
