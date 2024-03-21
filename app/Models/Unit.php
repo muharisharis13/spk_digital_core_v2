@@ -52,6 +52,10 @@ class Unit extends Model
     {
         return $this->hasOne(EventListUnit::class, "unit_id", "unit_id");
     }
+    public function neq_unit()
+    {
+        return $this->hasOne(NeqUnit::class, "unit_id", "unit_id");
+    }
 
     public function shipping_order()
     {

@@ -13,4 +13,19 @@ class Neq extends Model
     protected $guarded = [];
 
     protected $primaryKey = "neq_id";
+
+    public function neq_unit()
+    {
+        return $this->hasMany(NeqUnit::class, "neq_id");
+    }
+
+    public function dealer_neq()
+    {
+        return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
+    }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
 }

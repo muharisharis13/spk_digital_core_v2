@@ -14,6 +14,7 @@ use App\Models\delivery;
 use App\Models\DeliveryEvent;
 use App\Models\DeliveryEventReturn;
 use App\Models\deliveryLog;
+use App\Models\DeliveryNeq;
 use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
 use Illuminate\Http\Request;
@@ -98,7 +99,7 @@ class DeliveryController extends Controller
             }, "delivery_repair.repair.repair_unit.unit.motor", "dealer", "delivery_event.event.master_event", "delivery_event.event.event_unit.unit.motor", "delivery_log" => function ($query) {
 
                 $query->latest();
-            }, "delivery_repair_return.repair_return", "delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"])
+            }, "delivery_repair_return.repair_return", "delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit", "delivery_neq.neq.neq_unit"])
                 ->where("delivery_id", $delivery_id)
                 ->first();
 
@@ -163,6 +164,8 @@ class DeliveryController extends Controller
                 $getPaginateDelivery->with(["delivery_event.event.master_event", "delivery_event.event.event_unit"]);
             } else if ($delivery_type === 'event_return') {
                 $getPaginateDelivery->with(["delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"]);
+            } else if ($delivery_type === 'neq') {
+                $getPaginateDelivery->with(["delivery_neq.neq.neq_unit"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);
@@ -253,6 +256,8 @@ class DeliveryController extends Controller
                 $deliveryType = DeliveryTypeEnum::event;
             } elseif ($request->event_return_id) {
                 $deliveryType = DeliveryTypeEnum::event_return;
+            } elseif ($request->neq_id) {
+                $deliveryType = DeliveryTypeEnum::neq;
             }
 
             DB::beginTransaction();
@@ -307,6 +312,12 @@ class DeliveryController extends Controller
                     "delivery_id" => $createDelivery->delivery_id
                 ]);
                 $data['delivery_event'] = $createDeliveryEvent;
+            } else if (isset($request->neq_id)) {
+                $createDeliveryNeq = DeliveryNeq::create([
+                    "neq_id" => $request->neq_id,
+                    "delivery_id" => $createDelivery->delivery_id
+                ]);
+                $data['delivery_neq'] = $createDeliveryNeq;
             }
 
 

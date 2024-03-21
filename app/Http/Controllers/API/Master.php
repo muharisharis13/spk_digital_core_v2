@@ -20,6 +20,8 @@ class Master extends Controller
 {
     //
 
+
+
     public function getDetailMasterEvent(Request $request, $master_event_id)
     {
         try {

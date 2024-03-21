@@ -52,7 +52,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("master")->group(function () {
             Route::get("/motor", [Master::class, "getListPaginateMotor"]);
-            Route::get("/neq", [Master::class, "getListDealerNeq"]);
+            Route::get("/dealer-neq", [Master::class, "getListDealerNeq"]);
             Route::get("/mds", [Master::class, "getListDealerMDS"]);
             Route::get("/location-current", [Master::class, "getListLocationByUserLogin"]);
             Route::get("/main-dealer", [Master::class, "GelistPaginateMainDealer"]);
@@ -125,6 +125,13 @@ Route::prefix("v1")->group(function () {
         Route::prefix("neq")->group(function () {
             Route::post("/create", [NeqController::class, "createNeq"]);
             Route::get("/list", [NeqController::class, "getPaginateNeq"]);
+            Route::get("/detail/{neq_id}", [NeqController::class, "getDetailNeq"]);
+            Route::put("/status/{neq_id}", [NeqController::class, "updateStatusNeq"]);
+            Route::put("/update/{neq_id}", [NeqController::class, "updateNeq"]);
+            Route::delete("/delete/{neq_id}", [NeqController::class, "deleteNeq"]);
+            Route::prefix("unit")->group(function () {
+                Route::delete("/delete/{neq_unit_id}", [NeqController::class, "deleteUnitNeq"]);
+            });
         });
     });
 });

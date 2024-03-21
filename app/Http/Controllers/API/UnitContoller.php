@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\EventStatusEnum;
+use App\Enums\NeqStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
@@ -54,7 +55,12 @@ class UnitContoller extends Controller
                 $query->whereHas("event", function ($query) {
                     $query->where("event_status", EventStatusEnum::approve);
                 })->where("is_return", false);
-            }, "event_list_unit.event.master_event"])
+            }, "event_list_unit.event.master_event", "neq_unit.neq", "neq_unit" => function ($query) {
+                $query->whereHas("neq", function ($query) {
+                    $query->where("neq_status", NeqStatusEnum::approve);
+                })
+                    ->where("is_return", false);
+            }])
                 ->whereNotNull("unit_status")
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('unit_color', 'LIKE', "%$searchQuery%")

@@ -11,4 +11,5 @@ class DeliveryTypeEnum
     const event = 'event';
     const spk = 'spk';
     const event_return = "event_return";
+    const neq = "neq";
 }

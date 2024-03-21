@@ -13,4 +13,14 @@ class NeqUnit extends Model
     protected $guarded = [];
 
     protected $primaryKey = "neq_unit_id";
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, "unit_id");
+    }
+
+    public function neq()
+    {
+        return $this->belongsTo(Neq::class, "neq_id");
+    }
 }
