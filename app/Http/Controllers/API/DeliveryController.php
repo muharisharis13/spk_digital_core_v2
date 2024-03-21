@@ -98,7 +98,7 @@ class DeliveryController extends Controller
             }, "delivery_repair.repair.repair_unit.unit.motor", "dealer", "delivery_event.event.master_event", "delivery_event.event.event_unit.unit.motor", "delivery_log" => function ($query) {
 
                 $query->latest();
-            }, "delivery_repair_return.repair_return"])
+            }, "delivery_repair_return.repair_return", "delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"])
                 ->where("delivery_id", $delivery_id)
                 ->first();
 
