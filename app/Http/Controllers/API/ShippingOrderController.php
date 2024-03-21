@@ -194,6 +194,8 @@ class ShippingOrderController extends Controller
                 "targetDate" => date("Ymd", strtotime($request->targetDate))
             ];
 
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             // perulangan untuk input data ke unit_order
 
@@ -241,6 +243,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
+                                                "dealer_id" => $getDealerSelected->dealer_id
                                             ]
                                         );
                                     }
@@ -265,6 +268,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
+                                                "dealer_id" => $getDealerSelected->dealer_id
                                             ]
                                         );
                                     }
@@ -304,6 +308,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
+                                                "dealer_id" => $getDealerSelected->dealer_id
                                             ]
                                         );
                                     }
@@ -328,6 +333,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
+                                                "dealer_id" => $getDealerSelected->dealer_id
                                             ]
                                         );
                                     }

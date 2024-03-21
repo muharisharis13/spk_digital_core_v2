@@ -6,6 +6,7 @@ use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
 use App\Http\Controllers\API\Master;
+use App\Http\Controllers\API\NeqController;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ShippingOrderController;
@@ -119,6 +120,11 @@ Route::prefix("v1")->group(function () {
                     Route::get("/list/{master_event_id}", [EventReturnController::class, "getAllUnitEvent"]);
                 });
             });
+        });
+
+        Route::prefix("neq")->group(function () {
+            Route::post("/create", [NeqController::class, "createNeq"]);
+            Route::get("/list", [NeqController::class, "getPaginateNeq"]);
         });
     });
 });
