@@ -107,7 +107,7 @@ class NeqController extends Controller
             $creaetLogNeq = NeqLog::create([
                 "neq_id" => $getDetailNeq->neq_id,
                 "user_id" => $user->user_id,
-                "neq_log_action" => "Update Status TF Neq"
+                "neq_log_action" => "update"
             ]);
 
 
@@ -132,7 +132,7 @@ class NeqController extends Controller
     {
         try {
             $getDetailDealerNeq = Neq::latest()
-                ->with(["dealer_neq", "dealer", "neq_unit.unit.motor", "neq_log", "deliver_neq"])
+                ->with(["dealer_neq", "dealer", "neq_unit.unit.motor", "neq_log.user", "deliver_neq"])
                 ->withCount([
                     "neq_unit as neq_unit_total" => function ($query) {
                         $query->selectRaw("count(*)");
@@ -229,7 +229,7 @@ class NeqController extends Controller
             $creaetLogNeq = NeqLog::create([
                 "neq_id" => $getDetailNeq->neq_id,
                 "user_id" => $user->user_id,
-                "neq_log_action" => "Update TF Neq"
+                "neq_log_action" => "update"
             ]);
 
 
@@ -302,7 +302,7 @@ class NeqController extends Controller
             $creaetLogNeq = NeqLog::create([
                 "neq_id" => $createNeq->neq_id,
                 "user_id" => $user->user_id,
-                "neq_log_action" => "Create TF Neq"
+                "neq_log_action" => "create"
             ]);
 
             foreach ($request->neq_unit as $item) {

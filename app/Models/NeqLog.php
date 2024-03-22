@@ -13,4 +13,9 @@ class NeqLog extends Model
     protected $guarded = [];
 
     protected $primaryKey = "neq_log_id";
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
 }
