@@ -28,4 +28,9 @@ class Neq extends Model
     {
         return $this->belongsTo(Dealer::class, "dealer_id");
     }
+
+    public function neq_log()
+    {
+        return $this->hasMany(NeqLog::class, "neq_id");
+    }
 }
