@@ -156,6 +156,8 @@ class NeqController extends Controller
             $limit = $request->input("limit", 5);
             $neq_status = $request->input("neq_status");
             $dealer_neq_id = $request->input("dealer_neq_id");
+            $start = $request->input("start_date");
+            $end = $request->input("end_date");
             $searchQuery = $request->input("q");
 
             $user = Auth::user();
@@ -177,6 +179,12 @@ class NeqController extends Controller
                         ->orWhereHas("dealer_neq", function ($query) use ($searchQuery) {
                             $query->where("dealer_neq_name", "LIKE", "%$searchQuery%");
                         });
+                })
+                ->when($start, function ($query) use ($start) {
+                    return $query->whereDate('created_at', '>=', $start);
+                })
+                ->when($end, function ($query) use ($end) {
+                    return $query->whereDate('created_at', '<=', $end);
                 })
                 ->where("dealer_neq_id", "LIKE", "%$dealer_neq_id%")
                 ->where("neq_status", "LIKE", "%$neq_status%")
