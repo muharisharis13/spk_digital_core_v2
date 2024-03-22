@@ -27,7 +27,7 @@ class NeqController extends Controller
 
             DB::beginTransaction();
 
-            $getDetailUnitNeq = $getDetailUnitNeq->delet();
+            $getDetailUnitNeq = $getDetailUnitNeq->delete();
 
             DB::commit();
             return ResponseFormatter::success($getDetailUnitNeq, "Successfully delete unit neq !");
