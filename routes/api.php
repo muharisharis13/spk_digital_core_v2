@@ -7,6 +7,7 @@ use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\NeqController;
+use App\Http\Controllers\API\NeqReturnController;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ShippingOrderController;
@@ -131,6 +132,12 @@ Route::prefix("v1")->group(function () {
             Route::delete("/delete/{neq_id}", [NeqController::class, "deleteNeq"]);
             Route::prefix("unit")->group(function () {
                 Route::delete("/delete/{neq_unit_id}", [NeqController::class, "deleteUnitNeq"]);
+            });
+
+            Route::prefix("return")->group(function () {
+                Route::prefix("unit")->group(function () {
+                    Route::get("/list/{neq_id}", [NeqReturnController::class, "getAllUnitNeq"]);
+                });
             });
         });
     });
