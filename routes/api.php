@@ -135,7 +135,14 @@ Route::prefix("v1")->group(function () {
             });
 
             Route::prefix("return")->group(function () {
+                Route::post("/create", [NeqReturnController::class, "createNeqReturn"]);
+                Route::put("/update/{neq_return_id}", [NeqReturnController::class, "updateNeqReturn"]);
+                Route::get("/list", [NeqReturnController::class, "getPaginateNeqReturn"]);
+                Route::get("/detail/{neq_return_id}", [NeqReturnController::class, "getDetailNeqReturn"]);
+                Route::delete("/delete/{neq_return_id}", [NeqReturnController::class, "deleteNeqReturn"]);
+                Route::put("/status/{neq_return_id}", [NeqReturnController::class, "updateStatusNeqReturn"]);
                 Route::prefix("neq-unit")->group(function () {
+                    Route::delete("/delete/{neq_return_unit_id}", [NeqReturnController::class, "deleteNeqReturnUnit"]);
                     Route::get("/list/{neq_id}", [NeqReturnController::class, "getAllUnitNeq"]);
                 });
             });

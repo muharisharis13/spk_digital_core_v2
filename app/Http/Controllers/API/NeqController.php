@@ -256,7 +256,7 @@ class NeqController extends Controller
             }
 
 
-            return ResponseFormatter::success($data, "Successfully created !");
+            return ResponseFormatter::success($data, "Successfully updated !");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);

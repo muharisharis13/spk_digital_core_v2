@@ -215,10 +215,10 @@ class EventReturnController extends Controller
 
                 if (!isset($item["event_return_list_unit_id"])) {
                     // merubah status unit di table repair_unit_list
-                    EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])
-                        ->update([
-                            "is_return" => true
-                        ]);
+                    // EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])
+                    //     ->update([
+                    //         "is_return" => true
+                    //     ]);
 
                     EventReturnListUnit::create([
                         "event_return_id" => $event_return_id,
