@@ -40,13 +40,6 @@ class NeqController extends Controller
     public function deleteNeq(Request $request, $neq_id)
     {
         try {
-            $validator  = Validator::make($request->all(), [
-                "neq_status" => "required|in:approve,cancel",
-            ]);
-
-            if ($validator->fails()) {
-                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-            }
 
             DB::beginTransaction();
 
