@@ -6,22 +6,23 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DeliveryNeq extends Model
+class DeliveryNeqReturn extends Model
 {
     use HasFactory, HasUuids;
     protected $guarded = [];
 
-    protected $primaryKey = "delivery_neq_id";
+    protected $primaryKey = "delivery_neq_return_id";
 
-    protected $with = ["delivery", "delivery_neq"];
+    protected $with = ["delivery", "delivery_neq_return"];
+
 
     public function delivery()
     {
         return $this->belongsTo(delivery::class, "delivery_id");
     }
 
-    public function deliver_neq()
+    public function delivery_neq_return()
     {
-        return $this->belongsTo(DeliveryNeq::class, "delivery_neq_id");
+        return $this->belongsTo(DeliveryNeqReturn::class, "delivery_neq_return_id");
     }
 }
