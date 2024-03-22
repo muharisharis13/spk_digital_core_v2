@@ -33,4 +33,9 @@ class Neq extends Model
     {
         return $this->hasMany(NeqLog::class, "neq_id");
     }
+
+    public function deliver_neq()
+    {
+        return $this->hasOne(DeliveryNeq::class, "neq_id");
+    }
 }

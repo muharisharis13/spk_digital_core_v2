@@ -132,7 +132,7 @@ class NeqController extends Controller
     {
         try {
             $getDetailDealerNeq = Neq::latest()
-                ->with(["dealer_neq", "dealer", "neq_unit.unit.motor", "neq_log"])
+                ->with(["dealer_neq", "dealer", "neq_unit.unit.motor", "neq_log", "deliver_neq"])
                 ->withCount([
                     "neq_unit as neq_unit_total" => function ($query) {
                         $query->selectRaw("count(*)");
