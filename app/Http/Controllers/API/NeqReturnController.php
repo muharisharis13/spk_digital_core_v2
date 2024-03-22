@@ -24,7 +24,7 @@ class NeqReturnController extends Controller
 
             $getAllUnitNeq = NeqUnit::latest();
 
-            $getAllUnitNeq = $getAllUnitNeq->with(["neq", "unit.motor", "neq" => function ($query) use ($getDealer) {
+            $getAllUnitNeq = $getAllUnitNeq->with(["unit.motor", "neq" => function ($query) use ($getDealer) {
                 $query->where("dealer_id", $getDealer->dealer_id);
             }])
                 ->where("is_return", false)

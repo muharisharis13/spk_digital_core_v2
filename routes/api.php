@@ -135,7 +135,7 @@ Route::prefix("v1")->group(function () {
             });
 
             Route::prefix("return")->group(function () {
-                Route::prefix("unit")->group(function () {
+                Route::prefix("neq-unit")->group(function () {
                     Route::get("/list/{neq_id}", [NeqReturnController::class, "getAllUnitNeq"]);
                 });
             });
