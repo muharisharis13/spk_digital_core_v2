@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Helpers\PermmissionList;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -15,11 +16,7 @@ class PermissionSeeder extends Seeder
     {
         //
 
-        $permissions = [
-            "read_unit",
-            "read_unit_detail",
-            "update_unit_status"
-        ];
+        $permissions = PermmissionList::AllPermission();
 
         // Looping untuk membuat permission
         foreach ($permissions as $permissionName) {

@@ -114,6 +114,7 @@ class NeqReturnController extends Controller
             $start = $request->input("start_date");
             $end = $request->input("end_date");
             $searchQuery = $request->input("q");
+            $neq_dealer_id = $request->input("neq_dealer_id");
 
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
@@ -132,6 +133,11 @@ class NeqReturnController extends Controller
                     return $query->whereDate('created_at', '<=', $end);
                 })
                 ->where("neq_return_status", "LIKE", "%$neq_return_status%")
+                ->whereHas("neq", function ($query) use ($neq_dealer_id) {
+                    $query->whereHas("dealer_neq", function ($query) use ($neq_dealer_id) {
+                        $query->where("dealer_neq_id", "LIKE", "%$neq_dealer_id%");
+                    });
+                })
                 ->when($searchQuery, function ($query) use ($searchQuery) {
                     $query->where('neq_return_number', "LIKE", "%$searchQuery%")
                         ->orWhereHas("neq", function ($query) use ($searchQuery) {
