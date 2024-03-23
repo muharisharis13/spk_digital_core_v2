@@ -15,6 +15,7 @@ use App\Models\DeliveryEvent;
 use App\Models\DeliveryEventReturn;
 use App\Models\deliveryLog;
 use App\Models\DeliveryNeq;
+use App\Models\DeliveryNeqReturn;
 use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
 use Illuminate\Http\Request;
@@ -94,14 +95,43 @@ class DeliveryController extends Controller
     public function DetailDelivery(Request $request, $delivery_id)
     {
         try {
-            $getDetailDelivery = Delivery::with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit" => function ($query) {
-                $query->where("is_return", false);
-            }, "delivery_repair.repair.repair_unit.unit.motor", "dealer", "delivery_event.event.master_event", "delivery_event.event.event_unit.unit.motor", "delivery_log" => function ($query) {
-
-                $query->latest();
-            }, "delivery_repair_return.repair_return", "delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit", "delivery_neq.neq.neq_unit"])
+            $getDetailDelivery = Delivery::with(["dealer",])
                 ->where("delivery_id", $delivery_id)
                 ->first();
+
+            if ($getDetailDelivery->delivery_type === "repair") {
+                $getDetailDelivery = $getDetailDelivery->with([
+                    "delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit" => function ($query) {
+                        $query->where("is_return", false);
+                    }, "delivery_repair.repair.repair_unit.unit.motor",
+                ]);
+            } else if ($getDetailDelivery->delivery_type === "repair_return") {
+                $getDetailDelivery = $getDetailDelivery->with([
+                    "delivery_repair_return.repair_return",
+                ]);
+            } else if ($getDetailDelivery->delivery_type === "event") {
+                $getDetailDelivery = $getDetailDelivery->with([
+                    "delivery_event.event.master_event", "delivery_event.event.event_unit.unit.motor", "delivery_log" => function ($query) {
+
+                        $query->latest();
+                    },
+                ]);
+            } else if ($getDetailDelivery->delivery_type === "event_return") {
+                $getDetailDelivery = $getDetailDelivery->with([
+                    "delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit",
+                ]);
+            } else if ($getDetailDelivery->delivery_type === "neq") {
+                $getDetailDelivery = $getDetailDelivery->with([
+                    "delivery_neq.neq.neq_unit"
+                ]);
+            } else if ($getDetailDelivery->delivery_type === "neq_return") {
+                $getDetailDelivery = $getDetailDelivery->with([
+                    "delivery_neq_return.neq_return.neq_return_unit"
+                ]);
+            }
+
+            $getDetailDelivery = $getDetailDelivery->first();
+
 
             return ResponseFormatter::success($getDetailDelivery);
         } catch (\Throwable $e) {
@@ -166,6 +196,8 @@ class DeliveryController extends Controller
                 $getPaginateDelivery->with(["delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"]);
             } else if ($delivery_type === 'neq') {
                 $getPaginateDelivery->with(["delivery_neq.neq.neq_unit"]);
+            } else if ($delivery_type === 'neq_return') {
+                $getPaginateDelivery->with(["delivery_neq_return.neq_return.neq_return_unit"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);
@@ -258,6 +290,8 @@ class DeliveryController extends Controller
                 $deliveryType = DeliveryTypeEnum::event_return;
             } elseif ($request->neq_id) {
                 $deliveryType = DeliveryTypeEnum::neq;
+            } elseif ($request->neq_return_id) {
+                $deliveryType = DeliveryTypeEnum::neq_return;
             }
 
             DB::beginTransaction();
@@ -318,6 +352,12 @@ class DeliveryController extends Controller
                     "delivery_id" => $createDelivery->delivery_id
                 ]);
                 $data['delivery_neq'] = $createDeliveryNeq;
+            } else if (isset($request->neq_return_id)) {
+                $createDeliverNeqReturn = DeliveryNeqReturn::create([
+                    "neq_return_id" => $request->neq_return_id,
+                    "delivery_id" => $createDelivery->delivery_id
+                ]);
+                $data["deliver_neq_return"] = $createDeliverNeqReturn;
             }
 
 
