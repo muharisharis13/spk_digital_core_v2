@@ -53,6 +53,6 @@ class PermmissionList
 
     public static function AllPermission()
     {
-        return array_merge(self::permissionUnit);
+        return array_merge(self::permissionUnit, self::permissionShippingOrder, self::permissionMaster, self::permissionRepair);
     }
 }
