@@ -12,6 +12,7 @@ use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\UnitContoller;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,7 +38,9 @@ Route::prefix("v1")->group(function () {
     });
     Route::middleware("auth:sanctum")->group(function () {
 
-
+        Route::prefix("user")->group(function () {
+            Route::post("/assign-permission", [UserController::class, "assignPermission"]);
+        });
 
         Route::prefix("shipping-order")->group(function () {
             Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
@@ -47,7 +50,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("unit")->group(function () {
             Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"]);
-            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"]);
+            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"])->middleware('permission:read_unit');
             Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"]);
         });
 
