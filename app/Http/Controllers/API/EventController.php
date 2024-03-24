@@ -200,7 +200,14 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
+                if (isset($item["event_list_unit_id"])) {
+                    continue; // Skip if neq_unit_id exists
+                }
                 if (!isset($item['event_list_unit_id'])) {
+                    if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
+                    }
                     // check unit apakah sudah ada di event
 
                     $checkUnit = Unit::where("unit_id", $item["unit_id"])->with("event_list_unit.event.master_event")->first();
@@ -274,7 +281,10 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-
+                if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
+                }
                 $createEventUnit[] = EventListUnit::create([
                     "event_id" => $createEvent->event_id,
                     "unit_id" => $item["unit_id"]
@@ -318,5 +328,22 @@ class EventController extends Controller
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
+    }
+
+    private function checkUnitIsHaveNEQ($unit_id)
+    {
+        $user = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        if (!isset($unit_id)) {
+            return ResponseFormatter::error("unit id not found", "bad request", 400);
+        }
+        $getUnit = Unit::latest()
+            ->with("neq_id")
+            ->where("unit_id", $unit_id)
+            ->where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        return isset($getUnit->neq_id);
     }
 }
