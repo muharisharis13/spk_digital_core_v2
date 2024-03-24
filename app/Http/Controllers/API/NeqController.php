@@ -264,7 +264,7 @@ class NeqController extends Controller
                     continue; // Skip if neq_unit_id exists
                 }
                 if (!isset($item["neq_unit_id"])) {
-                    if ($this->checkUnitIsHaveEvent($item["unit_id"])) {
+                    if (!$this->checkUnitIsHaveEvent($item["unit_id"])) {
                         DB::rollBack();
                         return ResponseFormatter::error("Unit $item->unit_id sudah memiliki event harap di return dahulu untuk tersedia di transfer ke NEQ", "Bad request !", 400);
                     }
@@ -338,7 +338,7 @@ class NeqController extends Controller
 
 
             foreach ($request->neq_unit as $item) {
-                if ($this->checkUnitIsHaveEvent($item['unit_id'])) {
+                if (!$this->checkUnitIsHaveEvent($item['unit_id'])) {
                     DB::rollBack();
                     return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki event, harap di-return dahulu untuk tersedia di transfer ke NEQ", "Bad request !", 400);
                 }

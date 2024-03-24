@@ -221,7 +221,7 @@ class EventController extends Controller
                     continue; // Skip if neq_unit_id exists
                 }
                 if (!isset($item['event_list_unit_id'])) {
-                    if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                    if (!$this->checkUnitIsHaveNEQ($item['unit_id'])) {
                         DB::rollBack();
                         return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
                     }
@@ -298,7 +298,7 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-                if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                if (!$this->checkUnitIsHaveNEQ($item['unit_id'])) {
                     DB::rollBack();
                     return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
                 }
