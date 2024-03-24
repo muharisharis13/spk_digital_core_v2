@@ -79,12 +79,12 @@ class UnitContoller extends Controller
                 })
                 ->whereHas("event_list_unit", function ($query) {
                     $query->whereHas("event", function ($query) {
-                        $query->where("event_status", EventStatusEnum::approve)->where("is_return", true);
+                        $query->where("event_status", EventStatusEnum::approve)->where("is_return", false);
                     });
                 })
                 ->whereHas("neq_unit", function ($query) {
                     $query->whereHas("neq", function ($query) {
-                        $query->where("neq_status", NeqStatusEnum::approve)->where("is_return", true);
+                        $query->where("neq_status", NeqStatusEnum::approve)->where("is_return", false);
                     });
                 })
                 ->orderBy($sortBy, $sortOrder);

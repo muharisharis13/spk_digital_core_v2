@@ -236,7 +236,8 @@ class NeqReturnController extends Controller
                 "dealer_neq_id" => $request->dealer_neq_id,
                 "neq_return_number" =>  GenerateNumber::generate("TF-NEQ-RETURN", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "neq_returns", "neq_return_number"),
                 "neq_return_status" => NeqReturnStatusEnum::create,
-                "dealer_id" => $getDealerSelected->dealer_id
+                "dealer_id" => $getDealerSelected->dealer_id,
+                "neq_return_note" => $request->neq_return_note
             ]);
 
 
