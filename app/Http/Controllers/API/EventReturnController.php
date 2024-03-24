@@ -132,6 +132,15 @@ class EventReturnController extends Controller
                 ]);
             }
 
+            $user = Auth::user();
+            // create event return log
+            $createEventLog = EventReturnLog::create([
+                "event_return_id" => $getDetailEventReturn->event_return_id,
+                "user_id" => $user->user_id,
+                "event_return_log_action" => EventReturnStatusEnum::create,
+                "event_return_log_note" => "create event return"
+            ]);
+
             $getDetailEventReturn->update([
                 "event_return_status" => $request->event_return_status
             ]);
