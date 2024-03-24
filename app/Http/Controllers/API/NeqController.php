@@ -323,6 +323,8 @@ class NeqController extends Controller
                 "neq_log" => $creaetLogNeq
             ];
 
+            DB::commit();
+
             return ResponseFormatter::success($data, "Successfully created !");
 
             // return ResponseFormatter::success($this->checkUnitIsHaveEvent(), "Successfully created !");

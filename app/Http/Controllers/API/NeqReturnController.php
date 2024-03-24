@@ -96,7 +96,7 @@ class NeqReturnController extends Controller
     {
         try {
             $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
+                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery", "neq_return_log.user"]);
 
             $getDetailNeqReturn = $getDetailNeqReturn->first();
 
