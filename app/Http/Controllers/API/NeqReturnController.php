@@ -37,7 +37,7 @@ class NeqReturnController extends Controller
 
             DB::beginTransaction();
             $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
+                ->with(["dealer_neq", "dealer_neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
 
             $getDetailNeqReturn = $getDetailNeqReturn->first();
 
@@ -82,7 +82,7 @@ class NeqReturnController extends Controller
     {
         try {
             $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
+                ->with(["dealer_neq", "dealer_neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
             DB::beginTransaction();
             $getDetailNeqReturn = $getDetailNeqReturn->delete();
             DB::commit();
@@ -97,7 +97,7 @@ class NeqReturnController extends Controller
     {
         try {
             $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery", "neq_return_log.user"]);
+                ->with(["dealer_neq", "dealer_neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery", "neq_return_log.user"]);
 
             $getDetailNeqReturn = $getDetailNeqReturn->first();
 
