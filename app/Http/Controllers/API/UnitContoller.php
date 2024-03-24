@@ -51,15 +51,23 @@ class UnitContoller extends Controller
             $has_event = $request->input("has_event", "true");
 
 
-            $getListPaginateUnit = Unit::with(["motor", "shipping_order.dealer", "event_list_unit" => function ($query) {
-                $query->whereHas("event", function ($query) {
-                    $query->where("event_status", EventStatusEnum::approve)->where("is_return", false);
-                });
-            }, "event_list_unit.event.master_event", "neq_unit.neq", "neq_unit" => function ($query) {
-                $query->whereHas("neq", function ($query) {
-                    $query->where("neq_status", NeqStatusEnum::approve)->where("is_return", false);
-                });
-            }])
+            $getListPaginateUnit = Unit::with([
+                "motor", "shipping_order.dealer", "event_list_unit" => function ($query) {
+                    $query->whereHas("event", function ($query) {
+                        $query->where("event_status", EventStatusEnum::approve);
+                    })->where("is_return", false);
+                }, "event_list_unit.event.master_event", "neq_unit.neq", "neq_unit" => function ($query) {
+                    $query->whereHas("neq", function ($query) {
+                        $query->where("neq_status", NeqStatusEnum::approve);
+                    })->where("is_return", false);
+                },
+                "repair_unit" => function ($query) {
+                    $query->whereHas("repair", function ($query) {
+                        $query->where("repair_status", "approve");
+                    })
+                        ->where("is_return", false);
+                },
+            ])
                 ->whereNotNull("unit_status")
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('unit_color', 'LIKE', "%$searchQuery%")
@@ -85,26 +93,9 @@ class UnitContoller extends Controller
                 ->when($date, function ($query) use ($date) {
                     return $query->whereDate('unit_received_date', 'LIKE', "%$date%");
                 })
-
-                // ->whereHas("event_list_unit", function ($query) {
-                //     $query->whereHas("event", function ($query) {
-                //         $query->where("event_status", EventStatusEnum::approve)->where("is_return", false);
-                //     });
-                // })
-                // ->whereHas("neq_unit", function ($query) {
-                //     $query->whereHas("neq", function ($query) {
-                //         $query->where("neq_status", NeqStatusEnum::approve)->where("is_return", false);
-                //     });
-                // })
                 ->orderBy($sortBy, $sortOrder);
 
-            // if ($has_event === "true") {
-            //     $getListPaginateUnit->whereHas("event_list_unit", function ($query) {
-            //         $query->whereNotNull("event_id");
-            //     });
-            // } elseif ($has_event === "false") {
-            //     $getListPaginateUnit->whereDoesntHave("event_list_unit");
-            // }
+
 
             $getListPaginateUnit = $getListPaginateUnit->paginate($limit);
 

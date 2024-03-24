@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\EventStatusEnum;
+use App\Enums\UnitLocationStatusEnum;
 use App\Helpers\FormatDate;
 use App\Helpers\FormateDate;
 use App\Helpers\GenerateAlias;
@@ -59,6 +60,7 @@ class EventController extends Controller
                 foreach ($getDetailEvent->event_unit as $eventUnit) {
                     $unit = $eventUnit->unit_id;
 
+
                     $checkDuplicate = EventListUnit::whereHas('event', function ($query) use ($unit) {
                         $query->where('event_status', 'approve');
                     })
@@ -71,6 +73,12 @@ class EventController extends Controller
                         DB::rollBack();
                         return ResponseFormatter::error("Unit already approved in another event", "Bad Request", 400);
                     }
+
+                    // update unit location status
+
+                    Unit::where("unit_id", $unit)->update([
+                        "unit_location_status" => UnitLocationStatusEnum::event
+                    ]);
                 }
             } else {
                 DB::rollBack();

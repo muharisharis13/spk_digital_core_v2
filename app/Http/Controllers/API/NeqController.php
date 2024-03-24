@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\NeqStatusEnum;
+use App\Enums\UnitLocationStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -94,6 +95,37 @@ class NeqController extends Controller
                 ])
                 ->where("neq_id",  $neq_id)
                 ->first();
+
+            // check apakah unit tersebut sudah approve di neq lain apa belum
+            if (isset($getDetailNeq->neq_unit) && $getDetailNeq->neq_unit->count() > 0) {
+                foreach ($getDetailNeq->neq_unit as $eventUnit) {
+                    $unit = $eventUnit->unit_id;
+
+
+                    $checkDuplicate = NeqUnit::whereHas('neq', function ($query) use ($unit) {
+                        $query->where('neq_status', 'approve');
+                    })
+                        ->where('unit_id', $unit)
+                        ->where('neq_id', $neq_id)
+                        ->exists();
+
+                    if ($checkDuplicate) {
+                        // Jika unit tersebut sudah di-approve di neq lain
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit already approved in another neq", "Bad Request", 400);
+                    }
+
+                    // update unit location status
+
+                    Unit::where("unit_id", $unit)->update([
+                        "unit_location_status" => UnitLocationStatusEnum::neq
+                    ]);
+                }
+            } else {
+                DB::rollBack();
+                return
+                    ResponseFormatter::error("Paling tidak memiliki satu unit untuk di approve", "Bad Request", 400);
+            }
 
 
             // create log neq

@@ -66,4 +66,9 @@ class Unit extends Model
     {
         return $this->belongsTo(Motor::class, "motor_id");
     }
+
+    public function repair_unit()
+    {
+        return $this->hasOne(RepairUnitList::class, "unit_id");
+    }
 }

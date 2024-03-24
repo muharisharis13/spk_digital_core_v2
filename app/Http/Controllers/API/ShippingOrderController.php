@@ -243,7 +243,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $getDealerSelected->dealer_id
+                                                "dealer_id" => $checkDealer->dealer_id
                                             ]
                                         );
                                     }
@@ -268,7 +268,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $getDealerSelected->dealer_id
+                                                "dealer_id" => $checkDealer->dealer_id
                                             ]
                                         );
                                     }
@@ -277,7 +277,7 @@ class ShippingOrderController extends Controller
                             // jika dealer tidak ada di database maka create datanya
                             else {
                                 $createDealer = Dealer::create([
-                                    "dealer_id" => Str::uuid(),
+                                    // "dealer_id" => Str::uuid(),
                                     "dealer_name" => $itemHeader["h.customer_name_"],
                                     "dealer_code" => $itemHeader["h.customer_code_"],
                                     "dealer_type" => isset($itemHeader["h.consignee_"]) && strpos($itemHeader["h.consignee_"], "ALFA SCORPII") !== false ? 'mds' : 'independent'
@@ -308,7 +308,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $getDealerSelected->dealer_id
+                                                "dealer_id" => $createDealer->dealer_id
                                             ]
                                         );
                                     }
@@ -333,7 +333,7 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $getDealerSelected->dealer_id
+                                                "dealer_id" => $createDealer->dealer_id
                                             ]
                                         );
                                     }
