@@ -121,7 +121,7 @@ class NeqReturnController extends Controller
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
             // "neq_return_unit.neq_unit.unit.motor",
             $getPaginate = NeqReturn::latest()
-                ->with(["neq.dealer_neq", "neq.dealer"])
+                ->with(["dealer_neq"])
                 ->withCount([
                     "neq_return_unit as neq_return_unit_total" => function ($query) {
                         $query->selectRaw("count(*)");
@@ -134,20 +134,13 @@ class NeqReturnController extends Controller
                     return $query->whereDate('created_at', '<=', $end);
                 })
                 ->where("neq_return_status", "LIKE", "%$neq_return_status%")
-                ->whereHas("neq", function ($query) use ($neq_dealer_id) {
-                    $query->whereHas("dealer_neq", function ($query) use ($neq_dealer_id) {
-                        $query->where("dealer_neq_id", "LIKE", "%$neq_dealer_id%");
-                    });
+                ->whereHas("dealer_neq", function ($query) use ($neq_dealer_id) {
+                    $query->where("dealer_neq_id", "LIKE", "%$neq_dealer_id%");
                 })
                 ->when($searchQuery, function ($query) use ($searchQuery) {
                     $query->where('neq_return_number', "LIKE", "%$searchQuery%")
-                        ->orWhereHas("neq", function ($query) use ($searchQuery) {
-                            $query->whereHas("dealer_neq", function ($query) use ($searchQuery) {
-                                $query->where("dealer_neq_name", "LIKE", "%$searchQuery%");
-                            })
-                                ->orWhereHas("dealer", function ($query) use ($searchQuery) {
-                                    $query->where("dealer_name", "LIKE", "%$searchQuery%");
-                                });
+                        ->orWhereHas("dealer_neq", function ($query) use ($searchQuery) {
+                            $query->where("dealer_neq_name", "LIKE", "%$searchQuery%");
                         });
                 })
                 ->where("dealer_id", $getDealerSelected->dealer_id);
@@ -222,7 +215,7 @@ class NeqReturnController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "neq_id" => "required",
+                "dealer_neq_id" => "required",
                 "neq_return_unit" => "required|array",
                 "neq_return_unit.*.neq_unit_id" => "required"
             ]);
@@ -238,7 +231,7 @@ class NeqReturnController extends Controller
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             $createNeqReturn = NeqReturn::create([
-                "neq_id" => $request->neq_id,
+                "dealer_neq_id" => $request->dealer_neq_id,
                 "neq_return_number" =>  GenerateNumber::generate("TF-NEQ-RETURN", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "neq_returns", "neq_return_number"),
                 "neq_return_status" => NeqReturnStatusEnum::create,
                 "dealer_id" => $getDealerSelected->dealer_id
@@ -276,24 +269,7 @@ class NeqReturnController extends Controller
         }
     }
 
-    // public function getAllUnitNeq(Request $request, $dealer_neq_id)
-    // {
-    //     try {
-    //         $user = Auth::user();
-    //         $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
 
-    //         if ($getDealer) {
-    //             return ResponseFormatter::error("Dealer selected not found", "not found", 404);
-    //         }
-    //         $getDetailDealerNeq = DealerNeq::where("dealer_neq_id", $dealer_neq_id)
-    //             ->where("dealer_id", $getDealer->dealer_id)
-    //             ->with(["neq.neq_unit.unit.motor"])->first();
-
-    //         return ResponseFormatter::success($getDetailDealerNeq);
-    //     } catch (\Throwable $e) {
-    //         return ResponseFormatter::error($e->getMessage(), "internal server", 500);
-    //     }
-    // }
 
     public function getAllUnitNeq(Request $request, $dealer_neq_id)
     {
