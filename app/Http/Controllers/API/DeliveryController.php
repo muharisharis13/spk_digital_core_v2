@@ -99,38 +99,47 @@ class DeliveryController extends Controller
                 ->where("delivery_id", $delivery_id)
                 ->first();
 
-            if ($getDetailDelivery->delivery_type === "repair") {
-                $getDetailDelivery = $getDetailDelivery->with([
-                    "delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit" => function ($query) {
-                        $query->where("is_return", false);
-                    }, "delivery_repair.repair.repair_unit.unit.motor",
-                ]);
-            } else if ($getDetailDelivery->delivery_type === "repair_return") {
-                $getDetailDelivery = $getDetailDelivery->with([
-                    "delivery_repair_return.repair_return",
-                ]);
-            } else if ($getDetailDelivery->delivery_type === "event") {
-                $getDetailDelivery = $getDetailDelivery->with([
-                    "delivery_event.event.master_event", "delivery_event.event.event_unit.unit.motor", "delivery_log" => function ($query) {
+            switch ($getDetailDelivery->delivery_type) {
+                case "repair":
+                    $getDetailDelivery->load([
+                        "delivery_repair.repair.main_dealer",
+                        "delivery_repair.repair.repair_unit" => function ($query) {
+                            $query->where("is_return", false);
+                        },
+                        "delivery_repair.repair.repair_unit.unit.motor",
+                    ]);
+                    break;
 
-                        $query->latest();
-                    },
-                ]);
-            } else if ($getDetailDelivery->delivery_type === "event_return") {
-                $getDetailDelivery = $getDetailDelivery->with([
-                    "delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit",
-                ]);
-            } else if ($getDetailDelivery->delivery_type === "neq") {
-                $getDetailDelivery = $getDetailDelivery->with([
-                    "delivery_neq.neq.neq_unit"
-                ]);
-            } else if ($getDetailDelivery->delivery_type === "neq_return") {
-                $getDetailDelivery = $getDetailDelivery->with([
-                    "delivery_neq_return.neq_return.neq_return_unit"
-                ]);
+                case "repair_return":
+                    $getDetailDelivery->load("delivery_repair_return.repair_return");
+                    break;
+
+                case "event":
+                    $getDetailDelivery->load([
+                        "delivery_event.event.master_event",
+                        "delivery_event.event.event_unit.unit.motor",
+                        "delivery_log" => function ($query) {
+                            $query->latest();
+                        },
+                    ]);
+                    break;
+
+                case "event_return":
+                    $getDetailDelivery->load([
+                        "delivery_event_return.event_return.master_event.event",
+                        "delivery_event_return.event_return.event_return_unit",
+                    ]);
+                    break;
+
+                case "neq":
+                    $getDetailDelivery->load("delivery_neq.neq.neq_unit");
+                    break;
+
+                case "neq_return":
+                    $getDetailDelivery->load("delivery_neq_return.neq_return.neq_return_unit");
+                    break;
             }
 
-            $getDetailDelivery = $getDetailDelivery->first();
 
 
             return ResponseFormatter::success($getDetailDelivery);
