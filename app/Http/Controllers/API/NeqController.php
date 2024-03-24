@@ -303,17 +303,16 @@ class NeqController extends Controller
                 "neq_log_action" => "create"
             ]);
 
-            return ResponseFormatter::success($request->neq_unit);
 
 
             foreach ($request->neq_unit as $item) {
-                if ($this->checkUnitIsHaveEvent($item->unit_id)) {
+                if ($this->checkUnitIsHaveEvent($item['unit_id'])) {
                     DB::rollBack();
-                    return ResponseFormatter::error("Unit $item->unit_id sudah memiliki event harap di return dahulu untuk tersedia di transfer ke NEQ", "Bad request !", 400);
+                    return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki event, harap di-return dahulu untuk tersedia di transfer ke NEQ", "Bad request !", 400);
                 }
                 $createNeqUnit[] = NeqUnit::create([
                     "neq_id" => $createNeq->neq_id,
-                    "unit_id" => $item->unit_id,
+                    "unit_id" => $item['unit_id'],
                 ]);
             }
 
@@ -339,6 +338,9 @@ class NeqController extends Controller
         $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
+        if (!isset($unit_id)) {
+            return ResponseFormatter::error("unit id not found", "bad request", 400);
+        }
         $getUnit = Unit::latest()
             ->with("event_list_unit")
             ->where("unit_id", $unit_id)
