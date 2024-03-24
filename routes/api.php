@@ -50,7 +50,8 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("unit")->group(function () {
             Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"]);
-            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"])->middleware('permission:read_unit');
+            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"]);
+            // ->middleware('permission:read_unit');
             Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"]);
         });
 

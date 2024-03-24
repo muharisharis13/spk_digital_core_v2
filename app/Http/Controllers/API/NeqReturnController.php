@@ -13,6 +13,7 @@ use App\Models\NeqReturn;
 use App\Models\NeqReturnLog;
 use App\Models\NeqReturnUnit;
 use App\Models\NeqUnit;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -317,4 +318,21 @@ class NeqReturnController extends Controller
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
+
+    // private function checkUnitIsHaveEvent($unit_id)
+    // {
+    //     $user = Auth::user();
+    //     $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+    //     if (!isset($unit_id)) {
+    //         return ResponseFormatter::error("unit id not found", "bad request", 400);
+    //     }
+    //     $getUnit = Unit::latest()
+    //         ->with("event_list_unit")
+    //         ->where("unit_id", $unit_id)
+    //         ->where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+    //     return isset($getUnit->event_list_unit);
+    // }
 }
