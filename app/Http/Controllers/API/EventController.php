@@ -58,6 +58,16 @@ class EventController extends Controller
             // check apakah unit tersebut sudah approve di event lain apa belum
             if (isset($getDetailEvent->event_unit) && $getDetailEvent->event_unit->count() > 0) {
                 foreach ($getDetailEvent->event_unit as $eventUnit) {
+
+                    // check unit apakah unit location status tidak null
+                    $getUnitDetail = Unit::where("unit_id", $eventUnit->unit_id)->first();
+
+                    if ($getUnitDetail->unit_location_status != null) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit dengan ID {$eventUnit->unit_id} sudah terdaftar dalam unit location status.", "Bad Request", 400);
+                    }
+
+
                     $unit = $eventUnit->unit_id;
 
 
