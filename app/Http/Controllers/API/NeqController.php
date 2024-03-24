@@ -282,6 +282,11 @@ class NeqController extends Controller
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
+            if (!$getDealerSelected) {
+                return ResponseFormatter::error("dealer selected not found", "Not Found", 404);
+            }
+
+
             $createNeq = Neq::create([
                 "neq_note" => $request->neq_note,
                 "neq_shipping_date" => $request->neq_shipping_date,
@@ -298,6 +303,9 @@ class NeqController extends Controller
                 "neq_log_action" => "create"
             ]);
 
+            return ResponseFormatter::success($request->neq_unit);
+
+
             foreach ($request->neq_unit as $item) {
                 if ($this->checkUnitIsHaveEvent($item->unit_id)) {
                     DB::rollBack();
@@ -309,7 +317,6 @@ class NeqController extends Controller
                 ]);
             }
 
-            DB::commit();
 
             $data = [
                 "neq" => $createNeq,
