@@ -85,6 +85,15 @@ class EventController extends Controller
                 return
                     ResponseFormatter::error("Paling tidak memiliki satu unit untuk di approve", "Bad Request", 400);
             }
+            $user = Auth::user();
+
+            // add event log
+            EventLog::create([
+                "event_id" => $getDetailEvent->event_id,
+                "user_id" => $user->user_id,
+                "event_log_action" => EventStatusEnum::create,
+                "event_log_note" => "Create new event"
+            ]);
 
             $getDetailEvent->update([
                 "event_status" => $request->event_status
@@ -102,7 +111,7 @@ class EventController extends Controller
     public function getDetailEvent(Request $request, $event_id)
     {
         try {
-            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit.unit.event_list_unit.event", "event_unit.unit.motor", "master_event", "event_log", "delivery_event.event.master_event", "delivery_event.delivery"])->first();
+            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit.unit.event_list_unit.event", "event_unit.unit.motor", "master_event", "event_log.user", "delivery_event.event.master_event", "delivery_event.delivery"])->first();
 
             return ResponseFormatter::success($getDetailEvent);
         } catch (\Throwable $e) {
