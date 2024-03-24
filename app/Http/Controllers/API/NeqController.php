@@ -326,7 +326,7 @@ class NeqController extends Controller
         }
     }
 
-    private function checkUnitIsHaveEvent()
+    private function checkUnitIsHaveEvent($unit_id)
     {
         $user = Auth::user();
         $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
@@ -334,7 +334,7 @@ class NeqController extends Controller
 
         $getUnit = Unit::latest()
             ->with("event_list_unit")
-            ->where("unit_id", "9b9b8bf9-70ea-46d5-8024-5ebfa2566c5a")
+            ->where("unit_id", $unit_id)
             ->where("dealer_id", $getDealerSelected->dealer_id)->first();
 
         return isset($getUnit->event_list_unit);
