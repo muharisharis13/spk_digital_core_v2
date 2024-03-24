@@ -177,7 +177,7 @@ class EventController extends Controller
 
 
             foreach ($getDetailEvent->event_unit as $item) {
-                EventListUnit::where(["event_id", $item["event_id"]])->delete();
+                EventListUnit::where("event_id", $item["event_id"])->delete();
             }
 
             $getDetailEvent->delete();
@@ -298,7 +298,7 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-                if (!$this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
                     DB::rollBack();
                     return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
                 }
