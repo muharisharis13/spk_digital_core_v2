@@ -47,7 +47,7 @@ class NeqReturnController extends Controller
             }
             foreach ($getDetailNeqReturn->neq_return_unit as $item) {
                 // update neq unit
-                $getDetailNeqUnit =  NeqUnit::with(["unit"])->where("neq_unit_id", $item["neq_unit_id"]);
+                $getDetailNeqUnit =  NeqUnit::with(["unit"])->where("neq_unit_id", $item["neq_unit_id"])->first();
 
                 Unit::where("unit_id", $getDetailNeqUnit->unit->unit_id)->update([
                     "unit_location_status" => null
