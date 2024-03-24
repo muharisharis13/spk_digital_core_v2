@@ -101,6 +101,14 @@ class NeqController extends Controller
                 foreach ($getDetailNeq->neq_unit as $eventUnit) {
                     $unit = $eventUnit->unit_id;
 
+                    // check unit apakah unit location status tidak null
+                    $getUnitDetail = Unit::where("unit_id", $eventUnit->unit_id)->first();
+
+                    if ($getUnitDetail->unit_location_status != null) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit dengan ID {$eventUnit->unit_id} sudah terdaftar dalam unit location status.", "Bad Request", 400);
+                    }
+
 
                     $checkDuplicate = NeqUnit::whereHas('neq', function ($query) use ($unit) {
                         $query->where('neq_status', 'approve');
