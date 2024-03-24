@@ -361,6 +361,6 @@ class EventController extends Controller
             ->where("unit_id", $unit_id)
             ->where("dealer_id", $getDealerSelected->dealer_id)->first();
 
-        return isset($getUnit->neq_unit);
+        return isset($getUnit->unit_location_status);
     }
 }
