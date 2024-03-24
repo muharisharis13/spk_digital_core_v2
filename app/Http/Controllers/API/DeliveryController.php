@@ -187,17 +187,17 @@ class DeliveryController extends Controller
                 ->orderBy($sortBy, $sortOrder);
 
             if ($delivery_type === 'repair') {
-                $getPaginateDelivery->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit"]);
             } else if ($delivery_type === 'repair_return') {
-                $getPaginateDelivery->with(["delivery_repair_return.repair_return"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_repair_return.repair_return"]);
             } else if ($delivery_type === 'event') {
-                $getPaginateDelivery->with(["delivery_event.event.master_event", "delivery_event.event.event_unit"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_event.event.master_event", "delivery_event.event.event_unit"]);
             } else if ($delivery_type === 'event_return') {
-                $getPaginateDelivery->with(["delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_event_return.event_return.master_event.event", "delivery_event_return.event_return.event_return_unit"]);
             } else if ($delivery_type === 'neq') {
-                $getPaginateDelivery->with(["delivery_neq.neq.neq_unit"]);
+                $getPaginateDelivery =    $getPaginateDelivery->with(["delivery_neq.neq.neq_unit"]);
             } else if ($delivery_type === 'neq_return') {
-                $getPaginateDelivery->with(["delivery_neq_return.neq_return.neq_return_unit"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_neq_return.neq_return.neq_return_unit"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);

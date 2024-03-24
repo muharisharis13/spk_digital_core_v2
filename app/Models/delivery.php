@@ -43,8 +43,12 @@ class delivery extends Model
         return $this->hasOne(DeliveryEventReturn::class, "delivery_id");
     }
 
-    public function deliver_neq()
+    public function delivery_neq()
     {
         return $this->hasOne(DeliveryNeq::class, "delivery_id");
+    }
+    public function delivery_neq_return()
+    {
+        return $this->hasOne(DeliveryNeqReturn::class, "delivery_id");
     }
 }

@@ -13,15 +13,15 @@ class DeliveryNeq extends Model
 
     protected $primaryKey = "delivery_neq_id";
 
-    protected $with = ["delivery", "delivery_neq"];
+    // protected $with = ["delivery", "delivery_neq"];
 
     public function delivery()
     {
         return $this->belongsTo(delivery::class, "delivery_id");
     }
 
-    public function deliver_neq()
+    public function neq()
     {
-        return $this->belongsTo(DeliveryNeq::class, "delivery_neq_id");
+        return $this->belongsTo(Neq::class, "neq_id");
     }
 }

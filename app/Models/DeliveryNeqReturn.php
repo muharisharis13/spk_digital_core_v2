@@ -21,8 +21,8 @@ class DeliveryNeqReturn extends Model
         return $this->belongsTo(delivery::class, "delivery_id");
     }
 
-    public function delivery_neq_return()
+    public function neq_return()
     {
-        return $this->belongsTo(DeliveryNeqReturn::class, "delivery_neq_return_id");
+        return $this->belongsTo(NeqReturn::class, "neq_return");
     }
 }
