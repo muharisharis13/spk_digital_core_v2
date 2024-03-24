@@ -348,10 +348,10 @@ class EventController extends Controller
             return ResponseFormatter::error("unit id not found", "bad request", 400);
         }
         $getUnit = Unit::latest()
-            ->with("neq_id")
+            ->with(["neq_unit"])
             ->where("unit_id", $unit_id)
             ->where("dealer_id", $getDealerSelected->dealer_id)->first();
 
-        return isset($getUnit->neq_id);
+        return isset($getUnit->neq_unit);
     }
 }
