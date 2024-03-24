@@ -8,6 +8,7 @@ use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\DealerNeq;
 use App\Models\NeqReturn;
 use App\Models\NeqReturnLog;
 use App\Models\NeqReturnUnit;
@@ -275,7 +276,26 @@ class NeqReturnController extends Controller
         }
     }
 
-    public function getAllUnitNeq(Request $request, $neq_id)
+    // public function getAllUnitNeq(Request $request, $dealer_neq_id)
+    // {
+    //     try {
+    //         $user = Auth::user();
+    //         $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
+
+    //         if ($getDealer) {
+    //             return ResponseFormatter::error("Dealer selected not found", "not found", 404);
+    //         }
+    //         $getDetailDealerNeq = DealerNeq::where("dealer_neq_id", $dealer_neq_id)
+    //             ->where("dealer_id", $getDealer->dealer_id)
+    //             ->with(["neq.neq_unit.unit.motor"])->first();
+
+    //         return ResponseFormatter::success($getDetailDealerNeq);
+    //     } catch (\Throwable $e) {
+    //         return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+    //     }
+    // }
+
+    public function getAllUnitNeq(Request $request, $dealer_neq_id)
     {
         try {
 
@@ -287,11 +307,17 @@ class NeqReturnController extends Controller
             $getAllUnitNeq = NeqUnit::latest();
 
             $getAllUnitNeq = $getAllUnitNeq->with(["unit.motor", "neq" => function ($query) use ($getDealer) {
-                $query->where("dealer_id", $getDealer->dealer_id);
+                $query->whereHas("dealer_neq", function ($query) use ($getDealer) {
+                    $query->where("dealer_id", $getDealer->dealer_id);
+                });
             }])
-                ->whereHas("neq", function ($query) use ($neq_id) {
-                    $query->where("neq_status", 'approve')
-                        ->where("neq_id", $neq_id);
+                ->whereHas("neq", function ($query) use ($getDealer, $dealer_neq_id) {
+                    $query
+                        ->where("neq_status", 'approve')
+                        ->whereHas("dealer_neq", function ($query) use ($getDealer, $dealer_neq_id) {
+                            $query->where("dealer_neq_id", $dealer_neq_id);
+                            $query->where("dealer_id", $getDealer->dealer_id);
+                        });
                 })
                 ->where("is_return", false)
                 ->when($search, function ($query) use ($search) {
