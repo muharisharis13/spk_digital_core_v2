@@ -132,7 +132,7 @@ class DeliveryController extends Controller
                     break;
 
                 case "neq":
-                    $getDetailDelivery->load("delivery_neq.neq.neq_unit");
+                    $getDetailDelivery->load("delivery_neq.neq.neq_unit.unit.motor");
                     break;
 
                 case "neq_return":
