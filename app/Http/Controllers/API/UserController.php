@@ -13,6 +13,18 @@ class UserController extends Controller
 {
     //
 
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user(); // Mengambil user yang sedang login
+            $user->tokens()->delete(); // Menghapus semua token yang terkait dengan user yang sedang login
+
+            return ResponseFormatter::success($user, "Successfully logout");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function assignPermission(Request $request)
     {
         try {
