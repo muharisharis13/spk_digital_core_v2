@@ -21,5 +21,15 @@ class DealerNeq extends Model
         "dealer_id"
     ];
 
-    protected $primaryKey="dealer_neq_id";
+    protected $primaryKey = "dealer_neq_id";
+
+    public function neq()
+    {
+        return $this->hasMany(Neq::class, "dealer_neq_id");
+    }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
 }

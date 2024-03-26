@@ -35,11 +35,13 @@ Route::prefix("v1")->group(function () {
     Route::prefix("authentication")->group(function () {
         Route::post("/login", [AuthenticationController::class, "login"]);
         Route::post("/register", [AuthenticationController::class, "register"]);
+        // Route::post("/logout", [AuthenticationController::class, "logout"]);
     });
     Route::middleware("auth:sanctum")->group(function () {
 
         Route::prefix("user")->group(function () {
             Route::post("/assign-permission", [UserController::class, "assignPermission"]);
+            Route::post("/logout", [UserController::class, "logout"]);
         });
 
         Route::prefix("shipping-order")->group(function () {
@@ -50,7 +52,8 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("unit")->group(function () {
             Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"]);
-            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"])->middleware('permission:read_unit');
+            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"]);
+            // ->middleware('permission:read_unit');
             Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"]);
         });
 

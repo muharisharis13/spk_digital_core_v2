@@ -13,6 +13,7 @@ use App\Models\EventListUnit;
 use App\Models\EventReturn;
 use App\Models\EventReturnListUnit;
 use App\Models\EventReturnLog;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -117,10 +118,28 @@ class EventReturnController extends Controller
             foreach ($getDetailEventReturn->event_return_unit as $item) {
                 // update event unit ke is return true
 
-                EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])->update([
+                $getDetailEventListUnit = EventListUnit::with(["unit"])->where("event_list_unit_id", $item["event_list_unit_id"])->first();
+
+                Unit::where("unit_id", $getDetailEventListUnit->unit->unit_id)->update([
+                    "unit_location_status" => null
+                ]);
+
+
+
+
+                $getDetailEventListUnit = $getDetailEventListUnit->update([
                     "is_return" => true
                 ]);
             }
+
+            $user = Auth::user();
+            // create event return log
+            $createEventLog = EventReturnLog::create([
+                "event_return_id" => $getDetailEventReturn->event_return_id,
+                "user_id" => $user->user_id,
+                "event_return_log_action" => EventReturnStatusEnum::create,
+                "event_return_log_note" => "create event return"
+            ]);
 
             $getDetailEventReturn->update([
                 "event_return_status" => $request->event_return_status

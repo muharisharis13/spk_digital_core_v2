@@ -8,10 +8,12 @@ use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\DealerNeq;
 use App\Models\NeqReturn;
 use App\Models\NeqReturnLog;
 use App\Models\NeqReturnUnit;
 use App\Models\NeqUnit;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +38,7 @@ class NeqReturnController extends Controller
 
             DB::beginTransaction();
             $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
+                ->with(["dealer_neq", "dealer_neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
 
             $getDetailNeqReturn = $getDetailNeqReturn->first();
 
@@ -45,7 +47,14 @@ class NeqReturnController extends Controller
             }
             foreach ($getDetailNeqReturn->neq_return_unit as $item) {
                 // update neq unit
-                NeqUnit::where("neq_unit_id", $item["neq_unit_id"])->update([
+                $getDetailNeqUnit =  NeqUnit::with(["unit"])->where("neq_unit_id", $item["neq_unit_id"])->first();
+
+                Unit::where("unit_id", $getDetailNeqUnit->unit->unit_id)->update([
+                    "unit_location_status" => null
+                ]);
+
+
+                $getDetailNeqUnit = $getDetailNeqUnit->update([
                     "is_return" => true
                 ]);
             }
@@ -81,7 +90,7 @@ class NeqReturnController extends Controller
     {
         try {
             $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
+                ->with(["dealer_neq", "dealer_neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
             DB::beginTransaction();
             $getDetailNeqReturn = $getDetailNeqReturn->delete();
             DB::commit();
@@ -95,8 +104,10 @@ class NeqReturnController extends Controller
     public function getDetailNeqReturn(Request $request, $neq_return_id)
     {
         try {
-            $getDetailNeqReturn = NeqReturn::where("neq_return_id", $neq_return_id)
-                ->with(["neq.dealer_neq", "neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery"]);
+            $getDetailNeqReturn = NeqReturn::latest()->where("neq_return_id", $neq_return_id)
+                ->with(["neq_return_unit.neq_unit.unit.motor", "dealer_neq", "delivery_neq_return", "neq_return_log.user"]);
+            // $getDetailNeqReturn = NeqReturn::latest()->where("neq_return_id", $neq_return_id)
+            //     ->with(["dealer_neq", "dealer_neq.dealer", "neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.delivery", "neq_return_log.user"]);
 
             $getDetailNeqReturn = $getDetailNeqReturn->first();
 
@@ -120,7 +131,7 @@ class NeqReturnController extends Controller
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
             // "neq_return_unit.neq_unit.unit.motor",
             $getPaginate = NeqReturn::latest()
-                ->with(["neq.dealer_neq", "neq.dealer"])
+                ->with(["dealer_neq"])
                 ->withCount([
                     "neq_return_unit as neq_return_unit_total" => function ($query) {
                         $query->selectRaw("count(*)");
@@ -133,20 +144,13 @@ class NeqReturnController extends Controller
                     return $query->whereDate('created_at', '<=', $end);
                 })
                 ->where("neq_return_status", "LIKE", "%$neq_return_status%")
-                ->whereHas("neq", function ($query) use ($neq_dealer_id) {
-                    $query->whereHas("dealer_neq", function ($query) use ($neq_dealer_id) {
-                        $query->where("dealer_neq_id", "LIKE", "%$neq_dealer_id%");
-                    });
+                ->whereHas("dealer_neq", function ($query) use ($neq_dealer_id) {
+                    $query->where("dealer_neq_id", "LIKE", "%$neq_dealer_id%");
                 })
                 ->when($searchQuery, function ($query) use ($searchQuery) {
                     $query->where('neq_return_number', "LIKE", "%$searchQuery%")
-                        ->orWhereHas("neq", function ($query) use ($searchQuery) {
-                            $query->whereHas("dealer_neq", function ($query) use ($searchQuery) {
-                                $query->where("dealer_neq_name", "LIKE", "%$searchQuery%");
-                            })
-                                ->orWhereHas("dealer", function ($query) use ($searchQuery) {
-                                    $query->where("dealer_name", "LIKE", "%$searchQuery%");
-                                });
+                        ->orWhereHas("dealer_neq", function ($query) use ($searchQuery) {
+                            $query->where("dealer_neq_name", "LIKE", "%$searchQuery%");
                         });
                 })
                 ->where("dealer_id", $getDealerSelected->dealer_id);
@@ -221,7 +225,7 @@ class NeqReturnController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "neq_id" => "required",
+                "dealer_neq_id" => "required",
                 "neq_return_unit" => "required|array",
                 "neq_return_unit.*.neq_unit_id" => "required"
             ]);
@@ -237,10 +241,11 @@ class NeqReturnController extends Controller
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             $createNeqReturn = NeqReturn::create([
-                "neq_id" => $request->neq_id,
+                "dealer_neq_id" => $request->dealer_neq_id,
                 "neq_return_number" =>  GenerateNumber::generate("TF-NEQ-RETURN", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "neq_returns", "neq_return_number"),
                 "neq_return_status" => NeqReturnStatusEnum::create,
-                "dealer_id" => $getDealerSelected->dealer_id
+                "dealer_id" => $getDealerSelected->dealer_id,
+                "neq_return_note" => $request->neq_return_note
             ]);
 
 
@@ -275,7 +280,9 @@ class NeqReturnController extends Controller
         }
     }
 
-    public function getAllUnitNeq(Request $request, $neq_id)
+
+
+    public function getAllUnitNeq(Request $request, $dealer_neq_id)
     {
         try {
 
@@ -287,11 +294,17 @@ class NeqReturnController extends Controller
             $getAllUnitNeq = NeqUnit::latest();
 
             $getAllUnitNeq = $getAllUnitNeq->with(["unit.motor", "neq" => function ($query) use ($getDealer) {
-                $query->where("dealer_id", $getDealer->dealer_id);
+                $query->whereHas("dealer_neq", function ($query) use ($getDealer) {
+                    $query->where("dealer_id", $getDealer->dealer_id);
+                });
             }])
-                ->whereHas("neq", function ($query) use ($neq_id) {
-                    $query->where("neq_status", 'approve')
-                        ->where("neq_id", $neq_id);
+                ->whereHas("neq", function ($query) use ($getDealer, $dealer_neq_id) {
+                    $query
+                        ->where("neq_status", 'approve')
+                        ->whereHas("dealer_neq", function ($query) use ($getDealer, $dealer_neq_id) {
+                            $query->where("dealer_neq_id", $dealer_neq_id);
+                            $query->where("dealer_id", $getDealer->dealer_id);
+                        });
                 })
                 ->where("is_return", false)
                 ->when($search, function ($query) use ($search) {
@@ -312,4 +325,21 @@ class NeqReturnController extends Controller
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
+
+    // private function checkUnitIsHaveEvent($unit_id)
+    // {
+    //     $user = Auth::user();
+    //     $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+    //     if (!isset($unit_id)) {
+    //         return ResponseFormatter::error("unit id not found", "bad request", 400);
+    //     }
+    //     $getUnit = Unit::latest()
+    //         ->with("event_list_unit")
+    //         ->where("unit_id", $unit_id)
+    //         ->where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+    //     return isset($getUnit->event_list_unit);
+    // }
 }

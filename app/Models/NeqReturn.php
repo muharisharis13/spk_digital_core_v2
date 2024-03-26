@@ -24,9 +24,9 @@ class NeqReturn extends Model
         return $this->hasOne(DeliveryNeqReturn::class, "neq_return_id");
     }
 
-    public function neq()
+    public function dealer_neq()
     {
-        return $this->belongsTo(Neq::class, "neq_id");
+        return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
     }
 
     public function neq_return_log()

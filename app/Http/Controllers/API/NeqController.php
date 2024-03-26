@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\NeqStatusEnum;
+use App\Enums\UnitLocationStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -94,6 +95,45 @@ class NeqController extends Controller
                 ])
                 ->where("neq_id",  $neq_id)
                 ->first();
+
+            // check apakah unit tersebut sudah approve di neq lain apa belum
+            if (isset($getDetailNeq->neq_unit) && $getDetailNeq->neq_unit->count() > 0) {
+                foreach ($getDetailNeq->neq_unit as $eventUnit) {
+                    $unit = $eventUnit->unit_id;
+
+                    // check unit apakah unit location status tidak null
+                    $getUnitDetail = Unit::where("unit_id", $eventUnit->unit_id)->first();
+
+                    if ($getUnitDetail->unit_location_status != null) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit dengan ID {$eventUnit->unit_id} sudah terdaftar dalam unit location status.", "Bad Request", 400);
+                    }
+
+
+                    $checkDuplicate = NeqUnit::whereHas('neq', function ($query) use ($unit) {
+                        $query->where('neq_status', 'approve');
+                    })
+                        ->where('unit_id', $unit)
+                        ->where('neq_id', $neq_id)
+                        ->exists();
+
+                    if ($checkDuplicate) {
+                        // Jika unit tersebut sudah di-approve di neq lain
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit already approved in another neq", "Bad Request", 400);
+                    }
+
+                    // update unit location status
+
+                    Unit::where("unit_id", $unit)->update([
+                        "unit_location_status" => UnitLocationStatusEnum::neq
+                    ]);
+                }
+            } else {
+                DB::rollBack();
+                return
+                    ResponseFormatter::error("Paling tidak memiliki satu unit untuk di approve", "Bad Request", 400);
+            }
 
 
             // create log neq
@@ -282,6 +322,11 @@ class NeqController extends Controller
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
+            if (!$getDealerSelected) {
+                return ResponseFormatter::error("dealer selected not found", "Not Found", 404);
+            }
+
+
             $createNeq = Neq::create([
                 "neq_note" => $request->neq_note,
                 "neq_shipping_date" => $request->neq_shipping_date,
@@ -298,24 +343,27 @@ class NeqController extends Controller
                 "neq_log_action" => "create"
             ]);
 
+
+
             foreach ($request->neq_unit as $item) {
-                if ($this->checkUnitIsHaveEvent($item["unit_id"])) {
+                if ($this->checkUnitIsHaveEvent($item['unit_id'])) {
                     DB::rollBack();
-                    return ResponseFormatter::error("Unit $item->unit_id sudah memiliki event harap di return dahulu untuk tersedia di transfer ke NEQ", "Bad request !", 400);
+                    return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki event, harap di-return dahulu untuk tersedia di transfer ke NEQ", "Bad request !", 400);
                 }
                 $createNeqUnit[] = NeqUnit::create([
                     "neq_id" => $createNeq->neq_id,
-                    "unit_id" => $item["unit_id"],
+                    "unit_id" => $item['unit_id'],
                 ]);
             }
 
-            DB::commit();
 
             $data = [
                 "neq" => $createNeq,
                 "neq_unit" => $createNeqUnit,
                 "neq_log" => $creaetLogNeq
             ];
+
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully created !");
 
@@ -326,17 +374,20 @@ class NeqController extends Controller
         }
     }
 
-    private function checkUnitIsHaveEvent()
+    private function checkUnitIsHaveEvent($unit_id)
     {
         $user = Auth::user();
         $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
+        if (!isset($unit_id)) {
+            return ResponseFormatter::error("unit id not found", "bad request", 400);
+        }
         $getUnit = Unit::latest()
             ->with("event_list_unit")
-            ->where("unit_id", "9b9b8bf9-70ea-46d5-8024-5ebfa2566c5a")
+            ->where("unit_id", $unit_id)
             ->where("dealer_id", $getDealerSelected->dealer_id)->first();
 
-        return isset($getUnit->event_list_unit);
+        return isset($getUnit->unit_location_status);
     }
 }

@@ -13,7 +13,7 @@ class DeliveryNeqReturn extends Model
 
     protected $primaryKey = "delivery_neq_return_id";
 
-    protected $with = ["delivery", "delivery_neq_return"];
+    // protected $with = ["delivery", "delivery_neq_return"];
 
 
     public function delivery()
@@ -23,6 +23,6 @@ class DeliveryNeqReturn extends Model
 
     public function neq_return()
     {
-        return $this->belongsTo(NeqReturn::class, "neq_return");
+        return $this->belongsTo(NeqReturn::class, "neq_return_id");
     }
 }

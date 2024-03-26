@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\EventStatusEnum;
+use App\Enums\UnitLocationStatusEnum;
 use App\Helpers\FormatDate;
 use App\Helpers\FormateDate;
 use App\Helpers\GenerateAlias;
@@ -57,7 +58,18 @@ class EventController extends Controller
             // check apakah unit tersebut sudah approve di event lain apa belum
             if (isset($getDetailEvent->event_unit) && $getDetailEvent->event_unit->count() > 0) {
                 foreach ($getDetailEvent->event_unit as $eventUnit) {
+
+                    // check unit apakah unit location status tidak null
+                    $getUnitDetail = Unit::where("unit_id", $eventUnit->unit_id)->first();
+
+                    if ($getUnitDetail->unit_location_status != null) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit dengan ID {$eventUnit->unit_id} sudah terdaftar dalam unit location status.", "Bad Request", 400);
+                    }
+
+
                     $unit = $eventUnit->unit_id;
+
 
                     $checkDuplicate = EventListUnit::whereHas('event', function ($query) use ($unit) {
                         $query->where('event_status', 'approve');
@@ -71,12 +83,27 @@ class EventController extends Controller
                         DB::rollBack();
                         return ResponseFormatter::error("Unit already approved in another event", "Bad Request", 400);
                     }
+
+                    // update unit location status
+
+                    Unit::where("unit_id", $unit)->update([
+                        "unit_location_status" => UnitLocationStatusEnum::event
+                    ]);
                 }
             } else {
                 DB::rollBack();
                 return
                     ResponseFormatter::error("Paling tidak memiliki satu unit untuk di approve", "Bad Request", 400);
             }
+            $user = Auth::user();
+
+            // add event log
+            EventLog::create([
+                "event_id" => $getDetailEvent->event_id,
+                "user_id" => $user->user_id,
+                "event_log_action" => EventStatusEnum::create,
+                "event_log_note" => "Create new event"
+            ]);
 
             $getDetailEvent->update([
                 "event_status" => $request->event_status
@@ -94,7 +121,7 @@ class EventController extends Controller
     public function getDetailEvent(Request $request, $event_id)
     {
         try {
-            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit.unit.event_list_unit.event", "event_unit.unit.motor", "master_event", "event_log", "delivery_event.event.master_event", "delivery_event.delivery"])->first();
+            $getDetailEvent = Event::where("event_id", $event_id)->with(["event_unit.unit.event_list_unit.event", "event_unit.unit.motor", "master_event", "event_log.user", "delivery_event.event.master_event", "delivery_event.delivery"])->first();
 
             return ResponseFormatter::success($getDetailEvent);
         } catch (\Throwable $e) {
@@ -160,7 +187,7 @@ class EventController extends Controller
 
 
             foreach ($getDetailEvent->event_unit as $item) {
-                EventListUnit::where(["event_id", $item["event_id"]])->delete();
+                EventListUnit::where("event_id", $item["event_id"])->delete();
             }
 
             $getDetailEvent->delete();
@@ -200,7 +227,14 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
+                if (isset($item["event_list_unit_id"])) {
+                    continue; // Skip if neq_unit_id exists
+                }
                 if (!isset($item['event_list_unit_id'])) {
+                    if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
+                    }
                     // check unit apakah sudah ada di event
 
                     $checkUnit = Unit::where("unit_id", $item["unit_id"])->with("event_list_unit.event.master_event")->first();
@@ -274,7 +308,10 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-
+                if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
+                }
                 $createEventUnit[] = EventListUnit::create([
                     "event_id" => $createEvent->event_id,
                     "unit_id" => $item["unit_id"]
@@ -318,5 +355,22 @@ class EventController extends Controller
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
+    }
+
+    private function checkUnitIsHaveNEQ($unit_id)
+    {
+        $user = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        if (!isset($unit_id)) {
+            return ResponseFormatter::error("unit id not found", "bad request", 400);
+        }
+        $getUnit = Unit::latest()
+            ->with(["neq_unit"])
+            ->where("unit_id", $unit_id)
+            ->where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        return isset($getUnit->unit_location_status);
     }
 }

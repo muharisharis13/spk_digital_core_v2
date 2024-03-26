@@ -13,4 +13,9 @@ class NeqReturnLog extends Model
     protected $guarded = [];
 
     protected $primaryKey = "neq_return_log_id";
+
+    public function user()
+    {
+        return  $this->belongsTo(User::class, "user_id");
+    }
 }
