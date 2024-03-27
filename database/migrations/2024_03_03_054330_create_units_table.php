@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('unit', function (Blueprint $table) {
             $table->uuid("unit_id")->primary();
-            $table->string("unit_color");
+            $table->string("unit_color")->nullable();
             $table->string("unit_code");
             $table->string("unit_frame");
             $table->string("unit_engine");

@@ -10,6 +10,7 @@ use App\Enums\UnitStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\Color;
 use App\Models\Dealer;
 use App\Models\Motor;
 use App\Models\ShippingOrder;
@@ -216,6 +217,14 @@ class ShippingOrderController extends Controller
                             $checkDealer = $this->checkDealer($itemHeader["h.customer_code_"]);
                             // check motor
                             $checkMotorByMotorName = $this->checkMotorByMotorName($itemDetail["d.model_name_"]);
+                            Color::firstOrCreate(
+                                [
+                                    "color_name" => $itemDetail["d.color_"]
+                                ],
+                                [
+                                    "color_name" => $itemDetail["d.color_"]
+                                ]
+                            );
 
                             // jika dealer ada di database maka update datanya
                             if (isset($checkDealer->dealer_id)) {
@@ -232,12 +241,13 @@ class ShippingOrderController extends Controller
                                 if (isset($checkMotorByMotorName->motor_id)) {
 
                                     foreach ($itemDetail["subdetail-datas"] as $itemSubDetail) {
+
                                         Unit::firstOrCreate(
                                             [
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"]
                                             ],
                                             [
-                                                "unit_color" => $itemDetail["d.color_"],
+                                                // "unit_color" => $itemDetail["d.color_"],
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"],
                                                 "unit_engine" => $itemSubDetail["s.engine_no_"],
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
@@ -262,7 +272,7 @@ class ShippingOrderController extends Controller
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"]
                                             ],
                                             [
-                                                "unit_color" => $itemDetail["d.color_"],
+                                                // "unit_color" => $itemDetail["d.color_"],
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"],
                                                 "unit_engine" => $itemSubDetail["s.engine_no_"],
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
@@ -302,7 +312,7 @@ class ShippingOrderController extends Controller
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"]
                                             ],
                                             [
-                                                "unit_color" => $itemDetail["d.color_"],
+                                                // "unit_color" => $itemDetail["d.color_"],
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"],
                                                 "unit_engine" => $itemSubDetail["s.engine_no_"],
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
@@ -327,7 +337,7 @@ class ShippingOrderController extends Controller
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"]
                                             ],
                                             [
-                                                "unit_color" => $itemDetail["d.color_"],
+                                                // "unit_color" => $itemDetail["d.color_"],
                                                 "unit_frame" => $itemSubDetail["s.frame_no_"],
                                                 "unit_engine" => $itemSubDetail["s.engine_no_"],
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
