@@ -226,7 +226,7 @@ class ShippingOrderController extends Controller
                             $checkDealer = $this->checkDealer($itemHeader["h.customer_code_"]);
                             // check motor
                             $checkMotorByMotorName = $this->checkMotorByMotorName($itemDetail["d.model_name_"]);
-                            Color::firstOrCreate(
+                            $createColor =  Color::firstOrCreate(
                                 [
                                     "color_name" => $itemDetail["d.color_"]
                                 ],
@@ -262,7 +262,8 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $checkDealer->dealer_id
+                                                "dealer_id" => $checkDealer->dealer_id,
+                                                "color_id" => $createColor->color_id
                                             ]
                                         );
                                     }
@@ -287,7 +288,8 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $checkDealer->dealer_id
+                                                "dealer_id" => $checkDealer->dealer_id,
+                                                "color_id" => $createColor->color_id
                                             ]
                                         );
                                     }
@@ -327,7 +329,8 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $checkMotorByMotorName->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $createDealer->dealer_id
+                                                "dealer_id" => $createDealer->dealer_id,
+                                                "color_id" => $createColor->color_id
                                             ]
                                         );
                                     }
@@ -352,7 +355,8 @@ class ShippingOrderController extends Controller
                                                 "shipping_order_id" => $shippingOrder->shipping_order_id,
                                                 "motor_id" => $createMotor->motor_id,
                                                 "unit_code" => 0,
-                                                "dealer_id" => $createDealer->dealer_id
+                                                "dealer_id" => $createDealer->dealer_id,
+                                                "color_id" => $createColor->color_id
                                             ]
                                         );
                                     }
