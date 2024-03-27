@@ -107,6 +107,15 @@ class ShippingOrderController extends Controller
     {
         try {
             $getDetailShippingOrder = ShippingOrder::with(["dealer", "unit.motor"])
+                ->withCount([
+                    'unit as unit_received_total' => function ($query) {
+                        $query->selectRaw('count(*)')
+                            ->whereNotNull("unit_received_date");
+                    },
+                    'unit as unit_total' => function ($query) {
+                        $query->selectRaw('count(*)');
+                    },
+                ])
                 ->where("shipping_order_id", $shipping_order_id)
                 ->first();
 
@@ -158,7 +167,7 @@ class ShippingOrderController extends Controller
                 ->withCount([
                     'unit as unit_received_total' => function ($query) {
                         $query->selectRaw('count(*)')
-                            ->where('unit_status', 'on_hand');
+                            ->whereNotNull("unit_received_date");
                     },
                     'unit as unit_total' => function ($query) {
                         $query->selectRaw('count(*)');
