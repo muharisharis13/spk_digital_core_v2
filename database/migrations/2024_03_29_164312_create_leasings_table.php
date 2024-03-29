@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-
-        Schema::table('unit', function (Blueprint $table) {
-
-            $table->string("color_id")->nullable();
-            $table->foreign("color_id")->references("color_id")->on("colors")->onDelete("set null");
+        Schema::create('leasings', function (Blueprint $table) {
+            $table->uuid("leasing_id")->primary();
+            $table->string("leasing_name");
+            $table->timestamps();
         });
     }
 
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('leasings');
     }
 };

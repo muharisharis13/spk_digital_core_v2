@@ -13,10 +13,11 @@ return new class extends Migration
     {
         //
 
-        Schema::table('unit', function (Blueprint $table) {
 
-            $table->string("color_id")->nullable();
-            $table->foreign("color_id")->references("color_id")->on("colors")->onDelete("set null");
+        Schema::table('indent_logs', function (Blueprint $table) {
+
+            $table->string("indent_id")->nullable();
+            $table->foreign("indent_id")->references("indent_id")->on("indents")->onDelete("set null");
         });
     }
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
+use App\Http\Controllers\API\IndentController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\NeqController;
 use App\Http\Controllers\API\NeqReturnController;
@@ -152,6 +153,11 @@ Route::prefix("v1")->group(function () {
                     Route::get("/list/{neq_id}", [NeqReturnController::class, "getAllUnitNeq"]);
                 });
             });
+        });
+
+        Route::prefix("indent")->group(function () {
+            Route::post("/create", [IndentController::class, "createIndent"]);
+            Route::get("/list", [IndentController::class, "getPaginate"]);
         });
     });
 });

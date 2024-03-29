@@ -12,11 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         //
+        Schema::table('indents', function (Blueprint $table) {
 
-        Schema::table('unit', function (Blueprint $table) {
-
-            $table->string("color_id")->nullable();
-            $table->foreign("color_id")->references("color_id")->on("colors")->onDelete("set null");
+            $table->string("indent_number");
         });
     }
 
