@@ -12,4 +12,34 @@ class Indent extends Model
     protected $guarded = [];
 
     protected $primaryKey = "indent_id";
+
+    public function motor()
+    {
+        return $this->belongsTo(Motor::class, "motor_id");
+    }
+    public function color()
+    {
+        return $this->belongsTo(Color::class, "color_id");
+    }
+    public function micro_finance()
+    {
+        return $this->belongsTo(MicroFinance::class, "micro_finance_id");
+    }
+    public function leasing()
+    {
+        return $this->belongsTo(Leasing::class, "leasing_id");
+    }
+    public function sales()
+    {
+        return $this->belongsTo(Sales::class, "sales_id");
+    }
+
+    public function indent_payment()
+    {
+        return $this->hasMany(IndentPayment::class, "indent_id");
+    }
+    public function indent_log()
+    {
+        return $this->hasMany(IndentLog::class, "indent_id");
+    }
 }

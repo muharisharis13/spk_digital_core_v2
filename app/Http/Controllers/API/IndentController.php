@@ -10,6 +10,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Indent;
 use App\Models\IndentLog;
+use App\Models\IndentPayment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,216 @@ use Illuminate\Support\Facades\Validator;
 class IndentController extends Controller
 {
 
+    public function refundPayment(Request $request, $indent_payment_id)
+    {
+        try {
+            // melakukan pengenchekan SPK tapi blm ada tablenya ongoing
+
+            $getDetailIndentPayment = IndentPayment::where("indent_payment_id", $indent_payment_id)->first();
+
+            DB::beginTransaction();
+
+            // melakukan penggatian payment dari paid ke unpaid atau dari cashier check ke unpaid dan seterusnya
+
+            $getDetailIndent = Indent::where("indent_id", $getDetailIndentPayment->indent_id)->first();
+            $getDetailIndent->update([
+                "indent_status" => IndentStatusEnum::unpaid
+            ]);
+
+            $getDetailIndentPayment->update([
+                "indent_payment_type" => "refund"
+            ]);
+
+            // create log
+            $user = Auth::user();
+            $createLogIndent = IndentLog::create([
+                "indent_id" => $getDetailIndent->indent_id,
+                "user_id" => $user->user_id,
+                "indent_log_action" => "Refund Payment " . $indent_payment_id
+            ]);
+
+
+            DB::commit();
+
+            $data = [
+                "indent" => $getDetailIndent,
+                "indent_refund" => $getDetailIndentPayment,
+                "indent_log" => $createLogIndent
+            ];
+
+            return ResponseFormatter::success($data, "successfully refund indent !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function updateStatusIndent(Request $request, $indent_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "indent_status" => "required|in:cashier_check,finance_check"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+
+            $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
+
+            if ($getDetailIndent->indent_status == "unpaid") {
+                return ResponseFormatter::error("Tidak dapat merubah status jika masih unpaid", "Bad request", 400);
+            }
+
+            $getDetailIndent->update([
+                "indent_status" => $request->indent_status
+            ]);
+            $user = Auth::user();
+
+            // create log indent
+            $createLogIndent = IndentLog::create([
+                "indent_id" => $indent_id,
+                "user_id" => $user->user_id,
+                "indent_log_action" => "Indent update status to " . $request->indent_status
+            ]);
+
+
+            DB::commit();
+
+            $data = [
+                "indent" => $getDetailIndent,
+                "indent_log" => $createLogIndent
+            ];
+
+            return ResponseFormatter::success($data, "successfully update status indent !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function addPayment(Request $request, $indent_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "indent_payment_img" => "image|mimes:png,jpg|max:2048",
+                "indent_payment_method" => "required|in:cash,bank_transfer,giro",
+                "bank_id" => "nullable",
+                "indent_payment_amount" => "integer|required",
+                "indent_payment_date" => "date|required",
+                "indent_payment_note" => "nullable",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            if ($request->indent_payment_method == "cash" && $request->bank_id) {
+                DB::rollBack();
+                return
+                    ResponseFormatter::error("Please Delete bank id for payment method cash", "Bad Request", 400);
+            }
+
+            $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
+
+            $createIndentPayment = IndentPayment::create([
+                "indent_id" => $indent_id,
+                "indent_payment_img" => $imagePath,
+                "indent_payment_method" => $request->indent_payment_method,
+                "bank_id" => $request->bank_id,
+                "indent_payment_amount" => $request->indent_payment_amount,
+                "indent_payment_date" => $request->indent_payment_date,
+                "indent_payment_note" => $request->indent_payment_note
+            ]);
+
+            // melakukan pengecekan apakah pembayaran sudah lunas apa belum dari total list indent payment
+            $totalIndentPayment = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->sum('indent_payment_amount');
+            $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
+
+            // melakukan penjumlahan data lama dengan data baru
+            $totalIndentPayment = $totalIndentPayment + $request->indent_payment_amount;
+
+            if ($totalIndentPayment >= $getDetailIndent->amount_total) {
+                $getDetailIndent->update([
+                    "indent_status" => IndentStatusEnum::paid
+                ]);
+            }
+
+
+            $user = Auth::user();
+
+            // create log indent
+            $createLogIndent = IndentLog::create([
+                "indent_id" => $indent_id,
+                "user_id" => $user->user_id,
+                "indent_log_action" => "Payment"
+            ]);
+
+            DB::commit();
+
+
+            $data = [
+                "indent" => $getDetailIndent,
+                "indent_payment" => $createIndentPayment,
+                "indent_log" => $createLogIndent,
+                "totalIndentPayment" => $totalIndentPayment
+            ];
+            return ResponseFormatter::success($data, "Successfully created indent payment !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getDetailInden(Request $request, $indent_id)
+    {
+        try {
+
+            $getDetailIndent = Indent::where("indent_id", $indent_id)
+                ->with(["sales", "motor", "color", "indent_log.user", "indent_payment"])
+                ->first();
+
+
+            if ($getDetailIndent->indent_type == 'credit') {
+                $getDetailIndent->load(["leasing"]);
+            }
+
+            if ($getDetailIndent->indent_type == 'cash') {
+                $getDetailIndent->load(["micro_finance"]);
+            }
+
+            $response = [];
+
+            if ($getDetailIndent) {
+                $response = $getDetailIndent->toArray();
+
+                // Ambil semua data indent_payment
+                $indentPayments = $getDetailIndent->indent_payment;
+
+                // Filter data indent_payment berdasarkan status refund
+                $indentPaymentRefund = $indentPayments->filter(function ($payment) {
+                    return $payment->indent_payment_type === 'refund';
+                });
+                $indentPaymentPayment = $indentPayments->filter(function ($payment) {
+                    return $payment->indent_payment_type === 'payment';
+                });
+
+                // Tambahkan data indent_payment_refund ke dalam respons
+                $response['indent_payment'] = $indentPaymentPayment->toArray();
+                // Tambahkan data indent_payment_refund ke dalam respons
+                $response['indent_payment_refund'] = $indentPaymentRefund->toArray();
+            }
+
+            return ResponseFormatter::success($response);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function getPaginate(Request $request)
     {
@@ -33,13 +244,14 @@ class IndentController extends Controller
             $searchQuery = $request->input("q");
 
             $getPaginateIndent = Indent::latest()
+                ->with(["motor", "color"])
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->when($indentStatus, function ($query) use ($indentStatus) {
                     $query->where("indent_status", $indentStatus);
                 })
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $startDate = Carbon::parse($startDate)->startOfDay();
-                    $endDate = Carbon::parse($endDate)->endOfDay();
+                    $startDate = Carbon::parse($startDate);
+                    $endDate = Carbon::parse($endDate);
                     return $query->whereBetween('created_at', [$startDate, $endDate]);
                 })
                 ->when($searchQuery, function ($query) use ($searchQuery) {
