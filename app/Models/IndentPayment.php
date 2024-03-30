@@ -15,6 +15,11 @@ class IndentPayment extends Model
     protected $primaryKey = "indent_payment_id";
 
 
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class, "bank_id");
+    }
+
 
     protected function getIndentPaymentImgAttribute($value): string
     {

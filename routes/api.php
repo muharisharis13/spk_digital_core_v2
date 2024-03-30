@@ -5,6 +5,7 @@ use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
+use App\Http\Controllers\API\ExportPDFController;
 use App\Http\Controllers\API\IndentController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\NeqController;
@@ -38,6 +39,7 @@ Route::prefix("v1")->group(function () {
         Route::post("/register", [AuthenticationController::class, "register"]);
         // Route::post("/logout", [AuthenticationController::class, "logout"]);
     });
+
     Route::middleware("auth:sanctum")->group(function () {
 
         Route::prefix("user")->group(function () {
@@ -162,6 +164,13 @@ Route::prefix("v1")->group(function () {
             Route::post("/payment/{indent_id}", [IndentController::class, "addPayment"]);
             Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"]);
             Route::put("/refund/{indent_payment_id}", [IndentController::class, "refundPayment"]);
+            Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"]);
+        });
+
+        Route::prefix("export")->group(function () {
+            Route::prefix("faktur")->group(function () {
+                Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
+            });
         });
     });
 });

@@ -20,6 +20,49 @@ use Illuminate\Support\Facades\Validator;
 class IndentController extends Controller
 {
 
+    public function cancelIndent(Request $request, $indent_id)
+    {
+        try {
+            // melakukan pengecekan indent payment sudah refund semua atau belum
+            $getIndentPayment = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->get();
+
+            if ($getIndentPayment->count() > 0) {
+                return ResponseFormatter::error("Tidak dapat melakukan pembatalan indent di karenakan payment masih ada. coba kembali !", "Bad request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
+
+            $getDetailIndent->update([
+                "indent_status" => IndentStatusEnum::cancel
+            ]);
+
+            // create log
+            $user = Auth::user();
+            $createLogIndent = IndentLog::create([
+                "indent_id" => $getDetailIndent->indent_id,
+                "user_id" => $user->user_id,
+                "indent_log_action" => "cancel Indent " . $indent_id
+            ]);
+
+            DB::commit();
+
+
+            $data = [
+                "indent" => $getDetailIndent,
+                "indent_log" => $createLogIndent
+            ];
+
+
+
+            return ResponseFormatter::success($data, "Successfully canceled indent");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function refundPayment(Request $request, $indent_payment_id)
     {
         try {
@@ -191,7 +234,7 @@ class IndentController extends Controller
         try {
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
-                ->with(["sales", "motor", "color", "indent_log.user", "indent_payment"])
+                ->with(["sales", "motor", "color", "indent_log.user", "indent_payment.bank"])
                 ->first();
 
 
@@ -215,14 +258,21 @@ class IndentController extends Controller
                 $indentPaymentRefund = $indentPayments->filter(function ($payment) {
                     return $payment->indent_payment_type === 'refund';
                 });
+
+                // Filter data indent_payment berdasarkan status payment
                 $indentPaymentPayment = $indentPayments->filter(function ($payment) {
                     return $payment->indent_payment_type === 'payment';
                 });
 
-                // Tambahkan data indent_payment_refund ke dalam respons
-                $response['indent_payment'] = $indentPaymentPayment->toArray();
-                // Tambahkan data indent_payment_refund ke dalam respons
-                $response['indent_payment_refund'] = $indentPaymentRefund->toArray();
+                // Konversi koleksi menjadi array untuk kedua jenis payment
+                $paymentRefundArray = $indentPaymentRefund->toArray();
+                $paymentPaymentArray = $indentPaymentPayment->toArray();
+
+                // Masukkan data indent_payment ke dalam respons sebagai array of object
+                $response['indent_payment'] = array_values($paymentPaymentArray);
+
+                // Masukkan data indent_payment_refund ke dalam respons sebagai array of object
+                $response['indent_payment_refund'] = array_values($paymentRefundArray);
             }
 
             return ResponseFormatter::success($response);
