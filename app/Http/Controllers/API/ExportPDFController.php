@@ -23,7 +23,8 @@ class ExportPDFController extends Controller
                 }])
                 ->first();
             // Load HTML dari template Blade
-            $html = view('pdf.faktur.faktur', ["indent" => $getDetailIndent])->render();
+            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent])->render();
+            // $html = view('pdf.faktur.faktur', ["indent" => $getDetailIndent])->render();
 
             // Logika pembuatan PDF
             $pdf = new Dompdf();
@@ -36,7 +37,8 @@ class ExportPDFController extends Controller
             file_put_contents($pdfFilePath, $pdf->output());
 
             // Kembalikan PDF langsung sebagai respons
-            return Response::download($pdfFilePath, 'generated-pdf.pdf')->deleteFileAfterSend(true);
+            // return Response::download($pdfFilePath, 'generated-pdf.pdf')->deleteFileAfterSend(true);
+            return $pdf->stream("document.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
