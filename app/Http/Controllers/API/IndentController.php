@@ -63,32 +63,32 @@ class IndentController extends Controller
         }
     }
 
-    public function refundPayment(Request $request, $indent_id)
+    public function refundPayment(Request $request, $indent_payment_id)
     {
         try {
             // melakukan pengenchekan SPK tapi blm ada tablenya ongoing
 
+            $getDetailIndentPayment = IndentPayment::where("indent_payment_id", $indent_payment_id)->first();
 
             DB::beginTransaction();
 
             // melakukan penggatian payment dari paid ke unpaid atau dari cashier check ke unpaid dan seterusnya
 
-            $getDetailIndent = Indent::with(["indent_payment"])->where("indent_id", $indent_id)->first();
+            $getDetailIndent = Indent::where("indent_id", $getDetailIndentPayment->indent_id)->first();
             $getDetailIndent->update([
                 "indent_status" => IndentStatusEnum::unpaid
             ]);
 
-            foreach ($getDetailIndent as $item) {
-                IndentPayment::where("indent_id", $item["indent_id"])->delete();
-            }
-
+            $getDetailIndentPayment->update([
+                "indent_payment_type" => "refund"
+            ]);
 
             // create log
             $user = Auth::user();
             $createLogIndent = IndentLog::create([
                 "indent_id" => $getDetailIndent->indent_id,
                 "user_id" => $user->user_id,
-                "indent_log_action" => "Refund Payment " . $indent_id
+                "indent_log_action" => "Refund Payment " . $getDetailIndentPayment->indent_payment_amount
             ]);
 
 
@@ -96,6 +96,7 @@ class IndentController extends Controller
 
             $data = [
                 "indent" => $getDetailIndent,
+                "indent_refund" => $getDetailIndentPayment,
                 "indent_log" => $createLogIndent
             ];
 
@@ -105,6 +106,49 @@ class IndentController extends Controller
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
+
+    // public function refundPayment(Request $request, $indent_id)
+    // {
+    //     try {
+    //         // melakukan pengenchekan SPK tapi blm ada tablenya ongoing
+
+
+    //         DB::beginTransaction();
+
+    //         // melakukan penggatian payment dari paid ke unpaid atau dari cashier check ke unpaid dan seterusnya
+
+    //         $getDetailIndent = Indent::with(["indent_payment"])->where("indent_id", $indent_id)->first();
+    //         $getDetailIndent->update([
+    //             "indent_status" => IndentStatusEnum::unpaid
+    //         ]);
+
+    //         foreach ($getDetailIndent as $item) {
+    //             IndentPayment::where("indent_id", $item["indent_id"])->delete();
+    //         }
+
+
+    //         // create log
+    //         $user = Auth::user();
+    //         $createLogIndent = IndentLog::create([
+    //             "indent_id" => $getDetailIndent->indent_id,
+    //             "user_id" => $user->user_id,
+    //             "indent_log_action" => "Refund Payment " . $indent_id
+    //         ]);
+
+
+    //         DB::commit();
+
+    //         $data = [
+    //             "indent" => $getDetailIndent,
+    //             "indent_log" => $createLogIndent
+    //         ];
+
+    //         return ResponseFormatter::success($data, "successfully refund indent !");
+    //     } catch (\Throwable $e) {
+    //         DB::rollBack();
+    //         return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+    //     }
+    // }
 
     public function updateStatusIndent(Request $request, $indent_id)
     {

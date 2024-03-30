@@ -8,9 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Dealer;
 use App\Models\DealerByUser;
 use App\Models\DealerNeq;
+use App\Models\Leasing;
 use App\Models\MainDealer;
 use App\Models\MasterEvent;
+use App\Models\MicroFinance;
 use App\Models\Motor;
+use App\Models\Sales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +23,56 @@ class Master extends Controller
 {
     //
 
+    public function getLeasing(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $searchQuery = $request->input("q");
+            $getPaginate = Leasing::latest()
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    $query->where("leasing_name", "LIKE", "%$searchQuery%");
+                })
+                ->paginate($limit);
 
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+    public function getMicrofinance(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $searchQuery = $request->input("q");
+            $getPaginate = MicroFinance::latest()
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    $query->where("micro_finance_name", "LIKE", "%$searchQuery%");
+                })
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getSales(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $searchQuery = $request->input("q");
+            $getSalesPaginate = Sales::latest()
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    $query->where("sales_name", "LIKE", "%$searchQuery%")
+                        ->orWhere("sales_nip", "LIKE", "%$searchQuery%");
+                })
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getSalesPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function getDetailMasterEvent(Request $request, $master_event_id)
     {

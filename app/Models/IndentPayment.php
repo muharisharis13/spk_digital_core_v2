@@ -20,6 +20,11 @@ class IndentPayment extends Model
         return $this->belongsTo(Bank::class, "bank_id");
     }
 
+    public function indent()
+    {
+        return $this->belongsTo(Indent::class, "indent_id");
+    }
+
 
     protected function getIndentPaymentImgAttribute($value): string
     {

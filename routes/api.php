@@ -74,6 +74,16 @@ Route::prefix("v1")->group(function () {
                 Route::put("/status/{master_event_id}", [Master::class, "updateStatusEvent"]);
                 Route::get("/list", [Master::class, "getEventPaginate"]);
             });
+
+            Route::prefix("sales")->group(function () {
+                Route::get("/list", [Master::class, "getSales"]);
+            });
+            Route::prefix("microfinance")->group(function () {
+                Route::get("/list", [Master::class, "getMicrofinance"]);
+            });
+            Route::prefix("leasing")->group(function () {
+                Route::get("/list", [Master::class, "getLeasing"]);
+            });
         });
 
         Route::prefix("repair")->group(function () {
@@ -170,6 +180,7 @@ Route::prefix("v1")->group(function () {
         Route::prefix("export")->group(function () {
             Route::prefix("faktur")->group(function () {
                 Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
+                Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPaymentIndent"]);
             });
         });
     });
