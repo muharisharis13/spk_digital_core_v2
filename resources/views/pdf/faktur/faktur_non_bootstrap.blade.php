@@ -63,7 +63,7 @@
         </thead>
         <tbody>
           <tr>
-            <td style="padding: 8px;">{{ $indent->motor->motor_name }}</td>
+            <td style="padding: 8px;text-align:center">{{ $indent->motor->motor_name }}</td>
             <td style="padding: 8px;">{{ $indent->color->color_name }}</td>
           </tr>
         </tbody>
@@ -83,10 +83,10 @@
         <tbody>
           @foreach ($indent->indent_payment as $item)
           <tr>
-            <td style="padding: 8px; text-transform: uppercase;">{{ $item->indent_payment_method }}</td>
-            <td style="padding: 8px;">{{ $item->bank->bank_name}}</td>
-            <td style="padding: 8px;">{{ $item->indent_payment_amount}}</td>
-            <td style="padding: 8px;">{{ $item->indent_payment_date}}</td>
+            <td style="padding: 8px; text-transform: uppercase; text-align:center">{{ $item->indent_payment_method }}</td>
+            <td style="padding: 8px;text-align:center">{{ $item->bank->bank_name}}</td>
+            <td style="padding: 8px;text-align:center">{{ $item->indent_payment_amount}}</td>
+            <td style="padding: 8px;text-align:center">{{ $item->indent_payment_date}}</td>
           </tr>
           @endforeach
         </tbody>
