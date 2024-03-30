@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Indent;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 class ExportPDFController extends Controller
@@ -22,9 +24,11 @@ class ExportPDFController extends Controller
                     $query->where("indent_payment_type", "payment");
                 }])
                 ->first();
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
             // Load HTML dari template Blade
-            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent])->render();
-            // $html = view('pdf.faktur.faktur', ["indent" => $getDetailIndent])->render();
+            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDealerSelected])->render();
+            // $html = view('pdf.faktur.faktur', ["indent" => $getDetailIndent, "dealer" => $getDealerSelected])->render();
 
             // Logika pembuatan PDF
             $pdf = new Dompdf();
@@ -33,12 +37,12 @@ class ExportPDFController extends Controller
             $pdf->render();
 
             // Simpan PDF sebagai file sementara
-            $pdfFilePath = public_path('generated-pdf.pdf');
+            $pdfFilePath = public_path("$getDetailIndent->indent_people_name.pdf");
             file_put_contents($pdfFilePath, $pdf->output());
 
             // Kembalikan PDF langsung sebagai respons
-            // return Response::download($pdfFilePath, 'generated-pdf.pdf')->deleteFileAfterSend(true);
-            return $pdf->stream("document.pdf");
+            return Response::download($pdfFilePath, "$getDetailIndent->indent_people_name.pdf")->deleteFileAfterSend(true);
+            // return $pdf->stream("$getDetailIndent->indent_people_name.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }

@@ -27,31 +27,34 @@
 <body>
   <div style="width: 100%; max-width: 1200px; margin: 0 auto;">
     <div style="display: flex; align-items: center; margin-bottom: 20px;">
-      <img src="{{ asset('logo/alfa-scorpii-logo.png') }}" style="max-width: 100px;">
+         <?php
+            $imagePath = 'logo/alfa-scorpii-logo.png';
+            $imageData = base64_encode(file_get_contents($imagePath));
+            ?>
+          <img src="data:image/png;base64,{{ $imageData }}" class="img-fluid" style="width: 250px" />
       <div style="flex: 1;">
         <p style="font-size: 14px; font-weight: 600;">
-          PT ALFA SCORPII - AR HAKIM <br>
-          Jl. Arief Rahman Hakim No. 134 B - C -D - E <br>
-          Sukaramai I, kec. Medan Area <br>
-          Kota Medan, Sumatera Utara 20227
+          {{ $dealer->dealer->dealer_name }} <br>
+          {{ $dealer->dealer->dealer_address }}  <br>
         </p>
       </div>
       <div style="text-align: right;">
-        <span style="font-size: 24px; font-weight: 600;">SURAT JALAN</span><br>
-        <span style="font-size: 12px;">Tgl. 12 Maret 2024</span><br>
-        <span style="font-size: 16px; font-weight: 600;">0001/SJ-REPAIR/ARMDN/03/2024</span>
+        <span style="font-size: 24px; font-weight: 600;">INDENT</span><br>
+        <span style="font-size: 12px;">Tgl. {{ date('d M Y', strtotime($indent->created_at)) }}</span><br>
+        <span style="font-size: 16px; font-weight: 600;">{{ $indent->indent_number }}</span>
       </div>
     </div>
     <div style="display: flex; margin-bottom: 20px;">
       <div style="flex: 1;">
         <span style="font-size: 14px; font-weight: 600;">Detail Pembeli&nbsp;:</span><br>
-        <span style="font-size: 14px;">Indent Unit</span><br>
+        <span style="font-size: 14px;">{{ $indent->indent_people_name }}</span><br>
         <span style="font-size: 14px;">{{ $indent->indent_number }}</span><br>
-        <span style="font-size: 14px;">Tgl Indent&nbsp;: {{ date('d M Y', strtotime($indent->created_at)) }}</span>
+        <span style="font-size: 14px;">Tgl Indent&nbsp;: {{ date('d M Y', strtotime($indent->created_at)) }}</span><br>
+        <span style="font-size: 14px; text-transform:uppercase; font-weight:bold; color:red">{{ $indent->indent_status }}</span>
       </div>
     </div>
     <div style="text-align: center; margin-bottom: 20px;">
-      <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
+      <table style="width: 100%; border-collapse: collapse; border: 1px solid #d4d4d4;">
         <thead style="background-color: #f2f2f2;">
           <tr>
             <th style="padding: 8px;">Model</th>
@@ -66,9 +69,9 @@
         </tbody>
       </table>
     </div>
-    <div style="text-align: center;">
+    <div style="text-align: start;">
       <h4>Payment</h4>
-      <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
+      <table style="width: 100%; border-collapse: collapse; border: 1px solid #d4d4d4;">
         <thead style="background-color: #f2f2f2;">
           <tr>
             <th style="padding: 8px;">Payment Method</th>

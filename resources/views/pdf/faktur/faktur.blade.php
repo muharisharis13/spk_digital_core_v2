@@ -42,11 +42,15 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-1">
-          <img src="{{ asset('logo/alfa-scorpii-logo.png') }}" class="img-fluid" />
+          <?php
+$imagePath = 'logo/alfa-scorpii-logo.png';
+$imageData = base64_encode(file_get_contents($imagePath));
+?>
+          <img src="data:image/png;base64,{{ $imageData }}" class="img-fluid" />
         </div>
         <div class="col-4">
           <p class="fw-bold" style="font-size: medium">
-            PT ALFA SCORPII - AR HAKIM <br />Jl. Arief Rahman Hakim No. 134 B -
+            {{ $dealer->dealer->dealer_name }} <br />Jl. Arief Rahman Hakim No. 134 B -
             C -D - E <br />
             Sukaramai I, kec. Medan Area <br />
             Kota Medan, Sumatera Utara 20227
