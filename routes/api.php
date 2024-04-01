@@ -173,7 +173,7 @@ Route::prefix("v1")->group(function () {
         Route::prefix("indent")->group(function () {
             Route::post("/create", [IndentController::class, "createIndent"]);
             Route::get("/list", [IndentController::class, "getPaginate"]);
-            Route::get("/update/{indent_id}", [IndentController::class, "updateIndent"]);
+            Route::put("/update/{indent_id}", [IndentController::class, "updateIndent"]);
             Route::get("/detail/{indent_id}", [IndentController::class, "getDetailInden"]);
             Route::post("/payment/{indent_id}", [IndentController::class, "addPayment"]);
             Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"]);
