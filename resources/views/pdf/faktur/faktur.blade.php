@@ -43,9 +43,9 @@
       <div class="row">
         <div class="col-1">
           <?php
-$imagePath = 'logo/alfa-scorpii-logo.png';
-$imageData = base64_encode(file_get_contents($imagePath));
-?>
+            $imagePath = 'logo/alfa-scorpii-logo.png';
+            $imageData = base64_encode(file_get_contents($imagePath));
+            ?>
           <img src="data:image/png;base64,{{ $imageData }}" class="img-fluid" />
         </div>
         <div class="col-4">

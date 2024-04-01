@@ -172,10 +172,10 @@ $base64Image = base64_encode($imageData2);
               {{ $indent_payment->indent_payment_method }}
             </td>
             <td style="padding: 8px; text-align: center">
-              {{ $indent_payment->bank->bank_name}}
+              {{ isset($indent_payment->bank->bank_name) ? $indent_payment->bank->bank_name : "-"}}
             </td>
             <td style="padding: 8px; text-align: center">
-               RP {{ number_format($indent_payment->indent_payment_amount, 0, ',', '.') }}
+               Rp {{ number_format($indent_payment->indent_payment_amount, 0, ',', '.') }}
               
             </td>
           </tr>

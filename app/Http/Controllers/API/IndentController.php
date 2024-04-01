@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Indent;
 use App\Models\IndentLog;
 use App\Models\IndentPayment;
+use App\Models\IndentPaymentRefund;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,8 +68,32 @@ class IndentController extends Controller
     {
         try {
 
+            $validator  = Validator::make($request->all(), [
+                "indent_payment_refund_amount_total" => "required|integer",
+                "indent_payment_refund_note" => "nullable"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+
             DB::beginTransaction();
-            $getIndentListPayment = IndentPayment::where("indent_id", $indent_id)->delete();
+            $createIndentPaymentRefund = IndentPaymentRefund::create([
+                "indent_id" => $indent_id,
+                "indent_payment_refund_amount_total" => $request->indent_payment_refund_amount_total,
+                "indent_payment_refund_note" => $request->indent_payment_refund_note,
+                "indent_payment_refund_number" => GenerateNumber::generate("REFUND-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payment_refunds", "indent_payment_refund_number")
+            ]);
+
+            // melakukan penghapusan indent payment secara keseluruhan
+            IndentPayment::where("indent_id", $indent_id)->delete();
 
             // create log
             $user = Auth::user();
@@ -79,7 +104,7 @@ class IndentController extends Controller
             ]);
             DB::commit();
 
-            return ResponseFormatter::success($getIndentListPayment, "Successfully refund all indent payment");
+            return ResponseFormatter::success($createIndentPaymentRefund, "Successfully refund all indent payment");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
@@ -98,20 +123,23 @@ class IndentController extends Controller
             // melakukan penggatian payment dari paid ke unpaid atau dari cashier check ke unpaid dan seterusnya
 
             $getDetailIndent = Indent::where("indent_id", $getDetailIndentPayment->indent_id)->first();
-            $getDetailIndent->update([
-                "indent_status" => IndentStatusEnum::unpaid
-            ]);
 
-            $getDetailIndentPayment->update([
-                "indent_payment_type" => "refund"
-            ]);
+            if ($getDetailIndent->indent_status !== 'unpaid') {
+                return ResponseFormatter::error("Tidak dapat melakukan delete payment karena status tidak unpaid", "Bad Request", 400);
+            }
+            // $getDetailIndent->update([
+            //     "indent_status" => IndentStatusEnum::unpaid
+            // ]);
+
+
+            $getDetailIndentPayment->delete();
 
             // create log
             $user = Auth::user();
             $createLogIndent = IndentLog::create([
                 "indent_id" => $getDetailIndent->indent_id,
                 "user_id" => $user->user_id,
-                "indent_log_action" => "Refund Payment " . $getDetailIndentPayment->indent_payment_amount
+                "indent_log_action" => "Delete Payment " . $getDetailIndentPayment->indent_payment_amount
             ]);
 
 
@@ -130,48 +158,7 @@ class IndentController extends Controller
         }
     }
 
-    // public function refundPayment(Request $request, $indent_id)
-    // {
-    //     try {
-    //         // melakukan pengenchekan SPK tapi blm ada tablenya ongoing
 
-
-    //         DB::beginTransaction();
-
-    //         // melakukan penggatian payment dari paid ke unpaid atau dari cashier check ke unpaid dan seterusnya
-
-    //         $getDetailIndent = Indent::with(["indent_payment"])->where("indent_id", $indent_id)->first();
-    //         $getDetailIndent->update([
-    //             "indent_status" => IndentStatusEnum::unpaid
-    //         ]);
-
-    //         foreach ($getDetailIndent as $item) {
-    //             IndentPayment::where("indent_id", $item["indent_id"])->delete();
-    //         }
-
-
-    //         // create log
-    //         $user = Auth::user();
-    //         $createLogIndent = IndentLog::create([
-    //             "indent_id" => $getDetailIndent->indent_id,
-    //             "user_id" => $user->user_id,
-    //             "indent_log_action" => "Refund Payment " . $indent_id
-    //         ]);
-
-
-    //         DB::commit();
-
-    //         $data = [
-    //             "indent" => $getDetailIndent,
-    //             "indent_log" => $createLogIndent
-    //         ];
-
-    //         return ResponseFormatter::success($data, "successfully refund indent !");
-    //     } catch (\Throwable $e) {
-    //         DB::rollBack();
-    //         return ResponseFormatter::error($e->getMessage(), "internal server", 500);
-    //     }
-    // }
 
     public function updateStatusIndent(Request $request, $indent_id)
     {
@@ -227,7 +214,7 @@ class IndentController extends Controller
                 "indent_payment_img" => "nullable|image|mimes:png,jpg|max:5120",
                 "indent_payment_method" => "required|in:cash,bank_transfer,giro",
                 "bank_id" => "nullable",
-                "indent_payment_amount" => "integer|required",
+                "indent_payment_amount" => "integer|required|min:1",
                 "indent_payment_date" => "date|required",
                 "indent_payment_note" => "nullable",
             ]);
@@ -273,11 +260,10 @@ class IndentController extends Controller
             // melakukan penjumlahan data lama dengan data baru
             $totalIndentPayment = $totalIndentPayment + $request->indent_payment_amount;
 
-            // if ($totalIndentPayment >= $getDetailIndent->amount_total) {
-            //     $getDetailIndent->update([
-            //         "indent_status" => IndentStatusEnum::paid
-            //     ]);
-            // }
+            if ($totalIndentPayment >= $getDetailIndent->amount_total) {
+                DB::rollBack();
+                return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
+            }
 
 
             $user = Auth::user();
@@ -310,7 +296,7 @@ class IndentController extends Controller
         try {
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
-                ->with(["sales", "motor", "color", "indent_log.user", "indent_payment.bank"])
+                ->with(["sales", "motor", "color", "indent_log.user", "indent_payment.bank", "indent_payment_refund"])
                 ->first();
 
 
@@ -322,36 +308,9 @@ class IndentController extends Controller
                 $getDetailIndent->load(["micro_finance"]);
             }
 
-            $response = [];
 
-            if ($getDetailIndent) {
-                $response = $getDetailIndent->toArray();
 
-                // Ambil semua data indent_payment
-                $indentPayments = $getDetailIndent->indent_payment;
-
-                // Filter data indent_payment berdasarkan status refund
-                $indentPaymentRefund = $indentPayments->filter(function ($payment) {
-                    return $payment->indent_payment_type === 'refund';
-                });
-
-                // Filter data indent_payment berdasarkan status payment
-                $indentPaymentPayment = $indentPayments->filter(function ($payment) {
-                    return $payment->indent_payment_type === 'payment';
-                });
-
-                // Konversi koleksi menjadi array untuk kedua jenis payment
-                $paymentRefundArray = $indentPaymentRefund->toArray();
-                $paymentPaymentArray = $indentPaymentPayment->toArray();
-
-                // Masukkan data indent_payment ke dalam respons sebagai array of object
-                $response['indent_payment'] = array_values($paymentPaymentArray);
-
-                // Masukkan data indent_payment_refund ke dalam respons sebagai array of object
-                $response['indent_payment_refund'] = array_values($paymentRefundArray);
-            }
-
-            return ResponseFormatter::success($response);
+            return ResponseFormatter::success($getDetailIndent);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }

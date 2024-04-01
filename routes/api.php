@@ -180,8 +180,10 @@ Route::prefix("v1")->group(function () {
             Route::get("/detail/{indent_id}", [IndentController::class, "getDetailInden"]);
             Route::post("/payment/{indent_id}", [IndentController::class, "addPayment"]);
             Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"]);
-            Route::put("/refund/{indent_payment_id}", [IndentController::class, "refundPayment"]);
-            Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"]);
+            Route::prefix("payment")->group(function () {
+                Route::put("/delete/{indent_payment_id}", [IndentController::class, "refundPayment"]);
+                Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"]);
+            });
             Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"]);
         });
 

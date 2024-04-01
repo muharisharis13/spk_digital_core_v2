@@ -42,4 +42,9 @@ class Indent extends Model
     {
         return $this->hasMany(IndentLog::class, "indent_id");
     }
+
+    public function indent_payment_refund()
+    {
+        return $this->hasOne(IndentPaymentRefund::class, "indent_id");
+    }
 }
