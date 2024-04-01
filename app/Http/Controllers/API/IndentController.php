@@ -413,6 +413,15 @@ class IndentController extends Controller
 
             DB::beginTransaction();
 
+            // melakukan pengecekan pembayaran apakah sudah 0 apa belum pembyaran indent
+
+            $getListPaymentIndent = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->get();
+
+            if ($getListPaymentIndent->count() > 0) {
+                DB::rollBack();
+                return ResponseFormatter::error("Harap lakukan penghapusan pembayaran dahulu sebelum melakukan update datat indent !", "Bad Request", 400);
+            }
+
             $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
 
             $getDetailIndent->update([
