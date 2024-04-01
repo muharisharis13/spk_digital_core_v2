@@ -258,7 +258,7 @@ class IndentController extends Controller
                 "indent_payment_amount" => $request->indent_payment_amount,
                 "indent_payment_date" => $request->indent_payment_date,
                 "indent_payment_note" => $request->indent_payment_note,
-                "indent_paymemt_number" => GenerateNumber::generate("PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payments", "indent_paymemt_number")
+                "indent_payment_number" => GenerateNumber::generate("PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payments", "indent_paymemt_number")
             ]);
 
             // melakukan pengecekan apakah pembayaran sudah lunas apa belum dari total list indent payment
@@ -398,7 +398,7 @@ class IndentController extends Controller
                 "indent_people_name" => "required",
                 "indent_nik" => "nullable",
                 "indent_wa_number" => "nullable",
-                "indent_phone_number" => "nullable",
+                "indent_phone_number" => "required",
                 "indent_type" => "required|in:cash,credit",
                 "indent_note" => "nullable",
                 "amount_total" => "required",
@@ -470,7 +470,7 @@ class IndentController extends Controller
                 "indent_people_name" => "required",
                 "indent_nik" => "nullable",
                 "indent_wa_number" => "nullable",
-                "indent_phone_number" => "nullable",
+                "indent_phone_number" => "required",
                 "indent_type" => "required|in:cash,credit",
                 "indent_note" => "nullable",
                 "amount_total" => "required",
