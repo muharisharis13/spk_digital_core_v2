@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\Color;
 use App\Models\Dealer;
 use App\Models\DealerByUser;
 use App\Models\DealerNeq;
@@ -23,6 +24,22 @@ class Master extends Controller
 {
     //
 
+    public function getColor(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $searchQuery = $request->input("q");
+            $getPaginate = Color::latest()
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    $query->where("color_name", "LIKE", "%$searchQuery%");
+                })
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
     public function getLeasing(Request $request)
     {
         try {
