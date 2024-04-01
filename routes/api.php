@@ -87,6 +87,9 @@ Route::prefix("v1")->group(function () {
             Route::prefix("color")->group(function () {
                 Route::get("/list", [Master::class, "getColor"]);
             });
+            Route::prefix("bank")->group(function () {
+                Route::get("/list", [Master::class, "getBank"]);
+            });
         });
 
         Route::prefix("repair")->group(function () {
