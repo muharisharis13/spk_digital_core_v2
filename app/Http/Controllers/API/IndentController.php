@@ -246,6 +246,10 @@ class IndentController extends Controller
 
             $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
 
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
             $createIndentPayment = IndentPayment::create([
                 "indent_id" => $indent_id,
                 "indent_payment_img" => $imagePath,
@@ -253,7 +257,8 @@ class IndentController extends Controller
                 "bank_id" => $request->bank_id,
                 "indent_payment_amount" => $request->indent_payment_amount,
                 "indent_payment_date" => $request->indent_payment_date,
-                "indent_payment_note" => $request->indent_payment_note
+                "indent_payment_note" => $request->indent_payment_note,
+                "indent_paymemt_number" => GenerateNumber::generate("PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payments", "indent_paymemt_number")
             ]);
 
             // melakukan pengecekan apakah pembayaran sudah lunas apa belum dari total list indent payment
