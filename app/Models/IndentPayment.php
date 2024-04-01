@@ -28,6 +28,10 @@ class IndentPayment extends Model
 
     protected function getIndentPaymentImgAttribute($value): string
     {
-        return asset('/storage/' . $value);
+        if ($value) {
+            return asset('/storage/' . $value);
+        } else {
+            return "";
+        }
     }
 }

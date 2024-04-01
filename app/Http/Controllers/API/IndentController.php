@@ -224,7 +224,7 @@ class IndentController extends Controller
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "indent_payment_img" => "nullable|mimes:png,jpg|max:2048",
+                "indent_payment_img" => "nullable|image|mimes:png,jpg|max:5120",
                 "indent_payment_method" => "required|in:cash,bank_transfer,giro",
                 "bank_id" => "nullable",
                 "indent_payment_amount" => "integer|required",
@@ -238,13 +238,18 @@ class IndentController extends Controller
 
             DB::beginTransaction();
 
-            if ($request->indent_payment_method == "cash" && $request->bank_id) {
+            if ($request->indent_payment_method == "cash" && isset($request->bank_id)) {
                 DB::rollBack();
                 return
                     ResponseFormatter::error("Please Delete bank id for payment method cash", "Bad Request", 400);
             }
+            if ($request->hasFile('indent_payment_img')) {
+                $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
+            } else {
+                $imagePath = null; // or any default value you prefer
+            }
 
-            $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
+            // $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
 
 
             $user = Auth::user();
