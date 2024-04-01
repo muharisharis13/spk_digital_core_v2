@@ -224,7 +224,7 @@ class IndentController extends Controller
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "indent_payment_img" => "image|mimes:png,jpg|max:2048",
+                "indent_payment_img" => "nullable|mimes:png,jpg|max:2048",
                 "indent_payment_method" => "required|in:cash,bank_transfer,giro",
                 "bank_id" => "nullable",
                 "indent_payment_amount" => "integer|required",
