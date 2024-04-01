@@ -63,6 +63,29 @@ class IndentController extends Controller
         }
     }
 
+    public function refundAllPayment(Request $request, $indent_id)
+    {
+        try {
+
+            DB::beginTransaction();
+            $getIndentListPayment = IndentPayment::where("indent_id", $indent_id)->delete();
+
+            // create log
+            $user = Auth::user();
+            IndentLog::create([
+                "indent_id" => $indent_id,
+                "user_id" => $user->user_id,
+                "indent_log_action" => "Refund all Payment"
+            ]);
+            DB::commit();
+
+            return ResponseFormatter::success($getIndentListPayment, "Successfully refund all indent payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function refundPayment(Request $request, $indent_payment_id)
     {
         try {
@@ -240,11 +263,11 @@ class IndentController extends Controller
             // melakukan penjumlahan data lama dengan data baru
             $totalIndentPayment = $totalIndentPayment + $request->indent_payment_amount;
 
-            if ($totalIndentPayment >= $getDetailIndent->amount_total) {
-                $getDetailIndent->update([
-                    "indent_status" => IndentStatusEnum::paid
-                ]);
-            }
+            // if ($totalIndentPayment >= $getDetailIndent->amount_total) {
+            //     $getDetailIndent->update([
+            //         "indent_status" => IndentStatusEnum::paid
+            //     ]);
+            // }
 
 
             $user = Auth::user();
