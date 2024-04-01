@@ -370,10 +370,11 @@ class IndentController extends Controller
                 ->when($indentStatus, function ($query) use ($indentStatus) {
                     $query->where("indent_status", $indentStatus);
                 })
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $startDate = Carbon::parse($startDate);
-                    $endDate = Carbon::parse($endDate);
-                    return $query->whereBetween('created_at', [$startDate, $endDate]);
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
                 })
                 ->when($searchQuery, function ($query) use ($searchQuery) {
                     $query->where("indent_number", "LIKE", "%$searchQuery%")
