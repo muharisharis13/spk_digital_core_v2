@@ -176,9 +176,9 @@ class IndentController extends Controller
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
 
-            if ($getDetailIndent->indent_status == "unpaid") {
-                return ResponseFormatter::error("Tidak dapat merubah status jika masih unpaid", "Bad request", 400);
-            }
+            // if ($getDetailIndent->indent_status == "unpaid") {
+            //     return ResponseFormatter::error("Tidak dapat merubah status jika masih unpaid", "Bad request", 400);
+            // }
 
             $getDetailIndent->update([
                 "indent_status" => $request->indent_status
