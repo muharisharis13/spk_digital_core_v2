@@ -45,7 +45,7 @@ class Indent extends Model
 
     public function indent_payment_refund()
     {
-        return $this->hasOne(IndentPaymentRefund::class, "indent_id");
+        return $this->hasMany(IndentPaymentRefund::class, "indent_id");
     }
 
     public function dealer()
