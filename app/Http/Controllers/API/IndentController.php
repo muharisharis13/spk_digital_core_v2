@@ -276,7 +276,7 @@ class IndentController extends Controller
                 "indent_log_action" => "Payment"
             ]);
 
-            // DB::commit();
+            DB::commit();
 
 
             $data = [
