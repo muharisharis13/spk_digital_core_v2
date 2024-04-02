@@ -38,8 +38,6 @@
 
         .page-break {
             page-break-after: always;
-            border-bottom: 1px dashed #d4d4d4;
-            margin-top: 100px;
         }
     </style>
 </head>
@@ -50,24 +48,26 @@
             <div>
                 <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
             </div>
+            {{-- {{ $data }} --}}
+
             <div>
-                <h2>PT ALFA SCORPII - AR HAKIM</h2>
+                <h3>{{ $data->indent->dealer->dealer_name }}</h3>
                 <div class="alamat">
-                    Jl. Arief Rahman Hakim No.134 B - C - D - E Sukaramai I, Kec. Medan Area
-                    Kota Medan, Sumatera Utara 20227
+                    {{ $data->indent->dealer->dealer_address }}
                 </div>
             </div>
         </div>
 
         <div class="right" style="text-align: right">
             <h2>KWITANSI PANJAR</h2>
-            <div>No.0001/PJ/ARMDN/04/2024</div>
+            <div>No.{{ $data->indent_payment_number }}</div>
             <div style="text-align: right;margin-top:50px">
-                <img src="https://digilib.metrouniv.ac.id/wp-content/uploads/2022/10/frame.png" alt="QR Code"
-                    class="logo">
+                <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
+                {{-- {!!  !!} --}}
+
             </div>
             <div style="margin-top: 50px;font-weight:bold">
-                Medan, 02-04-2024
+                {{ date('d-M-Y', strtotime($data->created_at)) }}
             </div>
         </div>
     </div>
@@ -79,12 +79,12 @@
                 <div style="white-space: nowrap">Sudah diterima dari</div>
             </th>
             <td>:</td>
-            <td>Muharis</td>
+            <td>{{ $data->indent->indent_people_name }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Banyaknya Uang</th>
             <td>:</td>
-            <td>Dua Ratus Ribu rupiah</td>
+            <td> Rp {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">
@@ -96,18 +96,22 @@
         <tr>
             <th style="padding-bottom:10px">Type</th>
             <td>:</td>
-            <td>ALL NEW NMAX 155 S</td>
+            <td>{{ $data->indent->motor->motor_name }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Warna</th>
             <td>:</td>
-            <td>HITAM</td>
+            <td>{{ $data->indent->color->color_name }}</td>
         </tr>
         <tr>
             <th>Keterangan</th>
             <td>:</td>
-            <td>Untuk indent no. 0001/IND/ARMDN/04/2024 tgl.01 April 2024 dengan total panjar Rp.200,000
-                Pembayaran CASH via KASIR</td>
+            <td>Untuk indent no. {{ $data->indent_payment_number }}
+                tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total panjar
+                Rp.{{ number_format($data->indent_payment_amount, 0, ',', '.') }}
+                Pembayaran {{ $data->indent_payment_method == 'cash' ? 'CASH' : '-' }}
+                via KASIR
+            </td>
         </tr>
     </table>
     <div class="container-total-amount" style="
@@ -115,7 +119,7 @@
         <div style="width:100%;">
             <div
                 style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                <strong>Jumlah Rp. 200,000</strong>
+                <strong>Jumlah Rp. {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</strong>
             </div>
             <div style="padding:10px;text-align:center;white-space:nowrap">
                 Lembar 1 : Konsumen
@@ -139,30 +143,31 @@
     </small>
     <div class="page-break"></div>
     <div>
-
         <div class="row" style="height: 250px;">
             <div class="left">
                 <div>
                     <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
                 </div>
+                {{-- {{ $data }} --}}
+
                 <div>
-                    <h2>PT ALFA SCORPII - AR HAKIM</h2>
+                    <h3>{{ $data->indent->dealer->dealer_name }}</h3>
                     <div class="alamat">
-                        Jl. Arief Rahman Hakim No.134 B - C - D - E Sukaramai I, Kec. Medan Area
-                        Kota Medan, Sumatera Utara 20227
+                        {{ $data->indent->dealer->dealer_address }}
                     </div>
                 </div>
             </div>
 
             <div class="right" style="text-align: right">
                 <h2>KWITANSI PANJAR</h2>
-                <div>No.0001/PJ/ARMDN/04/2024</div>
+                <div>No.{{ $data->indent_payment_number }}</div>
                 <div style="text-align: right;margin-top:50px">
-                    <img src="https://digilib.metrouniv.ac.id/wp-content/uploads/2022/10/frame.png" alt="QR Code"
-                        class="logo">
+                    <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
+                    {{-- {!!  !!} --}}
+
                 </div>
                 <div style="margin-top: 50px;font-weight:bold">
-                    Medan, 02-04-2024
+                    {{ date('d-M-Y', strtotime($data->created_at)) }}
                 </div>
             </div>
         </div>
@@ -174,12 +179,12 @@
                     <div style="white-space: nowrap">Sudah diterima dari</div>
                 </th>
                 <td>:</td>
-                <td>Muharis</td>
+                <td>{{ $data->indent->indent_people_name }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Banyaknya Uang</th>
                 <td>:</td>
-                <td>Dua Ratus Ribu rupiah</td>
+                <td> Rp {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">
@@ -191,29 +196,33 @@
             <tr>
                 <th style="padding-bottom:10px">Type</th>
                 <td>:</td>
-                <td>ALL NEW NMAX 155 S</td>
+                <td>{{ $data->indent->motor->motor_name }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Warna</th>
                 <td>:</td>
-                <td>HITAM</td>
+                <td>{{ $data->indent->color->color_name }}</td>
             </tr>
             <tr>
                 <th>Keterangan</th>
                 <td>:</td>
-                <td>Untuk indent no. 0001/IND/ARMDN/04/2024 tgl.01 April 2024 dengan total panjar Rp.200,000
-                    Pembayaran CASH via KASIR</td>
+                <td>Untuk indent no. {{ $data->indent_payment_number }}
+                    tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total panjar
+                    Rp.{{ number_format($data->indent_payment_amount, 0, ',', '.') }}
+                    Pembayaran {{ $data->indent_payment_method == 'cash' ? 'CASH' : '-' }}
+                    via KASIR
+                </td>
             </tr>
         </table>
         <div class="container-total-amount" style="
-        margin-top:40px;margin-bottom:40px">
+    margin-top:40px;margin-bottom:40px">
             <div style="width:100%;">
                 <div
                     style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                    <strong>Jumlah Rp. 200,000</strong>
+                    <strong>Jumlah Rp. {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</strong>
                 </div>
                 <div style="padding:10px;text-align:center;white-space:nowrap">
-                    Lembar 1 : Konsumen
+                    Lembar 1 : Poskas
                 </div>
             </div>
         </div>
@@ -233,8 +242,6 @@
             Scan QR disamping dengan aplikasi ALFA SCORPII untuk detail dan cek keaslian.
         </small>
     </div>
-
-    <div class="page-break"></div>
 </body>
 
 </html>

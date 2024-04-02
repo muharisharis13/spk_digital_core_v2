@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class ExportPDFController extends Controller
 {
@@ -76,14 +77,21 @@ class ExportPDFController extends Controller
         }
     }
 
-    public function printPDFPayment2(Request $request)
+    public function printPDFPayment2(Request $request, $indent_payment_id)
     {
 
+        try {
+            $getDetailPaymentIndent = IndentPayment::with(["bank", "indent.dealer", "indent.motor", "indent.color"])->where("indent_payment_id", $indent_payment_id)->first();
 
-        $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent2');
-        $pdf->setPaper('a4', 'portrait');
 
-        // Kembalikan PDF langsung sebagai respons
-        return $pdf->download('faktur_payment.pdf');
+
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent2', ["data" => $getDetailPaymentIndent]);
+            $pdf->setPaper('a4', 'portrait');
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->download("faktur_payment.$indent_payment_id.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
     }
 }

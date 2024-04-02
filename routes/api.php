@@ -43,8 +43,8 @@ Route::prefix("v1")->group(function () {
     Route::prefix("export")->group(function () {
         Route::prefix("faktur")->group(function () {
             Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
-            Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPaymentIndent"]);
-            Route::get("/indent-payment2", [ExportPDFController::class, "printPDFPayment2"]);
+            Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
+            // Route::get("/indent-payment2", [ExportPDFController::class, "printPDFPayment2"]);
         });
     });
 
