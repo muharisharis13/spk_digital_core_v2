@@ -11,6 +11,7 @@ use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExportPDFController extends Controller
 {
@@ -73,5 +74,16 @@ class ExportPDFController extends Controller
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
+    }
+
+    public function printPDFPayment2(Request $request)
+    {
+
+
+        $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent2');
+        $pdf->setPaper('a4', 'portrait');
+
+        // Kembalikan PDF langsung sebagai respons
+        return $pdf->download('faktur_payment.pdf');
     }
 }
