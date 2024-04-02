@@ -18,6 +18,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/faktur', function () {
-//     return view('pdf.faktur.faktur', [ExportPDFController::class, "printPdfIndent"]);
-// });
+Route::get('/faktur', function () {
+    return view('pdf.faktur.faktur_payment_indent2');
+});

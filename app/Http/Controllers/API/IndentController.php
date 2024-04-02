@@ -70,7 +70,7 @@ class IndentController extends Controller
 
             $validator  = Validator::make($request->all(), [
                 "indent_payment_refund_amount_total" => "required|integer",
-                "indent_payment_refund_note" => "nullable"
+                "indent_payment_refund_note" => "required"
             ]);
 
             if ($validator->fails()) {
@@ -82,12 +82,13 @@ class IndentController extends Controller
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-
+            // mendapatkan total payment yang sudah terjadi
+            $totalIndentPayment = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->sum('indent_payment_amount');
 
             DB::beginTransaction();
             $createIndentPaymentRefund = IndentPaymentRefund::create([
                 "indent_id" => $indent_id,
-                "indent_payment_refund_amount_total" => $request->indent_payment_refund_amount_total,
+                "indent_payment_refund_amount_total" => $totalIndentPayment,
                 "indent_payment_refund_note" => $request->indent_payment_refund_note,
                 "indent_payment_refund_number" => GenerateNumber::generate("REFUND-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payment_refunds", "indent_payment_refund_number")
             ]);
