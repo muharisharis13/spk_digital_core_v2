@@ -258,12 +258,13 @@ class IndentController extends Controller
             $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
 
             // melakukan penjumlahan data lama dengan data baru
-            $totalIndentPayment = $totalIndentPayment + $request->indent_payment_amount;
+            // $totalIndentPayment = $totalIndentPayment + $request->indent_payment_amount;
 
-            if ($totalIndentPayment >= $getDetailIndent->amount_total) {
+            if (intval($totalIndentPayment) >  $getDetailIndent->amount_total) {
                 DB::rollBack();
                 return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
             }
+
 
 
             $user = Auth::user();
@@ -275,14 +276,14 @@ class IndentController extends Controller
                 "indent_log_action" => "Payment"
             ]);
 
-            DB::commit();
+            // DB::commit();
 
 
             $data = [
                 "indent" => $getDetailIndent,
                 "indent_payment" => $createIndentPayment,
                 "indent_log" => $createLogIndent,
-                "totalIndentPayment" => $totalIndentPayment
+                "totalIndentPayment" => intval($totalIndentPayment)
             ];
             return ResponseFormatter::success($data, "Successfully created indent payment !");
         } catch (\Throwable $e) {
