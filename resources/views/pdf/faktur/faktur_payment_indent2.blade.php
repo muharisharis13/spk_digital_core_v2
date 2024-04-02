@@ -37,17 +37,25 @@
                             </td>
                         </tr>
                     </table>
-                    <table style="margin-top: 100px">
+                    <table style="margin-top: 100px;">
                         <tbody>
                             <tr>
                                 <td>Sudah diterima dari</td>
-                                <td>: Muharis</td>
+                                <td style="border-bottom: 1px solid #d4d4d4">: Muharis</td>
                             </tr>
                         </tbody>
                     </table>
                 </td>
                 <td>
-
+                    <h2>
+                        KWITANSI PANJAR
+                    </h2>
+                    <div>
+                        No.0001/PJ/ARMDN/04/2024
+                    </div>
+                    <div>
+                        <img src="https://digilib.metrouniv.ac.id/wp-content/uploads/2022/10/frame.png" alt="">
+                    </div>
                 </td>
             </tr>
         </tbody>

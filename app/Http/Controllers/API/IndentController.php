@@ -95,6 +95,11 @@ class IndentController extends Controller
             // melakukan penghapusan indent payment secara keseluruhan
             IndentPayment::where("indent_id", $indent_id)->delete();
 
+            // melakukan update ident status menjadi unpaid
+            Indent::where("indent_id", $indent_id)->update([
+                "indent_status", IndentStatusEnum::unpaid
+            ]);
+
             // create log
             $user = Auth::user();
             IndentLog::create([
