@@ -40,6 +40,13 @@ Route::prefix("v1")->group(function () {
         // Route::post("/logout", [AuthenticationController::class, "logout"]);
     });
 
+    Route::prefix("export")->group(function () {
+        Route::prefix("faktur")->group(function () {
+            Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
+            Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPaymentIndent"]);
+        });
+    });
+
     Route::middleware("auth:sanctum")->group(function () {
 
         Route::prefix("user")->group(function () {
@@ -185,13 +192,6 @@ Route::prefix("v1")->group(function () {
                 Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"]);
             });
             Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"]);
-        });
-
-        Route::prefix("export")->group(function () {
-            Route::prefix("faktur")->group(function () {
-                Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
-                Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPaymentIndent"]);
-            });
         });
     });
 });

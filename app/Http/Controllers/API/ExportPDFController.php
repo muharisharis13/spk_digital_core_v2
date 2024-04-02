@@ -28,7 +28,7 @@ class ExportPDFController extends Controller
             // Logika pembuatan PDF
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
-            $pdf->setPaper('A4', 'landscape');
+            $pdf->setPaper('A4', 'portrait');
             $pdf->render();
 
             // Simpan PDF sebagai file sementara
@@ -47,20 +47,20 @@ class ExportPDFController extends Controller
         try {
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
-                ->with(["sales", "motor", "color",  "indent_payment.bank", "indent_payment" => function ($query) {
+                ->with(["sales", "motor", "color",  "indent_payment.bank", "dealer", "indent_payment" => function ($query) {
                     $query->where("indent_payment_type", "payment");
                 }])
                 ->first();
-            $user = Auth::user();
-            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+            // $user = Auth::user();
+            // $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
             // Load HTML dari template Blade
-            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDealerSelected])->render();
+            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDetailIndent])->render();
             // $html = view('pdf.faktur.faktur', ["indent" => $getDetailIndent, "dealer" => $getDealerSelected])->render();
 
             // Logika pembuatan PDF
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
-            $pdf->setPaper('A4', 'landscape');
+            $pdf->setPaper('A4', 'portrait');
             $pdf->render();
 
             // Simpan PDF sebagai file sementara

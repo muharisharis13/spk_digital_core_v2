@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Print Faktur</title>
   <style>
-    body {
-      font-family: "Poppins", sans-serif;
-    }
+
     /* Custom Styles */
     .table {
-      border-collapse: collapse;
+      /* border-collapse: collapse; */
       width: 100%;
     }
     .table th,
@@ -36,14 +34,14 @@
     .box {
         border: 1px solid #ccc;
         border-radius: 5px;
-        height: 200px;
+        /* height: 200px; */
         width: 100%;
         padding: 5px;
         background-color: white;
     }
   </style>
 </head>
-<body style="font-family: Arial, Helvetica, sans-serif;">
+<body style="font-family: Arial, Helvetica, sans-serif;background-color:red">
   <table style="width: 100%">
     <tbody>
       <tr>

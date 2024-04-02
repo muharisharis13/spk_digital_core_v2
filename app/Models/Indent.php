@@ -47,4 +47,9 @@ class Indent extends Model
     {
         return $this->hasOne(IndentPaymentRefund::class, "indent_id");
     }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
 }
