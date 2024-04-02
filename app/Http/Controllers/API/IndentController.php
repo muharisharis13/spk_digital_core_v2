@@ -69,7 +69,6 @@ class IndentController extends Controller
         try {
 
             $validator  = Validator::make($request->all(), [
-                "indent_payment_refund_amount_total" => "required|integer",
                 "indent_payment_refund_note" => "required"
             ]);
 
