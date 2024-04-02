@@ -88,7 +88,7 @@ class IndentController extends Controller
             DB::beginTransaction();
             $createIndentPaymentRefund = IndentPaymentRefund::create([
                 "indent_id" => $indent_id,
-                "indent_payment_refund_amount_total" => $totalIndentPayment,
+                "indent_payment_refund_amount_total" => intval($totalIndentPayment),
                 "indent_payment_refund_note" => $request->indent_payment_refund_note,
                 "indent_payment_refund_number" => GenerateNumber::generate("REFUND-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payment_refunds", "indent_payment_refund_number")
             ]);
