@@ -103,9 +103,7 @@ class DeliveryController extends Controller
                 case "repair":
                     $getDetailDelivery->load([
                         "delivery_repair.repair.main_dealer",
-                        "delivery_repair.repair.repair_unit" => function ($query) {
-                            $query->where("is_return", false);
-                        },
+                        "delivery_repair.repair.repair_unit",
                         "delivery_repair.repair.repair_unit.unit.motor",
                     ]);
                     break;

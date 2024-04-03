@@ -94,4 +94,17 @@ class ExportPDFController extends Controller
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
+
+    public function printSuratJalan(Request $request)
+    {
+
+
+
+
+        $pdf = Pdf::loadView('pdf.surat_jalan.surat_jalan');
+        $pdf->setPaper('a4', 'portrait');
+
+        // Kembalikan PDF langsung sebagai respons
+        return $pdf->download("surat_jalan.pdf");
+    }
 }

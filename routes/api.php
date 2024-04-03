@@ -44,9 +44,10 @@ Route::prefix("v1")->group(function () {
         Route::prefix("faktur")->group(function () {
             Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
             Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
-            // Route::get("/indent-payment2", [ExportPDFController::class, "printPDFPayment2"]);
         });
+        Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
     });
+
 
     Route::middleware("auth:sanctum")->group(function () {
 
