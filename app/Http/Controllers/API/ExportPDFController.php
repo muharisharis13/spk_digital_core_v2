@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\delivery;
+use App\Models\DeliveryRepair;
 use App\Models\Indent;
 use App\Models\IndentPayment;
 use Dompdf\Dompdf;
@@ -97,14 +99,32 @@ class ExportPDFController extends Controller
 
     public function printSuratJalan(Request $request)
     {
+        try {
+
+            $uuid = $request->input("uuid");
+
+            $repair = $this->getDetailDeliveryRepair($uuid);
+
+            // return ResponseFormatter::success($repair);
 
 
+            $pdf = Pdf::loadView('pdf.surat_jalan.surat_jalan', ["data" => $repair]);
+            $pdf->setPaper('a4', 'portrait');
 
+            // // Kembalikan PDF langsung sebagai respons
+            return $pdf->download("surat_jalan.$uuid.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
-        $pdf = Pdf::loadView('pdf.surat_jalan.surat_jalan');
-        $pdf->setPaper('a4', 'portrait');
+    private function getDetailDeliveryRepair($delivery_id)
+    {
 
-        // Kembalikan PDF langsung sebagai respons
-        return $pdf->download("surat_jalan.pdf");
+        $response = delivery::where("delivery_id", $delivery_id)
+            ->with(["delivery_repair.repair.repair_unit.unit.motor", "delivery_repair.repair.main_dealer", "dealer"])
+            ->first();
+
+        return $response;
     }
 }

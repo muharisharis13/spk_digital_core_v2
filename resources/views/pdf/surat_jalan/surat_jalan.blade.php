@@ -13,20 +13,20 @@
             <div>
                 <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
             </div>
-            {{-- {{ $data }} --}}
 
             <div>
-                <div style="font-weight:bold;font-size:18px">{ $data->indent->dealer->dealer_name }</div>
+                <div style="font-weight:bold;font-size:18px">{{ $data->dealer->dealer_name }}</div>
                 <div>
-                    { $data->indent->dealer->dealer_address }
+                    {{ $data->dealer->dealer_address }}
                 </div>
             </div>
         </div>
         <div style="text-align: right">
             <strong style="font-size: 18px">SURAT JALAN</strong>
-            <div>No.{ $data->indent_payment_number }</div>
+            <div>No.{{ $data->delivery_number }}</div>
             <div>
-                Tgl. 12 Maret 2024
+
+                Tgl. {{ strftime('%d %B %Y', strtotime($data->created_at)) }}
             </div>
         </div>
     </div>
@@ -37,10 +37,16 @@
                 <tr>
                     <td>Driver</td>
                     <td>:</td>
+                    <td>
+                        {{ $data->delivery_driver_name }}
+                    </td>
                 </tr>
                 <tr>
                     <td>Mobil</td>
                     <td>:</td>
+                    <td>
+                        {{ $data->delivery_vehicle }}
+                    </td>
                 </tr>
             </table>
         </div>
@@ -50,25 +56,25 @@
                 Pengantaran Unit
             </div>
             <div>
-                0001/SJ/MDN-AR/03/2024
+                {{ $data->delivery_repair->repair->repair_number }}
             </div>
             <table style="width: 100%">
                 <tr>
                     <td>Tgl. Pengiriman</td>
                     <td>:</td>
-                    <td>01 Maret 2024</td>
+                    <td>{{ strftime('%d %B %Y', strtotime($data->created_at)) }}</td>
                 </tr>
                 <tr>
                     <td>Kelengkapan</td>
                     <td>:</td>
-                    <td>Helm</td>
+                    <td>{{ $data->delivery_completeness }}</td>
                 </tr>
             </table>
         </div>
     </div>
     <div style="clear: both;line-height:25px">
         <div style="margin-top:50px">Penerima :</div>
-        <strong>PT Alfa Scorpii</strong>
+        <strong>{{ $data->delivery_repair->repair->main_dealer->main_dealer_name }}</strong>
         <div style="width: 50%">Jln. H Adam malikNo. 34 C Silalas - Medan Barat Medan 20214, Sumatera Utara 0822</div>
     </div>
     <div style="clear: both;line-height:25px;margin-top:50px">
@@ -82,20 +88,22 @@
                 </tr>
             </thead>
             <tbody>
-                <tr style="text-align: center;text-transform:uppercase">
-                    <td>
-                        Nmax
-                    </td>
-                    <td>
-                        abu abu
-                    </td>
-                    <td>
-                        adsaasd
-                    </td>
-                    <td>
-                        gasf
-                    </td>
-                </tr>
+                @foreach ($data->delivery_repair->repair->repair_unit as $item)
+                    <tr style="text-align: center;text-transform:uppercase">
+                        <td>
+                            {{ $item->unit->motor->motor_name }}
+                        </td>
+                        <td>
+                            {{ $item->unit->unit_color ? $item->unit->unit_color : $item->unit->color->color_name }}
+                        </td>
+                        <td>
+                            {{ $item->unit->unit_frame }}
+                        </td>
+                        <td>
+                            {{ $item->unit->unit_engine }}
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
