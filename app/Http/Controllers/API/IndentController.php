@@ -97,7 +97,7 @@ class IndentController extends Controller
 
             // melakukan update ident status menjadi unpaid
             Indent::where("indent_id", $indent_id)->update([
-                "indent_status", IndentStatusEnum::unpaid
+                "indent_status" => IndentStatusEnum::unpaid
             ]);
 
             // create log
@@ -362,70 +362,124 @@ class IndentController extends Controller
     public function updateIndent(Request $request, $indent_id)
     {
         try {
-            $validator  = Validator::make($request->all(), [
-                "motor_id" => "required",
-                "color_id" => "required",
-                "indent_people_name" => "required",
-                "indent_nik" => "nullable",
-                "indent_wa_number" => "nullable",
-                "indent_phone_number" => "required",
-                "indent_type" => "required|in:cash,credit",
-                "indent_note" => "nullable",
-                "amount_total" => "required",
-                "sales_id" => "required",
-                "micro_finance_id" => "nullable",
-                "leasing_id" => "nullable"
-            ]);
-
-            if ($validator->fails()) {
-                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-            }
 
             DB::beginTransaction();
+
+
+
+            $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
+
 
             // melakukan pengecekan pembayaran apakah sudah 0 apa belum pembyaran indent
 
             $getListPaymentIndent = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->get();
 
-            if ($getListPaymentIndent->count() > 0) {
-                DB::rollBack();
-                return ResponseFormatter::error("Harap lakukan penghapusan pembayaran dahulu sebelum melakukan update datat indent !", "Bad Request", 400);
+            if ($getListPaymentIndent->count() > 0 && $getDetailIndent->indent_status === 'unpaid') {
+                // DB::rollBack();
+                // return ResponseFormatter::error("Harap lakukan penghapusan pembayaran dahulu sebelum melakukan update datat indent !", "Bad Request", 400);
+                $validator  = Validator::make($request->all(), [
+                    "motor_id" => "required",
+                    "color_id" => "required",
+                ]);
+
+                if ($validator->fails()) {
+                    return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                }
+
+
+                $getDetailIndent->update([
+                    "motor_id" => $request->motor_id,
+                    "color_id" => $request->color_id,
+                ]);
+
+                $user = Auth::user();
+
+                // create log indent
+                $createLogIndent = IndentLog::create([
+                    "indent_id" => $indent_id,
+                    "user_id" => $user->user_id,
+                    "indent_log_action" => "Update Indent " . $getDetailIndent->indent_people_name
+                ]);
+
+                DB::commit();
+
+                $data = [
+                    "indent" => $getDetailIndent,
+                    "indent_log" => $createLogIndent
+                ];
+
+                return ResponseFormatter::success($data, "Successfully updated indent !");
+            } else {
+                if ($getDetailIndent->indent_status === 'cashier_check' || $getDetailIndent->indent_status === 'finance_check') {
+                    $validator  = Validator::make($request->all(), [
+                        "motor_id" => "required",
+                        "color_id" => "required",
+                    ]);
+
+                    if ($validator->fails()) {
+                        return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                    }
+
+
+                    $getDetailIndent->update([
+                        "motor_id" => $request->motor_id,
+                        "color_id" => $request->color_id,
+                    ]);
+                } else {
+                    $validator  = Validator::make($request->all(), [
+                        "motor_id" => "required",
+                        "color_id" => "required",
+                        "indent_people_name" => "required",
+                        "indent_nik" => "nullable",
+                        "indent_wa_number" => "nullable",
+                        "indent_phone_number" => "required",
+                        "indent_type" => "required|in:cash,credit",
+                        "indent_note" => "nullable",
+                        "amount_total" => "required",
+                        "sales_id" => "required",
+                        "micro_finance_id" => "nullable",
+                        "leasing_id" => "nullable"
+                    ]);
+
+                    if ($validator->fails()) {
+                        return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                    }
+
+
+                    $getDetailIndent->update([
+                        "motor_id" => $request->motor_id,
+                        "color_id" => $request->color_id,
+                        "indent_people_name" => $request->indent_people_name,
+                        "indent_nik" => $request->indent_nik,
+                        "indent_wa_number" => $request->indent_wa_number,
+                        "indent_phone_number" => $request->indent_phone_number,
+                        "indent_type" => $request->indent_type,
+                        "indent_note" => $request->indent_note,
+                        "amount_total" => $request->amount_total,
+                        "sales_id" => $request->sales_id,
+                        "micro_finance_id" => $request->micro_finance_id,
+                        "leasing_id" => $request->leasing_id,
+                    ]);
+                }
+
+                $user = Auth::user();
+
+                // create log indent
+                $createLogIndent = IndentLog::create([
+                    "indent_id" => $indent_id,
+                    "user_id" => $user->user_id,
+                    "indent_log_action" => "Update Indent " . $getDetailIndent->indent_people_name
+                ]);
+
+                DB::commit();
+
+                $data = [
+                    "indent" => $getDetailIndent,
+                    "indent_log" => $createLogIndent
+                ];
+
+                return ResponseFormatter::success($data, "Successfully updated indent !");
             }
-
-            $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
-
-            $getDetailIndent->update([
-                "motor_id" => $request->motor_id,
-                "color_id" => $request->color_id,
-                "indent_people_name" => $request->indent_people_name,
-                "indent_nik" => $request->indent_nik,
-                "indent_wa_number" => $request->indent_wa_number,
-                "indent_phone_number" => $request->indent_phone_number,
-                "indent_type" => $request->indent_type,
-                "indent_note" => $request->indent_note,
-                "amount_total" => $request->amount_total,
-                "sales_id" => $request->sales_id,
-                "micro_finance_id" => $request->micro_finance_id,
-                "leasing_id" => $request->leasing_id,
-            ]);
-
-            $user = Auth::user();
-
-            // create log indent
-            $createLogIndent = IndentLog::create([
-                "indent_id" => $indent_id,
-                "user_id" => $user->user_id,
-                "indent_log_action" => "Update Indent " . $getDetailIndent->indent_people_name
-            ]);
-
-            DB::commit();
-
-            $data = [
-                "indent" => $getDetailIndent,
-                "indent_log" => $createLogIndent
-            ];
-
-            return ResponseFormatter::success($data, "Successfully updated indent !");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
