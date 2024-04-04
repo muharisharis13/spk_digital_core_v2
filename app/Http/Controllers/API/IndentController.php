@@ -97,7 +97,7 @@ class IndentController extends Controller
 
             // melakukan update ident status menjadi unpaid
             Indent::where("indent_id", $indent_id)->update([
-                "indent_status" => IndentStatusEnum::refund
+                "indent_status" => IndentStatusEnum::unpaid
             ]);
 
             // create log
