@@ -375,8 +375,40 @@ class IndentController extends Controller
             $getListPaymentIndent = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->get();
 
             if ($getListPaymentIndent->count() > 0 && $getDetailIndent->indent_status === 'unpaid') {
-                DB::rollBack();
-                return ResponseFormatter::error("Harap lakukan penghapusan pembayaran dahulu sebelum melakukan update datat indent !", "Bad Request", 400);
+                // DB::rollBack();
+                // return ResponseFormatter::error("Harap lakukan penghapusan pembayaran dahulu sebelum melakukan update datat indent !", "Bad Request", 400);
+                $validator  = Validator::make($request->all(), [
+                    "motor_id" => "required",
+                    "color_id" => "required",
+                ]);
+
+                if ($validator->fails()) {
+                    return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                }
+
+
+                $getDetailIndent->update([
+                    "motor_id" => $request->motor_id,
+                    "color_id" => $request->color_id,
+                ]);
+
+                $user = Auth::user();
+
+                // create log indent
+                $createLogIndent = IndentLog::create([
+                    "indent_id" => $indent_id,
+                    "user_id" => $user->user_id,
+                    "indent_log_action" => "Update Indent " . $getDetailIndent->indent_people_name
+                ]);
+
+                DB::commit();
+
+                $data = [
+                    "indent" => $getDetailIndent,
+                    "indent_log" => $createLogIndent
+                ];
+
+                return ResponseFormatter::success($data, "Successfully updated indent !");
             } else {
                 if ($getDetailIndent->indent_status === 'cashier_check' || $getDetailIndent->indent_status === 'finance_check') {
                     $validator  = Validator::make($request->all(), [
