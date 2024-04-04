@@ -5,7 +5,7 @@ namespace App\Enums;
 
 class IndentStatusEnum
 {
-    const unpaid = "unpaid";
+    const unpaid = "unpaid_all";
     const cashier_check = "cashier_check";
     const finance_check = "finance_check";
     const refund = "refund";
