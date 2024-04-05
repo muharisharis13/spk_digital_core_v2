@@ -12,4 +12,23 @@ class SpkGeneral extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_general_id";
+
+    public function indent()
+    {
+        return $this->belongsTo(Indent::class, "indent_id");
+    }
+
+    public function sales()
+    {
+        return $this->belongsTo(Sales::class, "sales_id");
+    }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
+    public function dealer_neq()
+    {
+        return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
+    }
 }

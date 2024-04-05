@@ -12,4 +12,14 @@ class PricelistMotor extends Model
     protected $guarded = [];
 
     protected $primaryKey = "pricelist_motor_id";
+    protected $with = ["dealer", "dealer_neq"];
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
+    public function dealer_neq()
+    {
+        return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
+    }
 }

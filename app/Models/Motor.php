@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Motor extends Model
 {
     use HasFactory, HasUuids;
-    
+
     protected $table = 'motor';
     protected $fillable = [
         "motor_id",
@@ -18,5 +18,11 @@ class Motor extends Model
         "motor_code"
     ];
 
-    protected $primaryKey="motor_id";
+    protected $primaryKey = "motor_id";
+    protected $with = ["motor_pricelist"];
+
+    public function motor_pricelist()
+    {
+        return $this->hasMany(PricelistMotor::class, "motor_id");
+    }
 }

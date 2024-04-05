@@ -11,9 +11,17 @@ use App\Models\Spk;
 use App\Models\SpkAdditionalDocument;
 use App\Models\SpkAdditionalDocumentAnother;
 use App\Models\SpkCustomer;
+use App\Models\SpkDeliveryDealer;
+use App\Models\SpkDeliveryDomicile;
+use App\Models\SpkDeliveryFileSk;
+use App\Models\SpkDeliveryKtp;
+use App\Models\SpkDeliveryNeq;
 use App\Models\SpkGeneral;
 use App\Models\SpkLegal;
 use App\Models\SpkLog;
+use App\Models\SpkPricing;
+use App\Models\SpkPricingAccecories;
+use App\Models\SpkPricingAdditional;
 use App\Models\SpkTransaction;
 use App\Models\SpkUnit;
 use Illuminate\Http\Request;
@@ -24,6 +32,19 @@ use Illuminate\Support\Facades\Validator;
 class SPKController extends Controller
 {
     //
+
+    public function getPaginateSpk(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $getPaginate = Spk::latest()
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     const validator = [
         "spk_general_location" => "required|in:dealer,neq",
@@ -93,10 +114,97 @@ class SPKController extends Controller
 
         "spk_additional_document_ktp" => "required|image|mimes:png,jpg|max:5120",
         "spk_additional_document_kk" => "required|image|mimes:png,jpg|max:5120",
-        "spk_additional_document_another" => "nullable|array",
-        "spk_additional_document_another.*.name" => "image|mimes:png,jpg,pdf|max:5120"
+        "spk_additional_document_another.*" => 'nullable|mimes:jpg,png,pdf|max:5120',
+
+
+        //spk pricing
+
+        "spk_pricing_off_the_road" => "required",
+        "spk_pricing_bbn" => "required",
+        "spk_pricing_on_the_road" => "required",
+        "spk_pricing_indent_nominal" => "nullable",
+        "spk_pricing_discount" => "nullable",
+        "spk_pricing_subsidi" => "nullable",
+        "spk_pricing_booster" => "nullable",
+        "spk_pricing_commission" => "nullable",
+        "spk_pricing_commission_surveryor_name" => "nullable",
+        "spk_pricing_broker_name" => "nullable",
+        "spk_pricing_broker_commission" => "nullable",
+        "spk_pricing_cashback" => "nullable",
+        "spk_pricing_delivery_cost" => "nullable",
+
+
+        //spk accecories
+
+        "spk_pricing_accecories_price.*" => "nullable|integer",
+
+        //spk accecories additional
+
+        "spk_pricing_additional_price.*" => "nullable|integer",
+
+        //spk delivery
+        "spk_delivery_type" => "required|in:ktp,neq,domicile,dealer"
 
     ];
+
+    function isSelectedSpkDeliveryDealer($validator)
+    {
+        return
+            $validator->sometimes(
+                ["spk_delivery_dealer_customer_name", "spk_delivery_dealer_no_phone"],
+                "required",
+                function ($input) {
+                    return $input->spk_delivery_type === 'dealer';
+                }
+            );
+    }
+
+    function isSelectedSpkDeliveryDomicile($validator)
+    {
+        return
+            $validator->sometimes(
+                ["spk_delivery_domicile_customer_name", "spk_delivery_domicile_city"],
+                "required",
+                function ($input) {
+                    return $input->spk_delivery_type === 'domicile';
+                }
+            )->sometimes(
+                ["spk_delivery_file_sk.*"],
+                "nullable|mimes:pdf,jpg,png|max:5120",
+                function ($input) {
+                    return $input->spk_delivery_type === 'domicile';
+                }
+            );
+    }
+    function isSelectedSpkDeliveryNeq($validator)
+    {
+        return
+            $validator->sometimes(
+                ["dealer_delivery_neq_id", "dealer_delivery_neq_customer_name", "dealer_delivery_neq_customer_no_phone"],
+                "required",
+                function ($input) {
+                    return $input->spk_delivery_type === 'neq';
+                }
+            );
+    }
+
+
+    function isSelectedSpkDeliveryKtp($validator)
+    {
+        return $validator->sometimes(
+            ["spk_delivery_ktp_customer_name", "spk_delivery_ktp_customer_address", "spk_delivery_ktp_city", "spk_delivery_ktp_no_phone"],
+            "required",
+            function ($input) {
+                return $input->spk_delivery_type === 'ktp';
+            }
+        )->sometimes(
+            'spk_delivery_ktp_no_telp',
+            'nullable',
+            function ($input) {
+                return $input->spk_delivery_type === 'ktp';
+            }
+        );
+    }
 
     function isDealerRequired($validator)
     {
@@ -126,13 +234,14 @@ class SPKController extends Controller
             });
     }
 
-    function createSPKMaster($dealerSelected)
+    function createSPKMaster($dealerSelected, $request)
     {
         return Spk::create([
             "spk_number"
             => GenerateNumber::generate("SPK", GenerateAlias::generate($dealerSelected->dealer->dealer_name), "spks", "spk_number"),
             "dealer_id" => $dealerSelected->dealer_id,
-            "spk_status" => "create"
+            "spk_status" => "create",
+            "spk_delivery_type" => $request->spk_delivery_type
         ]);
     }
 
@@ -254,12 +363,12 @@ class SPKController extends Controller
 
     function createSpkDocument($createSPK, $request)
     {
-        if ($request->hasFile('indent_payment_img')) {
+        if ($request->hasFile('spk_additional_document_ktp')) {
             $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
         } else {
             $imagePathKtp = null; // or any default value you prefer
         }
-        if ($request->hasFile('indent_payment_img')) {
+        if ($request->hasFile('spk_additional_document_kk')) {
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
         } else {
             $imagePathKK = null; // or any default value you prefer
@@ -273,19 +382,132 @@ class SPKController extends Controller
 
     function createSpkDocumentAnother($createSPK, $request)
     {
+        $createSpkDocument = [];
+        if ($request->spk_additional_document_another) {
+            foreach ($request->file("spk_additional_document_another") as $item) {
+                $imagePath = $item->store('spk', 'public');
 
-        foreach ($request->spk_additional_document_another as $item) {
-            if ($item->hasFile('name')) {
-                $imagePathFile = $item->file('name')->store('spk', 'public');
-            } else {
-                $imagePathFile = null; // or any default value you prefer
+                $createSpkDocument[] = SpkAdditionalDocumentAnother::create([
+                    "spk_id" => $createSPK->spk_id,
+                    "spk_additional_document_another_name" => $imagePath
+                ]);
             }
-            $createSpkAnotherFile[] = SpkAdditionalDocumentAnother::create([
-                "spk_id" => $createSPK->spk_id,
-                "spk_additional_document_another_name" => $imagePathFile,
+        }
+
+        return $createSpkDocument;
+    }
+
+    function createSpkPricing($createSpk, $request)
+    {
+        return SpkPricing::create([
+            "spk_id" => $createSpk->spk_id,
+            "spk_pricing_off_the_road" => $request->spk_pricing_off_the_road,
+            "spk_pricing_bbn" => $request->spk_pricing_bbn,
+            "spk_pricing_on_the_road" => $request->spk_pricing_on_the_road,
+            "spk_pricing_indent_nominal" => $request->spk_pricing_indent_nominal,
+            "spk_pricing_discount" => $request->spk_pricing_discount,
+            "spk_pricing_subsidi" => $request->spk_pricing_subsidi,
+            "spk_pricing_booster" => $request->spk_pricing_booster,
+            "spk_pricing_commission" => $request->spk_pricing_commission,
+            "spk_pricing_commission_surveryor_name" => $request->spk_pricing_commission_surveryor_name,
+            "spk_pricing_broker_name" => $request->spk_pricing_broker_name,
+            "spk_pricing_broker_commission" => $request->spk_pricing_broker_commission,
+            "spk_pricing_cashback" => $request->spk_pricing_cashback,
+            "spk_pricing_delivery_cost" => $request->spk_pricing_delivery_cost,
+        ]);
+    }
+
+    function createSpkPricingAccecories($createSPK, $request)
+    {
+        $create = [];
+
+        if (is_array($request->spk_pricing_accecories_price) && count($request->spk_pricing_accecories_price) > 0) {
+            foreach ($request->spk_pricing_accecories_price as $item) {
+                $create[] = SpkPricingAccecories::create([
+                    "spk_id" => $createSPK->spk_id,
+                    "spk_pricing_accecories_price" => $item
+                ]);
+            }
+        }
+
+        return $create;
+    }
+    function createSpkPricingAdditional($createSPK, $request)
+    {
+        $create = [];
+
+        if (is_array($request->spk_pricing_additional_price) && count($request->spk_pricing_additional_price) > 0) {
+            foreach ($request->spk_pricing_additional_price as $item) {
+                $create[] = SpkPricingAdditional::create([
+                    "spk_id" => $createSPK->spk_id,
+                    "spk_pricing_additional_price" => $item
+                ]);
+            }
+        }
+
+        return $create;
+    }
+
+    function createSpkDeliveryKtp($createSpk, $request)
+    {
+        if ($request->spk_delivery_type === "ktp") {
+            return SpkDeliveryKtp::create([
+                "spk_id" => $createSpk->spk_id,
+                "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+                "spk_delivery_ktp_customer_address" => $request->spk_delivery_ktp_customer_address,
+                "spk_delivery_ktp_city" => $request->spk_delivery_ktp_city,
+                "spk_delivery_ktp_no_phone" => $request->spk_delivery_ktp_no_phone,
+                "spk_delivery_ktp_no_telp" => $request->spk_delivery_ktp_no_telp
             ]);
         }
-        return $createSpkAnotherFile;
+    }
+
+    function createSpkDeliveryNeq($createSPK, $request)
+    {
+        return SpkDeliveryNeq::create([
+            "spk_id" => $createSPK->spk_id,
+            "dealer_neq_id" => $request->dealer_delivery_neq_id,
+            "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
+            "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
+        ]);
+    }
+
+    function createSpkDeliveryDomicile($createSPK, $request)
+    {
+        return SpkDeliveryDomicile::create([
+            "spk_id" => $createSPK->spk_id,
+            "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
+            "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
+            "spk_delivery_file_sk" => "null"
+        ]);
+    }
+
+    function createFileSK($createSpkDelivery, $request)
+    {
+
+
+        $createSpkDocument = [];
+        if ($request->spk_delivery_file_sk) {
+            foreach ($request->file("spk_delivery_file_sk") as $item) {
+                $imagePath = $item->store('spk', 'public');
+
+                $createSpkDocument[] = SpkDeliveryFileSk::create([
+                    "spk_delivery_domicile_id" => $createSpkDelivery->spk_delivery_domicile_id,
+                    "file" => $imagePath
+                ]);
+            }
+        }
+
+        return $createSpkDocument;
+    }
+
+    function creaeteSpkDeliveryDealer($createSPK, $request)
+    {
+        return SpkDeliveryDealer::create([
+            "spk_id" => $createSPK->spk_id,
+            "spk_delivery_dealer_customer_name" => $request->spk_delivery_dealer_customer_name,
+            "spk_delivery_dealer_no_phone" => $request->spk_delivery_dealer_no_phone
+        ]);
     }
 
     public function createSPK(Request $request)
@@ -297,6 +519,10 @@ class SPKController extends Controller
             self::isDealerNeqRequired($validator);
             self::spk_transaction_method_payment_credit($validator);
             self::spk_transaction_method_payment_cash($validator);
+            self::isSelectedSpkDeliveryKtp($validator);
+            self::isSelectedSpkDeliveryNeq($validator);
+            self::isSelectedSpkDeliveryDomicile($validator);
+            self::isSelectedSpkDeliveryDealer($validator);
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
@@ -308,7 +534,7 @@ class SPKController extends Controller
             DB::beginTransaction();
 
             // buat spk
-            $createSPK = self::createSPKMaster($getDealerSelected);
+            $createSPK = self::createSPKMaster($getDealerSelected, $request);
 
             //buat spk general
             $createSPKGeneral = self::createSPKGeneral($createSPK, $request);
@@ -329,9 +555,35 @@ class SPKController extends Controller
             //buat spk document
             $createSPKDocument = self::createSpkDocument($createSPK, $request);
 
+
             //buat spk document another
             $createSpkAnotherFile = self::createSpkDocumentAnother($createSPK, $request);
-            // $createSPKLegal = self::createSpkDocument($createSPK, $request);
+
+            //buat spk pricing
+            $createSPKPricing = self::createSpkPricing($createSPK, $request);
+
+            //buat spk pricing accecories
+            $createSPKPricingAccecroies = self::createSpkPricingAccecories($createSPK, $request);
+
+            //buat spk pricing additional
+            $createSPKPricingAdditional = self::createSpkPricingAdditional($createSPK, $request);
+
+
+            //buat spk delivery berdasarkan type
+            if ($request->spk_delivery_type === "ktp") {
+                $createSPKDelivery = self::createSpkDeliveryKtp($createSPK, $request);
+            }
+            if ($request->spk_delivery_type === "neq") {
+                $createSPKDelivery = self::createSpkDeliveryNeq($createSPK, $request);
+            }
+            if ($request->spk_delivery_type === "dealer") {
+                $createSPKDelivery = self::creaeteSpkDeliveryDealer($createSPK, $request);
+            }
+            if ($request->spk_delivery_type === "domicile") {
+                $createSPKDelivery = self::createSpkDeliveryDomicile($createSPK, $request);
+
+                $createFileSK = self::createFileSK($createSPKDelivery, $request);
+            }
 
             //buat spk log
             $createSPKUnit = self::createSpkLog($createSPK, $user, "Create Spk");
@@ -344,8 +596,17 @@ class SPKController extends Controller
                 "spk_customer" => $createSPKCustomer,
                 "spk_legal" => $createSPKLegal,
                 "spk_document" => $createSPKDocument,
-                "spk_document_another" => $createSpkAnotherFile
+                "spk_document_another" => $createSpkAnotherFile,
+                "spk_pricing" => $createSPKPricing,
+                "spk_pricing_acceccories" => $createSPKPricingAccecroies,
+                "spk_pricing_additional" => $createSPKPricingAdditional,
+                "spk_delivery" => $createSPKDelivery,
             ];
+
+            if ($request->spk_delivery_type === "domicile") {
+                $data["file_sk"] = $createFileSK;
+            }
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully created SPK !");
         } catch (\Throwable $e) {
