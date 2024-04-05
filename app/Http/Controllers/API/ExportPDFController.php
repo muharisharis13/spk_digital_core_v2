@@ -118,6 +118,8 @@ class ExportPDFController extends Controller
         }
     }
 
+
+
     private function getDetailDeliveryRepair($delivery_id)
     {
 

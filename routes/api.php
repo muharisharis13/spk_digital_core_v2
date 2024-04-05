@@ -13,6 +13,7 @@ use App\Http\Controllers\API\NeqReturnController;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ShippingOrderController;
+use App\Http\Controllers\API\SPKController;
 use App\Http\Controllers\API\UnitContoller;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -194,6 +195,10 @@ Route::prefix("v1")->group(function () {
                 Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"]);
             });
             Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"]);
+        });
+
+        Route::prefix("spk")->group(function () {
+            Route::post("/create", [SPKController::class, "createSPK"]);
         });
     });
 });
