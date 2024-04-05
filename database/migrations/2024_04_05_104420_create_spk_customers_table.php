@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreign("sub_district_id")->references("sub_district_id")->on("sub_districts")->onDelete("set null");
             $table->string("spk_customer_postal_code")->nullable();
             $table->string("spk_customer_birth_place");
-            $table->string("spk_customer_birth_date");
+            $table->date("spk_customer_birth_date");
             $table->enum("spk_customer_gender", ["man", "woman"]);
             $table->string("spk_customer_telp")->nullable();
             $table->string("spk_customer_no_wa")->nullable();

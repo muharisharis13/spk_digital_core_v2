@@ -8,8 +8,11 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Spk;
+use App\Models\SpkAdditionalDocument;
+use App\Models\SpkAdditionalDocumentAnother;
 use App\Models\SpkCustomer;
 use App\Models\SpkGeneral;
+use App\Models\SpkLegal;
 use App\Models\SpkLog;
 use App\Models\SpkTransaction;
 use App\Models\SpkUnit;
@@ -51,10 +54,10 @@ class SPKController extends Controller
         "spk_customer_postal_code" => "nullable",
         "spk_customer_birth_place" => "required",
         "spk_customer_birth_date" => "required",
-        "spk_customer_gender" => "required|in:man|women",
+        "spk_customer_gender" => "required|in:man,woman",
         "spk_customer_telp" => "nullable",
-        "spk_customer_no_wa" => "nullable",
         "spk_customer_no_phone" => "required",
+        "spk_customer_no_wa" => "nullable",
         "spk_customer_religion" => "required",
         "martial_id" => "required",
         "hobbies_id" => "nullable",
@@ -70,6 +73,29 @@ class SPKController extends Controller
         "motor_brand_id" => "nullable",
         "spk_customer_motor_type_before" => "nullable",
         "spk_customer_motor_year_before" => "nullable",
+
+        // spk legal
+        "spk_legal_nik" => "required",
+        "spk_legal_name" => "required",
+        "spk_legal_address" => "required",
+        "spk_legal_province" => "required",
+        "spk_legal_city" => "required",
+        "spk_legal_district" => "required",
+        "spk_legal_sub_district" => "required",
+        "spk_legal_postal_code" => "nullable",
+        "spk_legal_birth_place" => "required",
+        "spk_legal_birth_date" => "required",
+        "spk_legal_gender" => "required|in:man,woman",
+        "spk_legal_telp" => "nullable",
+        "spk_legal_no_phone" => "required",
+
+        //spk document
+
+        "spk_additional_document_ktp" => "required|image|mimes:png,jpg|max:5120",
+        "spk_additional_document_kk" => "required|image|mimes:png,jpg|max:5120",
+        "spk_additional_document_another" => "nullable|array",
+        "spk_additional_document_another.*.name" => "image|mimes:png,jpg,pdf|max:5120"
+
     ];
 
     function isDealerRequired($validator)
@@ -171,7 +197,95 @@ class SPKController extends Controller
 
     function createSpkCustomer($createSPK, $request)
     {
-        SpkCustomer::create([]);
+        return  SpkCustomer::create([
+            "spk_id" => $createSPK->spk_id,
+            "spk_customer_nik" => $request->spk_customer_nik,
+            "spk_customer_name" => $request->spk_customer_name,
+            "spk_customer_address" => $request->spk_customer_address,
+            "province" => $request->province,
+            "city" => $request->city,
+            "district" => $request->district,
+            "sub_district" => $request->sub_district,
+            "spk_customer_postal_code" => $request->spk_customer_postal_code,
+            "spk_customer_birth_place" => $request->spk_customer_birth_place,
+            "spk_customer_birth_date" => $request->spk_customer_birth_date,
+            "spk_customer_gender" => $request->spk_customer_gender,
+            "spk_customer_telp" => $request->spk_customer_telp,
+            "spk_customer_no_wa" => $request->spk_customer_no_wa,
+            "spk_customer_no_phone" => $request->spk_customer_no_phone,
+            "spk_customer_religion" => $request->spk_customer_religion,
+            "martial_id" => $request->martial_id,
+            "hobbies_id" => $request->hobbies_id,
+            "spk_customer_mother_name" => $request->spk_customer_mother_name,
+            "spk_customer_npwp" => $request->spk_customer_npwp,
+            "spk_customer_email" => $request->spk_customer_email,
+            "residence_id" => $request->residence_id,
+            "education_id" => $request->education_id,
+            "work_id" => $request->work_id,
+            "spk_customer_length_of_work" => $request->spk_customer_length_of_work,
+            "spk_customer_income" => $request->spk_customer_income,
+            "spk_customer_outcome" => $request->spk_customer_outcome,
+            "motor_brand_id" => $request->motor_brand_id,
+            "spk_customer_motor_type_before" => $request->spk_customer_motor_type_before,
+            "spk_customer_motor_year_before" => $request->spk_customer_motor_year_before
+        ]);
+    }
+
+
+    function createSpkLegal($createSPK, $request)
+    {
+        return SpkLegal::create([
+            "spk_id" => $createSPK->spk_id,
+            "spk_legal_nik" => $request->spk_legal_nik,
+            "spk_legal_name" => $request->spk_legal_name,
+            "spk_legal_address" => $request->spk_legal_address,
+            "province" => $request->spk_legal_province,
+            "city" => $request->spk_legal_city,
+            "district" => $request->spk_legal_district,
+            "sub_district" => $request->spk_legal_sub_district,
+            "spk_legal_postal_code" => $request->spk_legal_postal_code,
+            "spk_legal_birth_place" => $request->spk_legal_birth_place,
+            "spk_legal_birth_date" => $request->spk_legal_birth_date,
+            "spk_legal_gender" => $request->spk_legal_gender,
+            "spk_legal_telp" => $request->spk_legal_telp,
+            "spk_legal_no_phone" => $request->spk_legal_no_phone
+        ]);
+    }
+
+    function createSpkDocument($createSPK, $request)
+    {
+        if ($request->hasFile('indent_payment_img')) {
+            $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
+        } else {
+            $imagePathKtp = null; // or any default value you prefer
+        }
+        if ($request->hasFile('indent_payment_img')) {
+            $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
+        } else {
+            $imagePathKK = null; // or any default value you prefer
+        }
+        return SpkAdditionalDocument::create([
+            "spk_id" => $createSPK->spk_id,
+            "spk_additional_document_ktp" => $imagePathKtp,
+            "spk_additional_document_kk" => $imagePathKK,
+        ]);
+    }
+
+    function createSpkDocumentAnother($createSPK, $request)
+    {
+
+        foreach ($request->spk_additional_document_another as $item) {
+            if ($item->hasFile('name')) {
+                $imagePathFile = $item->file('name')->store('spk', 'public');
+            } else {
+                $imagePathFile = null; // or any default value you prefer
+            }
+            $createSpkAnotherFile[] = SpkAdditionalDocumentAnother::create([
+                "spk_id" => $createSPK->spk_id,
+                "spk_additional_document_another_name" => $imagePathFile,
+            ]);
+        }
+        return $createSpkAnotherFile;
     }
 
     public function createSPK(Request $request)
@@ -205,6 +319,20 @@ class SPKController extends Controller
             //buat spk transaction
             $createSPKTransaction = self::createSpkTransaction($createSPK, $request);
 
+
+            //buat spk customer
+            $createSPKCustomer = self::createSpkCustomer($createSPK, $request);
+
+            //buat spk legal
+            $createSPKLegal = self::createSpkLegal($createSPK, $request);
+
+            //buat spk document
+            $createSPKDocument = self::createSpkDocument($createSPK, $request);
+
+            //buat spk document another
+            $createSpkAnotherFile = self::createSpkDocumentAnother($createSPK, $request);
+            // $createSPKLegal = self::createSpkDocument($createSPK, $request);
+
             //buat spk log
             $createSPKUnit = self::createSpkLog($createSPK, $user, "Create Spk");
 
@@ -212,7 +340,11 @@ class SPKController extends Controller
                 "spk" => $createSPK,
                 "spk_general" => $createSPKGeneral,
                 "spk_unit" => $createSPKUnit,
-                "spk_transaction" => $createSPKTransaction
+                "spk_transaction" => $createSPKTransaction,
+                "spk_customer" => $createSPKCustomer,
+                "spk_legal" => $createSPKLegal,
+                "spk_document" => $createSPKDocument,
+                "spk_document_another" => $createSpkAnotherFile
             ];
 
             return ResponseFormatter::success($data, "Successfully created SPK !");

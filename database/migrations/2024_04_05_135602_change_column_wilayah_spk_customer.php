@@ -22,7 +22,7 @@ return new class extends Migration
             $table->dropColumn(["province_id"]);
             $table->dropColumn(["city_id"]);
             $table->dropColumn(["district_id"]);
-            $table->dropColumn(["sub_district"]);
+            $table->dropColumn(["sub_district_id"]);
 
 
             $table->string("province")->nullable();
