@@ -8,6 +8,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Spk;
+use App\Models\SpkCustomer;
 use App\Models\SpkGeneral;
 use App\Models\SpkLog;
 use App\Models\SpkTransaction;
@@ -38,7 +39,37 @@ class SPKController extends Controller
         "spk_transaction_tenor" => "nullable",
         "spk_transaction_instalment" => "nullable",
         "spk_transaction_surveyor_name" => "required",
-        "micro_finance_id" => "nullable"
+        "micro_finance_id" => "nullable",
+        //spk customer
+        "spk_customer_nik" => "required",
+        "spk_customer_name" => "required",
+        "spk_customer_address" => "required",
+        "province" => "required",
+        "city" => "required",
+        "district" => "required",
+        "sub_district" => "required",
+        "spk_customer_postal_code" => "nullable",
+        "spk_customer_birth_place" => "required",
+        "spk_customer_birth_date" => "required",
+        "spk_customer_gender" => "required|in:man|women",
+        "spk_customer_telp" => "nullable",
+        "spk_customer_no_wa" => "nullable",
+        "spk_customer_no_phone" => "required",
+        "spk_customer_religion" => "required",
+        "martial_id" => "required",
+        "hobbies_id" => "nullable",
+        "spk_customer_mother_name" => "nullable",
+        "spk_customer_npwp" => 'nullable',
+        "spk_customer_email" => "nullable",
+        "residence_id" => "required",
+        "education_id" => "required",
+        "work_id" => "required",
+        "spk_customer_length_of_work" => "nullable",
+        "spk_customer_income" => "required",
+        "spk_customer_outcome" => "required",
+        "motor_brand_id" => "nullable",
+        "spk_customer_motor_type_before" => "nullable",
+        "spk_customer_motor_year_before" => "nullable",
     ];
 
     function isDealerRequired($validator)
@@ -140,7 +171,7 @@ class SPKController extends Controller
 
     function createSpkCustomer($createSPK, $request)
     {
-        // return 
+        SpkCustomer::create([]);
     }
 
     public function createSPK(Request $request)

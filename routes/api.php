@@ -47,6 +47,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
         });
         Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
+        Route::get("/province", [ExportPDFController::class, "getProvince"]);
     });
 
 
