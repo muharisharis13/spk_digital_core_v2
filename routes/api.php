@@ -101,6 +101,42 @@ Route::prefix("v1")->group(function () {
             Route::prefix("bank")->group(function () {
                 Route::get("/list", [Master::class, "getBank"]);
             });
+            Route::prefix("marital")->group(function () {
+                Route::get("/list", [Master::class, "getListMaritalStatus"]);
+            });
+            Route::prefix("hobby")->group(function () {
+                Route::get("/list", [Master::class, "getListHobby"]);
+            });
+            Route::prefix("tenor")->group(function () {
+                Route::get("/list", [Master::class, "getListTenor"]);
+            });
+
+            Route::prefix("province")->group(function () {
+                Route::get("/list", [Master::class, "getListProvince"]);
+            });
+
+            Route::prefix("cities")->group(function () {
+                Route::get("/list", [Master::class, "getListCity"]);
+            });
+            Route::prefix("district")->group(function () {
+                Route::get("/list", [Master::class, "getListDistrict"]);
+            });
+            Route::prefix("subdistrict")->group(function () {
+                Route::get("/list", [Master::class, "getListSubdistrict"]);
+            });
+            Route::prefix("residence")->group(function () {
+                Route::get("/list", [Master::class, "getListResidence"]);
+            });
+            Route::prefix("education")->group(function () {
+                Route::get("/list", [Master::class, "getListEducation"]);
+            });
+            Route::prefix("work")->group(function () {
+                Route::get("/list", [Master::class, "getListWork"]);
+            });
+
+            Route::prefix("broker")->group(function () {
+                Route::get("/list", [Master::class, "getListBroker"]);
+            });
         });
 
         Route::prefix("repair")->group(function () {
