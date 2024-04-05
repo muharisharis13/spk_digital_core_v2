@@ -685,7 +685,7 @@ class Master extends Controller
             $searchQuery = $request->input('q');
             $limit = $request->input('limit') ?? 5;
             $sortBy = $request->input('sort_by', 'created_at');
-            $sortOrder = $request->input('work_name', 'asc');
+            $sortOrder = $request->input('created_at', 'asc');
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
@@ -699,7 +699,7 @@ class Master extends Controller
             $searchQuery = $request->input('q');
             $limit = $request->input('limit') ?? 5;
             $sortBy = $request->input('sort_by', 'created_at');
-            $sortOrder = $request->input('work_name', 'asc');
+            $sortOrder = $request->input('created_at', 'asc');
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
