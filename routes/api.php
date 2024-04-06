@@ -137,6 +137,10 @@ Route::prefix("v1")->group(function () {
             Route::prefix("broker")->group(function () {
                 Route::get("/list", [Master::class, "getListBroker"]);
             });
+
+            Route::prefix("motor-brand")->group(function () {
+                Route::get("/list", [Master::class, "getListMotorBrand"]);
+            });
         });
 
         Route::prefix("repair")->group(function () {
