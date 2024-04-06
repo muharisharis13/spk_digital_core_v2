@@ -591,12 +591,12 @@ class SPKController extends Controller
             $createSPKPricing = self::createSpkPricing($createSPK, $request);
 
             //buat spk pricing accecories
-            // $createSPKPricingAccecroies = self::createSpkPricingAccecories($createSPK, $request);
-            $createSPKPricingAccecroies = $request->spk_pricing_accecories_price;
+            $createSPKPricingAccecroies = self::createSpkPricingAccecories($createSPK, $request);
+            // $createSPKPricingAccecroies = $request->spk_pricing_accecories_price;
 
             //buat spk pricing additional
-            $createSPKPricingAdditional = $request->spk_pricing_additional_price;
-            // $createSPKPricingAdditional = self::createSpkPricingAdditional($createSPK, $request);
+            // $createSPKPricingAdditional = $request->spk_pricing_additional_price;
+            $createSPKPricingAdditional = self::createSpkPricingAdditional($createSPK, $request);
 
 
             //buat spk delivery berdasarkan type
