@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('spk_units', function (Blueprint $table) {
             $table->uuid("spk_unit_id")->primary();
-            $table->uuid("motor_id")->nullable();
+            $table->uuid("motor")->nullable();
             $table->foreign("motor_id")->references("motor_id")->on("motor")->onDelete("set null");
             $table->uuid("color_id")->nullable();
             $table->foreign("color_id")->references("color_id")->on("colors")->onDelete("set null");
