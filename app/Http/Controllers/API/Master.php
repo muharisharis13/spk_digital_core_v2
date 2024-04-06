@@ -369,7 +369,7 @@ class Master extends Controller
             ];
 
             if ($spk_location !== "true") {
-                $eventList = Event::where('dealer_id', $getDealerByUser->dealer_id)->get();
+                $eventList = MasterEvent::where('dealer_id', $getDealerByUser->dealer_id)->get();
                 $data["event_list"] = $eventList;
             }
 
