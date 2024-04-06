@@ -451,8 +451,8 @@ class SPKController extends Controller
             foreach ($request->spk_pricing_accecories_price as $item) {
                 $create[] = SpkPricingAccecories::create([
                     "spk_id" => $createSPK->spk_id,
-                    "spk_pricing_accecories_price" => $item["price"],
-                    "spk_pricing_accecories_note" => isset($item["note"]) ? $item["note"] : null
+                    "spk_pricing_accecories_price" => (int) $item->price,
+                    "spk_pricing_accecories_note" => isset($item->note) ? $item->note : null
                 ]);
             }
         }
@@ -467,8 +467,8 @@ class SPKController extends Controller
             foreach ($request->spk_pricing_additional_price as $item) {
                 $create[] = SpkPricingAdditional::create([
                     "spk_id" => $createSPK->spk_id,
-                    "spk_pricing_additional_price" => $item["price"],
-                    "spk_pricing_additional_note" => isset($item["note"]) ? $item["note"] : null
+                    "spk_pricing_additional_price" => (int) $item->price,
+                    "spk_pricing_additional_note" => isset($item->note) ? $item->note : null
                 ]);
             }
         }
@@ -591,10 +591,12 @@ class SPKController extends Controller
             $createSPKPricing = self::createSpkPricing($createSPK, $request);
 
             //buat spk pricing accecories
-            $createSPKPricingAccecroies = self::createSpkPricingAccecories($createSPK, $request);
+            // $createSPKPricingAccecroies = self::createSpkPricingAccecories($createSPK, $request);
+            $createSPKPricingAccecroies = $request->spk_pricing_accecories_price;
 
             //buat spk pricing additional
-            $createSPKPricingAdditional = self::createSpkPricingAdditional($createSPK, $request);
+            $createSPKPricingAdditional = $request->spk_pricing_additional_price;
+            // $createSPKPricingAdditional = self::createSpkPricingAdditional($createSPK, $request);
 
 
             //buat spk delivery berdasarkan type
@@ -634,7 +636,7 @@ class SPKController extends Controller
             if ($request->spk_delivery_type === "domicile") {
                 $data["file_sk"] = $createFileSK;
             }
-            DB::commit();
+            // DB::commit();
 
 
             return ResponseFormatter::success($data, "Successfully created SPK !");
