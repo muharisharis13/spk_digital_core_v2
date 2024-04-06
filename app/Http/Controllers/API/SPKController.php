@@ -132,15 +132,31 @@ class SPKController extends Controller
         "spk_pricing_broker_commission" => "nullable",
         "spk_pricing_cashback" => "nullable",
         "spk_pricing_delivery_cost" => "nullable",
+        "spk_pricing_on_the_road_note" => "nullable",
+        "spk_pricing_indent_note" => "nullable",
+        "spk_pricing_discount_note" => "nullable",
+        "spk_pricing_subsidi_note" => "nullable",
+        "spk_pricing_booster_note" => "nullable",
+        "spk_pricing_commission_note" => "nullable",
+        "spk_pricing_surveyor_commission_note" => "nullable",
+        "spk_pricing_broker_note" => "nullable",
+        "spk_pricing_broker_commission_note" => "nullable",
+        "spk_pricing_cashback_note" => "nullable",
+        "spk_pricing_delivery_cost_note" => "nullable",
+
 
 
         //spk accecories
 
-        "spk_pricing_accecories_price.*" => "nullable|integer",
+        "spk_pricing_accecories_price" => "nullable|array",
+        "spk_pricing_accecories_price.*.price" => "nullable",
+        "spk_pricing_accecories_price.*.note" => "nullable",
 
         //spk accecories additional
 
-        "spk_pricing_additional_price.*" => "nullable|integer",
+        "spk_pricing_additional_price" => "nullable|array",
+        "spk_pricing_additional_price.*.price" => "nullable",
+        "spk_pricing_additional_price.*.note" => "nullable",
 
         //spk delivery
         "spk_delivery_type" => "required|in:ktp,neq,domicile,dealer"
@@ -413,7 +429,17 @@ class SPKController extends Controller
             "spk_pricing_broker_name" => $request->spk_pricing_broker_name,
             "spk_pricing_broker_commission" => $request->spk_pricing_broker_commission,
             "spk_pricing_cashback" => $request->spk_pricing_cashback,
-            "spk_pricing_delivery_cost" => $request->spk_pricing_delivery_cost,
+            "spk_pricing_delivery_cost" => $request->spk_pricing_delivery_cost, "spk_pricing_on_the_road_note" => $request->spk_pricing_on_the_road_note,
+            "spk_pricing_indent_note" => $request->spk_pricing_indent_note,
+            "spk_pricing_discount_note" => $request->spk_pricing_discount_note,
+            "spk_pricing_subsidi_note" => $request->spk_pricing_subsidi_note,
+            "spk_pricing_booster_note" => $request->spk_pricing_booster_note,
+            "spk_pricing_commission_note" => $request->spk_pricing_commission_note,
+            "spk_pricing_surveyor_commission_note" => $request->spk_pricing_surveyor_commission_note,
+            "spk_pricing_broker_note" => $request->spk_pricing_broker_note,
+            "spk_pricing_broker_commission_note" => $request->spk_pricing_broker_commission_note,
+            "spk_pricing_cashback_note" => $request->spk_pricing_cashback_note,
+            "spk_pricing_delivery_cost_note" => $request->spk_pricing_delivery_cost_note,
         ]);
     }
 
@@ -425,7 +451,8 @@ class SPKController extends Controller
             foreach ($request->spk_pricing_accecories_price as $item) {
                 $create[] = SpkPricingAccecories::create([
                     "spk_id" => $createSPK->spk_id,
-                    "spk_pricing_accecories_price" => $item
+                    "spk_pricing_accecories_price" => $item["price"],
+                    "spk_pricing_accecories_note" => isset($item["note"]) ? $item["note"] : null
                 ]);
             }
         }
@@ -440,7 +467,8 @@ class SPKController extends Controller
             foreach ($request->spk_pricing_additional_price as $item) {
                 $create[] = SpkPricingAdditional::create([
                     "spk_id" => $createSPK->spk_id,
-                    "spk_pricing_additional_price" => $item
+                    "spk_pricing_additional_price" => $item["price"],
+                    "spk_pricing_additional_note" => isset($item["note"]) ? $item["note"] : null
                 ]);
             }
         }
@@ -606,7 +634,8 @@ class SPKController extends Controller
             if ($request->spk_delivery_type === "domicile") {
                 $data["file_sk"] = $createFileSK;
             }
-            DB::commit();
+            // DB::commit();
+
 
             return ResponseFormatter::success($data, "Successfully created SPK !");
         } catch (\Throwable $e) {
