@@ -21,6 +21,7 @@ use App\Models\Martial;
 use App\Models\MasterEvent;
 use App\Models\MicroFinance;
 use App\Models\Motor;
+use App\Models\MotorBrand;
 use App\Models\Province;
 use App\Models\Residence;
 use App\Models\Sales;
@@ -723,6 +724,29 @@ class Master extends Controller
                 $getListBroker = $getListBroker->get();
             }
             return ResponseFormatter::success($getListBroker);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getListMotorBrand(Request $request)
+    {
+        try {
+            $paginate = $request->input('paginate');
+            $searchQuery = $request->input('q');
+            $limit = $request->input('limit') ?? 5;
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('motor_brand_name', 'asc');
+            $getListMotorBrand = MotorBrand::where((function ($query) use ($searchQuery) {
+                $query->where('motor_brand_name', 'LIKE', "%$searchQuery%");
+            }))->where('motor_brand_status', 'active')->orderBy($sortBy, $sortOrder);
+
+            if ($paginate === 'true') {
+                $getListMotorBrand = $getListMotorBrand->paginate($limit);
+            } else {
+                $getListMotorBrand = $getListMotorBrand->get();
+            }
+            return ResponseFormatter::success($getListMotorBrand);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
