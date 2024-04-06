@@ -13,6 +13,7 @@ use App\Models\Dealer;
 use App\Models\DealerByUser;
 use App\Models\DealerNeq;
 use App\Models\District;
+use App\Models\Education;
 use App\Models\Event;
 use App\Models\Hobby;
 use App\Models\Leasing;
@@ -639,7 +640,7 @@ class Master extends Controller
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('education_name', 'asc');
 
-            $getEducationList = Residence::where((function ($query) use ($searchQuery) {
+            $getEducationList = Education::where((function ($query) use ($searchQuery) {
                 $query->where('education_name', 'LIKE', "%$searchQuery%");
             }))->where('education_status', 'active')->orderBy($sortBy, $sortOrder);
 
