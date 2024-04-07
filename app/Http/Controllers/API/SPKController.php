@@ -62,7 +62,7 @@ class SPKController extends Controller
         "spk_transaction_down_payment" => "nullable",
         "spk_transaction_tenor" => "nullable",
         "spk_transaction_instalment" => "nullable",
-        "spk_transaction_surveyor_name" => "required",
+        "spk_transaction_surveyor_name" => "nullable",
         "microfinance_name" => "nullable",
         //spk customer
         "spk_customer_nik" => "required",
@@ -112,8 +112,8 @@ class SPKController extends Controller
 
         //spk document
 
-        "spk_additional_document_ktp" => "required|image|mimes:png,jpg|max:5120",
-        "spk_additional_document_kk" => "required|image|mimes:png,jpg|max:5120",
+        "spk_additional_document_ktp" => "required|image|mimes:png,jpg,pdf|max:5120",
+        "spk_additional_document_kk" => "required|image|mimes:png,jpg,pdf|max:5120",
         "spk_additional_document_another.*" => 'nullable|mimes:jpg,png,pdf|max:5120',
 
 
@@ -163,6 +163,7 @@ class SPKController extends Controller
 
     ];
 
+
     function isSelectedSpkDeliveryDealer($validator)
     {
         return
@@ -186,7 +187,7 @@ class SPKController extends Controller
                 }
             )->sometimes(
                 ["spk_delivery_file_sk.*"],
-                "nullable|mimes:pdf,jpg,png|max:5120",
+                "nullable|mimes:pdf,jpg,png,pdf|max:5120",
                 function ($input) {
                     return $input->spk_delivery_type === 'domicile';
                 }
@@ -237,7 +238,7 @@ class SPKController extends Controller
 
     function spk_transaction_method_payment_credit($validator)
     {
-        return $validator->sometimes(["leasing_name", "spk_transaction_down_payment", "spk_transaction_tenor", "spk_transaction_instalment"], "required", function ($input) {
+        return $validator->sometimes(["leasing_name", "spk_transaction_down_payment", "spk_transaction_tenor", "spk_transaction_instalment", "spk_transaction_surveyor_name"], "required", function ($input) {
             return $input->spk_transaction_method_buying == 'credit';
         });
     }
