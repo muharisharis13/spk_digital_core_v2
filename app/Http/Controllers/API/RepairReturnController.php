@@ -224,6 +224,7 @@ class RepairReturnController extends Controller
             // update repair unit return
 
             DB::beginTransaction();
+            $createRepairReturnUnit = [];
 
             foreach ($request->repair_return_unit as $item) {
 
