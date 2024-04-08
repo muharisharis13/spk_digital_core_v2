@@ -62,7 +62,7 @@ class SPKController extends Controller
         "spk_transaction_down_payment" => "nullable",
         "spk_transaction_tenor" => "nullable",
         "spk_transaction_instalment" => "nullable",
-        "spk_transaction_surveyor_name" => "nullable",
+        // "spk_transaction_surveyor_name" => "nullable",
         "microfinance_name" => "nullable",
         //spk customer
         "spk_customer_nik" => "required",
