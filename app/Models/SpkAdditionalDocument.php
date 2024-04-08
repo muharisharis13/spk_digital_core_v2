@@ -13,7 +13,7 @@ class SpkAdditionalDocument extends Model
 
     protected $primaryKey = "spk_additional_document_id";
 
-    protected function getDocumentNameAttributeKK($value): string
+    protected function getSpkAdditionalDocumentKkAttribute($value): string
     {
         if ($value) {
             return asset('/storage/' . $value);
@@ -21,12 +21,12 @@ class SpkAdditionalDocument extends Model
             return "";
         }
     }
-    // protected function getDocumentNameAttributeKTP($value): string
-    // {
-    //     if ($value) {
-    //         return asset('/storage/' . $value);
-    //     } else {
-    //         return "";
-    //     }
-    // }
+    protected function getSpkAdditionalDocumentKtpAttribute($value): string
+    {
+        if ($value) {
+            return asset('/storage/' . $value);
+        } else {
+            return "";
+        }
+    }
 }

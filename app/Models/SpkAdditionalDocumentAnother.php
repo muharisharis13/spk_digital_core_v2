@@ -13,7 +13,7 @@ class SpkAdditionalDocumentAnother extends Model
 
     protected $primaryKey = "spk_additional_document_another_id";
 
-    protected function getDocumentNameAttribute($value): string
+    protected function getSpkAdditionalDocumentAnotherNameAttribute($value): string
     {
         if ($value) {
             return asset('/storage/' . $value);

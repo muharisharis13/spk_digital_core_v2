@@ -33,6 +33,18 @@ class SPKController extends Controller
 {
     //
 
+    public function getDetailSpk(Request $request, $spk_id)
+    {
+        try {
+
+            $getDetail = Spk::where("spk_id", $spk_id)->first();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function getPaginateSpk(Request $request)
     {
         try {

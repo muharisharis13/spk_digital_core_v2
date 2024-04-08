@@ -241,6 +241,7 @@ Route::prefix("v1")->group(function () {
         Route::prefix("spk")->group(function () {
             Route::post("/create", [SPKController::class, "createSPK"]);
             Route::get("/list", [SPKController::class, "getPaginateSpk"]);
+            Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"]);
         });
     });
 });

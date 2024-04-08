@@ -12,4 +12,11 @@ class SpkDeliveryDomicile extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_delivery_domicile_id";
+
+    protected $with = ["file_sk"];
+
+    public function file_sk()
+    {
+        return $this->belongsTo(SpkDeliveryFileSk::class, "spk_delivery_domicile_id");
+    }
 }
