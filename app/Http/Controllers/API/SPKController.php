@@ -124,8 +124,8 @@ class SPKController extends Controller
 
         //spk document
 
-        "spk_additional_document_ktp" => "required|image|mimes:png,jpg,pdf|max:5120",
-        "spk_additional_document_kk" => "required|image|mimes:png,jpg,pdf|max:5120",
+        "spk_additional_document_ktp" => "required|mimes:png,jpg,pdf|max:5120",
+        "spk_additional_document_kk" => "required|mimes:png,jpg,pdf|max:5120",
         "spk_additional_document_another.*" => 'nullable|mimes:jpg,png,pdf|max:5120',
 
 
