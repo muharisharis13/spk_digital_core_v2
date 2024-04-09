@@ -21,4 +21,9 @@ class SpkUnit extends Model
     {
         return $this->belongsTo(Motor::class, "motor_id");
     }
+
+    public function color()
+    {
+        return $this->belongsTo(Color::class, "color_id");
+    }
 }
