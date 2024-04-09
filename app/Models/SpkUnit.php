@@ -17,4 +17,8 @@ class SpkUnit extends Model
     {
         return $this->belongsTo(Unit::class, "unit_id");
     }
+    public function motor()
+    {
+        return $this->belongsTo(Motor::class, "motor_id");
+    }
 }
