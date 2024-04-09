@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer("spk_transaction_down_payment")->nullable();
             $table->string("spk_transaction_tenor")->nullable();
             $table->string("spk_transaction_instalment")->nullable();
-            $table->string("spk_transaction_surveyor_name");
+            $table->string("spk_transaction_surveyor_name")->nullable();
             $table->uuid("microfinance_name")->nullable();
             // $table->foreign("micro_finance_id")->references("micro_finance_id")->on("micro_finances")->onDelete("set null");
             $table->timestamps();
