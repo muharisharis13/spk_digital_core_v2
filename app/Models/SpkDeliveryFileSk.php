@@ -13,7 +13,7 @@ class SpkDeliveryFileSk extends Model
 
     protected $primaryKey = "spk_delivery_file_sk_id";
 
-    protected function getDocumentNameAttribute($value): string
+    public function getFileAttribute($value): string
     {
         if ($value) {
             return asset('/storage/' . $value);

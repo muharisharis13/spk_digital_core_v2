@@ -17,6 +17,6 @@ class SpkDeliveryDomicile extends Model
 
     public function file_sk()
     {
-        return $this->belongsTo(SpkDeliveryFileSk::class, "spk_delivery_domicile_id");
+        return $this->hasMany(SpkDeliveryFileSk::class, "spk_delivery_domicile_id");
     }
 }
