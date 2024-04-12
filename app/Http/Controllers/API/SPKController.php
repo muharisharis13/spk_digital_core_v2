@@ -192,7 +192,7 @@ class SPKController extends Controller
     {
         return
             $validator->sometimes(
-                ["spk_delivery_domicile_customer_name", "spk_delivery_domicile_city"],
+                ["spk_delivery_domicile_customer_name", "spk_delivery_domicile_address", "spk_delivery_domicile_city"],
                 "required",
                 function ($input) {
                     return $input->spk_delivery_type === 'domicile';
@@ -518,6 +518,7 @@ class SPKController extends Controller
         return SpkDeliveryDomicile::create([
             "spk_id" => $createSPK->spk_id,
             "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
+            "spk_delivery_domicile_address" => $request->spk_delivery_domicile_address,
             "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
             "spk_delivery_file_sk" => "null"
         ]);
