@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer("spk_pricing_subsidi")->nullable();
             $table->integer("spk_pricing_booster")->nullable();
             $table->integer("spk_pricing_commission")->nullable();
-            $table->string("spk_pricing_commission_surveryor_name")->nullable();
+            $table->integer("spk_pricing_commission_surveyor")->nullable();
             $table->string("spk_pricing_broker_name")->nullable();
             $table->integer("spk_pricing_broker_commission")->nullable();
             $table->integer("spk_pricing_cashback")->nullable();
