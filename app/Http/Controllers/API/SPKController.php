@@ -685,7 +685,7 @@ class SPKController extends Controller
             if ($request->spk_delivery_type === "domicile") {
                 $data["file_sk"] = $createFileSK;
             }
-            // DB::commit();
+            DB::commit();
 
 
             return ResponseFormatter::success($data, "Successfully created SPK !");
