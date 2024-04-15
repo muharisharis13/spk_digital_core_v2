@@ -33,6 +33,69 @@ class SPKController extends Controller
 {
     //
 
+    public function deleteFileDocumentSK(Request $request, $id)
+    {
+        try {
+            $find = SpkDeliveryFileSk::where("spk_delivery_file_sk_id", $id)->first();
+            DB::beginTransaction();
+
+            $find->delete();
+
+            return ResponseFormatter::success("Berhasil Hapus document file SK", "Successfully deleted item");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function deleteFileDocumentAnother(Request $request, $id)
+    {
+        try {
+            $find = SpkAdditionalDocumentAnother::where("spk_additional_document_another_id", $id)->first();
+            DB::beginTransaction();
+
+            $find->delete();
+
+            return ResponseFormatter::success("Berhasil Hapus document another", "Successfully deleted item");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function deleteFileDocumentKK(Request $request, $spk_additional_document_id)
+    {
+        try {
+            $find = SpkAdditionalDocument::where("spk_additional_document_id", $spk_additional_document_id)->first();
+            DB::beginTransaction();
+
+            $find->update([
+                "spk_additional_document_kk" => "NULL"
+            ]);
+
+            return ResponseFormatter::success("Berhasil Hapus document KK", "Successfully deleted item");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+    public function deleteFileDocumentKtp(Request $request, $spk_additional_document_id)
+    {
+        try {
+            $find = SpkAdditionalDocument::where("spk_additional_document_id", $spk_additional_document_id)->first();
+            DB::beginTransaction();
+
+            $find->update([
+                "spk_additional_document_ktp" => "NULL"
+            ]);
+
+            return ResponseFormatter::success("Berhasil Hapus document KTP", "Successfully deleted item");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     function findSPK($spk_id)
     {
         return Spk::where("spk_id", $spk_id)->first();
@@ -180,17 +243,22 @@ class SPKController extends Controller
     {
         if ($request->hasFile('spk_additional_document_ktp')) {
             $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
+            $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+
+            $find->update([
+                "spk_additional_document_ktp" => $imagePathKtp,
+            ]);
         }
         if ($request->hasFile('spk_additional_document_kk')) {
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
+            $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+
+            $find->update([
+                "spk_additional_document_kk" => $imagePathKK,
+            ]);
         }
 
-        $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
 
-        $find->update([
-            "spk_additional_document_ktp" => $imagePathKtp,
-            "spk_additional_document_kk" => $imagePathKK,
-        ]);
 
         return $find;
     }
@@ -508,7 +576,9 @@ class SPKController extends Controller
                 $data["file_sk"] = $createFileSK;
             }
 
-            return ResponseFormatter::success($data, "Successfully created SPK !");
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully updated SPK !");
         } catch (\Throwable $e) {
             $statusCode = $e->getCode() === 0 ? 400 : $e->getCode();
             DB::rollback();

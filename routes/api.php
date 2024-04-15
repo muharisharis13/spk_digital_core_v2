@@ -243,6 +243,13 @@ Route::prefix("v1")->group(function () {
             Route::post("/update/{spk_id}", [SPKController::class, "updateSpk"]);
             Route::get("/list", [SPKController::class, "getPaginateSpk"]);
             Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"]);
+
+            Route::prefix("delete")->group(function () {
+                Route::delete("/dcmt-another/{id}", [SPKController::class, "deleteFileDocumentAnother"]);
+                Route::delete("/dcmt-file-sk/{id}", [SPKController::class, "deleteFileDocumentSK"]);
+                // Route::delete("/ktp/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKtp"]);
+                // Route::delete("/kk/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKK"]);
+            });
         });
     });
 });
