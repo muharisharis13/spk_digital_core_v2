@@ -33,6 +33,68 @@ class SPKController extends Controller
 {
     //
 
+    function findSPK($spk_id)
+    {
+        return Spk::where("spk_id", $spk_id)->first();
+    }
+
+    function updateSpkGeneral($spk_id, $request)
+    {
+        $find = SpkGeneral::where("spk_id", $spk_id)->first();
+
+        // $find->update([
+        //     "indent_id" => $request->indent_id,
+        //     "spk_general_date" => $request->spk_general_date,
+        //     "spk_general_location" => $request->spk_general_location,
+        //     "sales_name" => $request->sales_name,
+        //     "sales_id" => $request->sales_id,
+        //     "spk_general_method_sales" => $request->spk_general_method_sales,
+        //     "dealer_id" => $request->dealer_id,
+        //     "dealer_neq_id" => $request->dealer_neq_id
+        // ]);
+        return $request->spk_general_date;
+    }
+
+    public function updateSpk(Request $request, $spk_id)
+    {
+        try {
+            // $validator  = Validator::make($request->all(), self::validator);
+            // self::isDealerRequired($validator);
+            // self::isDealerNeqRequired($validator);
+            // self::spk_transaction_method_payment_credit($validator);
+            // self::spk_transaction_method_payment_cash($validator);
+            // self::isSelectedSpkDeliveryKtp($validator);
+            // self::isSelectedSpkDeliveryNeq($validator);
+            // self::isSelectedSpkDeliveryDomicile($validator);
+            // self::isSelectedSpkDeliveryDealer($validator);
+            // if ($validator->fails()) {
+            //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            // }
+
+            $user = Auth::user();
+            DB::beginTransaction();
+
+            $findSpk = self::findSPK($spk_id);
+
+            //update SPK General
+            $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
+
+            //buat spk log
+            // $createSPKLog = self::createSpkLog($findSpk, $user, "Create Spk");
+
+            $data = [
+                "spk" => $findSpk,
+                "spk_general" => $updateSPKGeneral,
+                // "spk_log" => $createSPKLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully created SPK !");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function getDetailSpk(Request $request, $spk_id)
     {
         try {
@@ -665,12 +727,13 @@ class SPKController extends Controller
             }
 
             //buat spk log
-            $createSPKUnit = self::createSpkLog($createSPK, $user, "Create Spk");
+            $createSPKLog = self::createSpkLog($createSPK, $user, "Create Spk");
 
             $data = [
                 "spk" => $createSPK,
                 "spk_general" => $createSPKGeneral,
                 "spk_unit" => $createSPKUnit,
+                "spk_log" => $createSPKLog,
                 "spk_transaction" => $createSPKTransaction,
                 "spk_customer" => $createSPKCustomer,
                 "spk_legal" => $createSPKLegal,
