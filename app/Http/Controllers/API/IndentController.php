@@ -302,7 +302,7 @@ class IndentController extends Controller
         try {
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
-                ->with(["sales", "motor", "color", "indent_log.user", "indent_payment.bank", "indent_payment_refund"])
+                ->with(["motor", "color", "indent_log.user", "indent_payment.bank", "indent_payment_refund"])
                 ->first();
 
 
@@ -437,6 +437,7 @@ class IndentController extends Controller
                         "indent_note" => "nullable",
                         "amount_total" => "required",
                         "sales_id" => "required",
+                        "salesname" => "required",
                         "micro_finance_id" => "nullable",
                         "leasing_id" => "nullable"
                     ]);
@@ -457,6 +458,7 @@ class IndentController extends Controller
                         "indent_note" => $request->indent_note,
                         "amount_total" => $request->amount_total,
                         "sales_id" => $request->sales_id,
+                        "salesname" => $request->salesname,
                         "micro_finance_id" => $request->micro_finance_id,
                         "leasing_id" => $request->leasing_id,
                     ]);
@@ -499,9 +501,18 @@ class IndentController extends Controller
                 "indent_note" => "nullable",
                 "amount_total" => "required",
                 "sales_id" => "required",
-                "micro_finance_id" => "nullable",
+                "salesname" => "required",
+                // "micro_finance_id" => "nullable",
                 "leasing_id" => "nullable"
             ]);
+
+            $validator->sometimes(
+                ["micro_finance_id"],
+                "required",
+                function ($input) {
+                    return $input->indent_type === "cash";
+                }
+            );
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
@@ -525,6 +536,7 @@ class IndentController extends Controller
                 "indent_note" => $request->indent_note,
                 "amount_total" => $request->amount_total,
                 "sales_id" => $request->sales_id,
+                "salesname" => $request->salesname,
                 "micro_finance_id" => $request->micro_finance_id,
                 "leasing_id" => $request->leasing_id,
                 "indent_number" => GenerateNumber::generate("INDENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indents", "indent_number")
@@ -537,7 +549,7 @@ class IndentController extends Controller
                 "indent_log_action" => "Indent " . IndentStatusEnum::unpaid
             ]);
 
-            DB::commit();
+            // DB::commit();
 
             $data = [
                 "indent" => $createIndent,

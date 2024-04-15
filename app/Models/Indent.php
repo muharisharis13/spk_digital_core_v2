@@ -29,10 +29,7 @@ class Indent extends Model
     {
         return $this->belongsTo(Leasing::class, "leasing_id");
     }
-    public function sales()
-    {
-        return $this->belongsTo(Sales::class, "sales_id");
-    }
+
 
     public function indent_payment()
     {

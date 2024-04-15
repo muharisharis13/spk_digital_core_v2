@@ -28,7 +28,8 @@ return new class extends Migration
             $table->string("indent_note")->nullable();
             $table->integer("amount_total")->default(0);
             $table->uuid("sales_id")->nullable();
-            $table->foreign("sales_id")->references("sales_id")->on("sales")->onDelete("set null");
+            $table->uuid("salesname")->nullable();
+            // $table->foreign("sales_id")->references("sales_id")->on("sales")->onDelete("set null");
             $table->uuid("micro_finance_id")->nullable();
             $table->foreign("micro_finance_id")->references("micro_finance_id")->on("micro_finances")->onDelete("set null");
             $table->uuid("leasing_id")->nullable();
