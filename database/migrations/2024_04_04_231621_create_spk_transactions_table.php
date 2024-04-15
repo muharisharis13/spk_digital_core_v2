@@ -17,14 +17,14 @@ return new class extends Migration
             $table->foreign("spk_id")->references("spk_id")->on("spks")->onDelete("set null");
             $table->enum("spk_transaction_method_buying", ["on_the_road", "off_the_road"]);
             $table->enum("spk_transaction_method_payment", ["cash", "credit"]);
-            $table->uuid("leasing_name")->nullable();
-            // $table->foreign("leasing_id")->references("leasing_id")->on("leasings")->onDelete("set null");
+            $table->string("leasing_name")->nullable();
+            $table->uuid("leasing_id")->nullable();
             $table->integer("spk_transaction_down_payment")->nullable();
             $table->string("spk_transaction_tenor")->nullable();
             $table->string("spk_transaction_instalment")->nullable();
             $table->string("spk_transaction_surveyor_name")->nullable();
-            $table->uuid("microfinance_name")->nullable();
-            // $table->foreign("micro_finance_id")->references("micro_finance_id")->on("micro_finances")->onDelete("set null");
+            $table->string("microfinance_name")->nullable();
+            $table->uuid("micro_finance_id")->nullable();
             $table->timestamps();
         });
     }

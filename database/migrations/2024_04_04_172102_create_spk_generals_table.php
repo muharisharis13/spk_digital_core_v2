@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign("indent_id")->references("indent_id")->on("indents")->onDelete("set null");
             $table->date("spk_general_date");
             $table->string("sales_name")->nullable();
-            // $table->foreign("sales_id")->references("sales_id")->on("sales")->onDelete("set null");
+            $table->uuid("sales_id")->nullable();
             $table->string("spk_general_method_sales");
             $table->enum("spk_general_location", ["dealer", "neq"]);
             $table->uuid("dealer_id")->nullable();

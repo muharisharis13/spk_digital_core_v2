@@ -63,6 +63,7 @@ class SPKController extends Controller
         "indent_id" => "nullable",
         "spk_general_date" => "nullable",
         "sales_name" => "required",
+        "sales_id" => "required",
         "spk_general_method_sales" => "required",
         "dealer_id" => "nullable",
         "dealer_neq_id" => "nullable",
@@ -71,19 +72,25 @@ class SPKController extends Controller
         "spk_transaction_method_buying" => "required|in:on_the_road,off_the_road",
         "spk_transaction_method_payment" => "required|in:cash,credit",
         "leasing_name" => 'nullable',
+        "leasing_id" => 'nullable',
         "spk_transaction_down_payment" => "nullable",
         "spk_transaction_tenor" => "nullable",
         "spk_transaction_instalment" => "nullable",
         // "spk_transaction_surveyor_name" => "nullable",
         "microfinance_name" => "nullable",
+        "micro_finance_id" => "nullable",
         //spk customer
         "spk_customer_nik" => "required",
         "spk_customer_name" => "required",
         "spk_customer_address" => "required",
         "province" => "required",
+        "province_id" => "required",
         "city" => "required",
+        "city_id" => "required",
         "district" => "required",
+        "district_id" => "required",
         "sub_district" => "required",
+        "sub_district_id" => "required",
         "spk_customer_postal_code" => "nullable",
         "spk_customer_birth_place" => "required",
         "spk_customer_birth_date" => "required",
@@ -92,17 +99,23 @@ class SPKController extends Controller
         "spk_customer_no_phone" => "required",
         "spk_customer_no_wa" => "nullable",
         "spk_customer_religion" => "required",
+        "marital_id" => "required",
         "marital_name" => "required",
+        "hobbies_id" => "nullable",
         "hobbies_name" => "nullable",
         "spk_customer_mother_name" => "nullable",
         "spk_customer_npwp" => 'nullable',
         "spk_customer_email" => "nullable",
+        "residence_id" => "required",
+        "education_id" => "required",
+        "work_id" => "required",
         "residence_name" => "required",
         "education_name" => "required",
         "work_name" => "required",
         "spk_customer_length_of_work" => "nullable",
         "spk_customer_income" => "required",
         "spk_customer_outcome" => "required",
+        "motor_brand_id" => "nullable",
         "motor_brand_name" => "nullable",
         "spk_customer_motor_type_before" => "nullable",
         "spk_customer_motor_year_before" => "nullable",
@@ -112,9 +125,13 @@ class SPKController extends Controller
         "spk_legal_name" => "required",
         "spk_legal_address" => "required",
         "spk_legal_province" => "required",
+        "spk_legal_province_id" => "required",
         "spk_legal_city" => "required",
+        "spk_legal_city_id" => "required",
         "spk_legal_district" => "required",
+        "spk_legal_district_id" => "required",
         "spk_legal_sub_district" => "required",
+        "spk_legal_sub_district_id" => "required",
         "spk_legal_postal_code" => "nullable",
         "spk_legal_birth_place" => "required",
         "spk_legal_birth_date" => "required",
@@ -140,6 +157,7 @@ class SPKController extends Controller
         "spk_pricing_booster" => "nullable",
         "spk_pricing_commission" => "nullable",
         "spk_pricing_commission_surveyor" => "nullable",
+        "broker_id" => "nullable",
         "spk_pricing_broker_name" => "nullable",
         "spk_pricing_broker_commission" => "nullable",
         "spk_pricing_cashback" => "nullable",
@@ -250,7 +268,7 @@ class SPKController extends Controller
 
     function spk_transaction_method_payment_credit($validator)
     {
-        return $validator->sometimes(["leasing_name", "spk_transaction_down_payment", "spk_transaction_tenor", "spk_transaction_instalment", "spk_transaction_surveyor_name"], "required", function ($input) {
+        return $validator->sometimes(["leasing_name", "leasing_id", "spk_transaction_down_payment", "spk_transaction_tenor", "spk_transaction_instalment", "spk_transaction_surveyor_name"], "required", function ($input) {
             return $input->spk_transaction_method_buying == 'credit';
         });
     }
@@ -258,7 +276,7 @@ class SPKController extends Controller
     function spk_transaction_method_payment_cash($validator)
     {
         return
-            $validator->sometimes(["microfinance_name"], 'required', function ($input) {
+            $validator->sometimes(["microfinance_name", "micro_finance_id"], 'required', function ($input) {
                 return $input->spk_transaction_method_buying == 'cash';
             });
     }
@@ -282,6 +300,7 @@ class SPKController extends Controller
             "spk_general_date" => $request->spk_general_date,
             "spk_general_location" => $request->spk_general_location,
             "sales_name" => $request->sales_name,
+            "sales_id" => $request->sales_id,
             "spk_general_method_sales" => $request->spk_general_method_sales,
             "dealer_id" => $request->dealer_id,
             "dealer_neq_id" => $request->dealer_neq_id
@@ -316,7 +335,8 @@ class SPKController extends Controller
                     "spk_transaction_method_buying" => $request->spk_transaction_method_buying,
                     "spk_transaction_method_payment" => $request->spk_transaction_method_payment,
                     "spk_transaction_surveyor_name" => $request->spk_transaction_surveyor_name,
-                    "microfinance_name" => $request->microfinance_name
+                    "microfinance_name" => $request->microfinance_name,
+                    "micro_finance_id" => $request->micro_finance_id,
                 ]);
         } else {
             return SpkTransaction::create([
@@ -324,11 +344,13 @@ class SPKController extends Controller
                 "spk_transaction_method_buying" => $request->spk_transaction_method_buying,
                 "spk_transaction_method_payment" => $request->spk_transaction_method_payment,
                 "leasing_name" => $request->leasing_name,
+                "leasing_id" => $request->leasing_id,
                 "spk_transaction_down_payment" => $request->spk_transaction_down_payment,
                 "spk_transaction_tenor" => $request->spk_transaction_tenor,
                 "spk_transaction_instalment" =>  $request->spk_transaction_instalment,
                 "spk_transaction_surveyor_name" => $request->spk_transaction_surveyor_name,
-                "microfinance_name" => $request->microfinance_name
+                "microfinance_name" => $request->microfinance_name,
+                "micro_finance_id" => $request->micro_finance_id,
             ]);
         }
     }
@@ -341,9 +363,13 @@ class SPKController extends Controller
             "spk_customer_name" => $request->spk_customer_name,
             "spk_customer_address" => $request->spk_customer_address,
             "province" => $request->province,
+            "province_id" => $request->province_id,
             "city" => $request->city,
+            "city_id" => $request->city_id,
             "district" => $request->district,
+            "district_id" => $request->district_id,
             "sub_district" => $request->sub_district,
+            "sub_district_id" => $request->sub_district_id,
             "spk_customer_postal_code" => $request->spk_customer_postal_code,
             "spk_customer_birth_place" => $request->spk_customer_birth_place,
             "spk_customer_birth_date" => $request->spk_customer_birth_date,
@@ -352,17 +378,23 @@ class SPKController extends Controller
             "spk_customer_no_wa" => $request->spk_customer_no_wa,
             "spk_customer_no_phone" => $request->spk_customer_no_phone,
             "spk_customer_religion" => $request->spk_customer_religion,
+            "marital_id" => $request->marital_id,
+            "hobbies_id" => $request->hobbies_id,
             "marital_name" => $request->marital_name,
             "hobbies_name" => $request->hobbies_name,
             "spk_customer_mother_name" => $request->spk_customer_mother_name,
             "spk_customer_npwp" => $request->spk_customer_npwp,
             "spk_customer_email" => $request->spk_customer_email,
+            "residence_id" => $request->residence_id,
+            "education_id" => $request->education_id,
+            "work_id" => $request->work_id,
             "residence_name" => $request->residence_name,
             "education_name" => $request->education_name,
             "work_name" => $request->work_name,
             "spk_customer_length_of_work" => $request->spk_customer_length_of_work,
             "spk_customer_income" => $request->spk_customer_income,
             "spk_customer_outcome" => $request->spk_customer_outcome,
+            "motor_brand_id" => $request->motor_brand_id,
             "motor_brand_name" => $request->motor_brand_name,
             "spk_customer_motor_type_before" => $request->spk_customer_motor_type_before,
             "spk_customer_motor_year_before" => $request->spk_customer_motor_year_before
@@ -378,9 +410,13 @@ class SPKController extends Controller
             "spk_legal_name" => $request->spk_legal_name,
             "spk_legal_address" => $request->spk_legal_address,
             "province" => $request->spk_legal_province,
+            "province_id" => $request->spk_legal_province_id,
             "city" => $request->spk_legal_city,
+            "city_id" => $request->spk_legal_city_id,
             "district" => $request->spk_legal_district,
+            "district_id" => $request->spk_legal_district_id,
             "sub_district" => $request->spk_legal_sub_district,
+            "sub_district_id" => $request->spk_legal_sub_district_id,
             "spk_legal_postal_code" => $request->spk_legal_postal_code,
             "spk_legal_birth_place" => $request->spk_legal_birth_place,
             "spk_legal_birth_date" => $request->spk_legal_birth_date,
@@ -439,6 +475,7 @@ class SPKController extends Controller
             "spk_pricing_booster" => $request->spk_pricing_booster,
             "spk_pricing_commission" => $request->spk_pricing_commission,
             "spk_pricing_commission_surveyor" => $request->spk_pricing_commission_surveyor,
+            // "broker_id" => $request->broker_id,
             "spk_pricing_broker_name" => $request->spk_pricing_broker_name,
             "spk_pricing_broker_commission" => $request->spk_pricing_broker_commission,
             "spk_pricing_cashback" => $request->spk_pricing_cashback,
@@ -648,7 +685,7 @@ class SPKController extends Controller
             if ($request->spk_delivery_type === "domicile") {
                 $data["file_sk"] = $createFileSK;
             }
-            DB::commit();
+            // DB::commit();
 
 
             return ResponseFormatter::success($data, "Successfully created SPK !");

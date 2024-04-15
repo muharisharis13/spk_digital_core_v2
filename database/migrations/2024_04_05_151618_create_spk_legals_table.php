@@ -19,9 +19,13 @@ return new class extends Migration
             $table->string("spk_legal_name");
             $table->string("spk_legal_address");
             $table->string("province")->nullable();
+            $table->uuid("province_id")->nullable();
             $table->string("city")->nullable();
+            $table->uuid("city_id")->nullable();
             $table->string("district")->nullable();
+            $table->uuid("district_id")->nullable();
             $table->string("sub_district")->nullable();
+            $table->uuid("sub_district_id")->nullable();
             $table->string("spk_legal_postal_code")->nullable();
             $table->string("spk_legal_birth_place");
             $table->date("spk_legal_birth_date");
