@@ -42,17 +42,374 @@ class SPKController extends Controller
     {
         $find = SpkGeneral::where("spk_id", $spk_id)->first();
 
-        // $find->update([
-        //     "indent_id" => $request->indent_id,
-        //     "spk_general_date" => $request->spk_general_date,
-        //     "spk_general_location" => $request->spk_general_location,
-        //     "sales_name" => $request->sales_name,
-        //     "sales_id" => $request->sales_id,
-        //     "spk_general_method_sales" => $request->spk_general_method_sales,
-        //     "dealer_id" => $request->dealer_id,
-        //     "dealer_neq_id" => $request->dealer_neq_id
-        // ]);
-        return $request->spk_general_date;
+        $find->update([
+            "indent_id" => $request->indent_id,
+            "spk_general_date" => $request->spk_general_date,
+            "spk_general_location" => $request->spk_general_location,
+            "sales_name" => $request->sales_name,
+            "sales_id" => $request->sales_id,
+            "spk_general_method_sales" => $request->spk_general_method_sales,
+            "dealer_id" => $request->dealer_id,
+            "dealer_neq_id" => $request->dealer_neq_id
+        ]);
+        return $find;
+    }
+
+    function updateSpkUnit($spk_id, $request)
+    {
+        $find = SpkUnit::where("spk_id", $spk_id)->first();
+
+
+
+        $find->update([
+            "motor_id" => $request->motor_id,
+            "color_id" => $request->color_id
+        ]);
+        return $find;
+    }
+
+
+    function updateSpkTransaction($spk_id, $request)
+    {
+        $find = SpkTransaction::where("spk_id", $spk_id)->first();
+
+        if ($request->spk_transaction_method_payment == "cash") {
+            $find->update([
+                "spk_transaction_method_buying" => $request->spk_transaction_method_buying,
+                "spk_transaction_method_payment" => $request->spk_transaction_method_payment,
+                "spk_transaction_surveyor_name" => $request->spk_transaction_surveyor_name,
+                "microfinance_name" => $request->microfinance_name,
+                "micro_finance_id" => $request->micro_finance_id,
+            ]);
+        } else {
+            $find->update([
+                "spk_transaction_method_buying" => $request->spk_transaction_method_buying,
+                "spk_transaction_method_payment" => $request->spk_transaction_method_payment,
+                "leasing_name" => $request->leasing_name,
+                "leasing_id" => $request->leasing_id,
+                "spk_transaction_down_payment" => $request->spk_transaction_down_payment,
+                "spk_transaction_tenor" => $request->spk_transaction_tenor,
+                "spk_transaction_instalment" =>  $request->spk_transaction_instalment,
+                "spk_transaction_surveyor_name" => $request->spk_transaction_surveyor_name,
+                "microfinance_name" => $request->microfinance_name,
+                "micro_finance_id" => $request->micro_finance_id,
+            ]);
+        }
+
+        return $find;
+    }
+
+    function updateSpkCustomer($spk_id, $request)
+    {
+        $find = SpkCustomer::where("spk_id", $spk_id)->first();
+
+        $find->update([
+            "spk_customer_nik" => $request->spk_customer_nik,
+            "spk_customer_name" => $request->spk_customer_name,
+            "spk_customer_address" => $request->spk_customer_address,
+            "province" => $request->province,
+            "province_id" => $request->province_id,
+            "city" => $request->city,
+            "city_id" => $request->city_id,
+            "district" => $request->district,
+            "district_id" => $request->district_id,
+            "sub_district" => $request->sub_district,
+            "sub_district_id" => $request->sub_district_id,
+            "spk_customer_postal_code" => $request->spk_customer_postal_code,
+            "spk_customer_birth_place" => $request->spk_customer_birth_place,
+            "spk_customer_birth_date" => $request->spk_customer_birth_date,
+            "spk_customer_gender" => $request->spk_customer_gender,
+            "spk_customer_telp" => $request->spk_customer_telp,
+            "spk_customer_no_wa" => $request->spk_customer_no_wa,
+            "spk_customer_no_phone" => $request->spk_customer_no_phone,
+            "spk_customer_religion" => $request->spk_customer_religion,
+            "marital_id" => $request->marital_id,
+            "hobbies_id" => $request->hobbies_id,
+            "marital_name" => $request->marital_name,
+            "hobbies_name" => $request->hobbies_name,
+            "spk_customer_mother_name" => $request->spk_customer_mother_name,
+            "spk_customer_npwp" => $request->spk_customer_npwp,
+            "spk_customer_email" => $request->spk_customer_email,
+            "residence_id" => $request->residence_id,
+            "education_id" => $request->education_id,
+            "work_id" => $request->work_id,
+            "residence_name" => $request->residence_name,
+            "education_name" => $request->education_name,
+            "work_name" => $request->work_name,
+            "spk_customer_length_of_work" => $request->spk_customer_length_of_work,
+            "spk_customer_income" => $request->spk_customer_income,
+            "spk_customer_outcome" => $request->spk_customer_outcome,
+            "motor_brand_id" => $request->motor_brand_id,
+            "motor_brand_name" => $request->motor_brand_name,
+            "spk_customer_motor_type_before" => $request->spk_customer_motor_type_before,
+            "spk_customer_motor_year_before" => $request->spk_customer_motor_year_before
+
+        ]);
+
+        return $find;
+    }
+
+    function updateSpkLegal($spk_id, $request)
+    {
+        $find = SpkLegal::where("spk_id", $spk_id)->first();
+
+        $find->update([
+            "spk_legal_nik" => $request->spk_legal_nik,
+            "spk_legal_name" => $request->spk_legal_name,
+            "spk_legal_address" => $request->spk_legal_address,
+            "province" => $request->spk_legal_province,
+            "province_id" => $request->spk_legal_province_id,
+            "city" => $request->spk_legal_city,
+            "city_id" => $request->spk_legal_city_id,
+            "district" => $request->spk_legal_district,
+            "district_id" => $request->spk_legal_district_id,
+            "sub_district" => $request->spk_legal_sub_district,
+            "sub_district_id" => $request->spk_legal_sub_district_id,
+            "spk_legal_postal_code" => $request->spk_legal_postal_code,
+            "spk_legal_birth_place" => $request->spk_legal_birth_place,
+            "spk_legal_birth_date" => $request->spk_legal_birth_date,
+            "spk_legal_gender" => $request->spk_legal_gender,
+            "spk_legal_telp" => $request->spk_legal_telp,
+            "spk_legal_no_phone" => $request->spk_legal_no_phone
+        ]);
+
+        return $find;
+    }
+
+    function updateSpkDocument($spk_id, $request)
+    {
+        if ($request->hasFile('spk_additional_document_ktp')) {
+            $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
+        }
+        if ($request->hasFile('spk_additional_document_kk')) {
+            $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
+        }
+
+        $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+
+        $find->update([
+            "spk_additional_document_ktp" => $imagePathKtp,
+            "spk_additional_document_kk" => $imagePathKK,
+        ]);
+
+        return $find;
+    }
+
+    function updateSpkDocumentAnother($spk_id, $request)
+    {
+        $createSpkDocument = [];
+        if ($request->spk_additional_document_another) {
+            foreach ($request->file("spk_additional_document_another") as $item) {
+                $imagePath = $item->store('spk', 'public');
+
+                $createSpkDocument[] = SpkAdditionalDocumentAnother::create([
+                    "spk_id" => $spk_id,
+                    "spk_additional_document_another_name" => $imagePath
+                ]);
+            }
+        }
+
+        return $createSpkDocument;
+    }
+
+    function updateSpkPricing($spk_id, $request)
+    {
+        $find = SpkPricing::where("spk_id", $spk_id)->first();
+
+        $find->update([
+            "spk_pricing_off_the_road" => $request->spk_pricing_off_the_road,
+            "spk_pricing_bbn" => $request->spk_pricing_bbn,
+            "spk_pricing_on_the_road" => $request->spk_pricing_on_the_road,
+            "spk_pricing_indent_nominal" => $request->spk_pricing_indent_nominal,
+            "spk_pricing_discount" => $request->spk_pricing_discount,
+            "spk_pricing_subsidi" => $request->spk_pricing_subsidi,
+            "spk_pricing_booster" => $request->spk_pricing_booster,
+            "spk_pricing_commission" => $request->spk_pricing_commission,
+            "spk_pricing_commission_surveyor" => $request->spk_pricing_commission_surveyor,
+            "broker_id" => $request->broker_id,
+            "spk_pricing_broker_name" => $request->spk_pricing_broker_name,
+            "spk_pricing_broker_commission" => $request->spk_pricing_broker_commission,
+            "spk_pricing_cashback" => $request->spk_pricing_cashback,
+            "spk_pricing_delivery_cost" => $request->spk_pricing_delivery_cost, "spk_pricing_on_the_road_note" => $request->spk_pricing_on_the_road_note,
+            "spk_pricing_indent_note" => $request->spk_pricing_indent_note,
+            "spk_pricing_discount_note" => $request->spk_pricing_discount_note,
+            "spk_pricing_subsidi_note" => $request->spk_pricing_subsidi_note,
+            "spk_pricing_booster_note" => $request->spk_pricing_booster_note,
+            "spk_pricing_commission_note" => $request->spk_pricing_commission_note,
+            "spk_pricing_surveyor_commission_note" => $request->spk_pricing_surveyor_commission_note,
+            "spk_pricing_broker_note" => $request->spk_pricing_broker_note,
+            "spk_pricing_broker_commission_note" => $request->spk_pricing_broker_commission_note,
+            "spk_pricing_cashback_note" => $request->spk_pricing_cashback_note,
+            "spk_pricing_delivery_cost_note" => $request->spk_pricing_delivery_cost_note,
+
+        ]);
+
+        return $find;
+    }
+
+    function updateSpkPricingAccecories($spk_id, $request)
+    {
+        $updatedItems = [];
+
+        // Pastikan $request->spk_pricing_accecories_price adalah array dan memiliki elemen
+        if (is_array($request->spk_pricing_accecories_price) && count($request->spk_pricing_accecories_price) > 0) {
+            foreach ($request->spk_pricing_accecories_price as $item) {
+                // Periksa apakah 'spk_pricing_accecories_id' disetel dalam setiap item
+                if (!isset($item["spk_pricing_accecories_id"])) {
+                    $updatedItems[] = SpkPricingAccecories::create([
+                        "spk_id" => $spk_id,
+                        "spk_pricing_accecories_price" => $item["price"],
+                        "spk_pricing_accecories_note" => isset($item["note"]) ? $item["note"] : null
+                    ]);
+                } else {
+
+                    // Perbarui entri SpkPricingAccecories sesuai dengan spk_pricing_accecories_id
+                    $accecories = SpkPricingAccecories::where("spk_pricing_accecories_id", $item["spk_pricing_accecories_id"])->first();
+
+                    // Periksa apakah entri ditemukan
+                    if ($accecories) {
+                        $accecories->update([
+                            "spk_pricing_accecories_price" => $item["price"],
+                            "spk_pricing_accecories_note" => isset($item["note"]) ? $item["note"] : null
+                        ]);
+                        // Tambahkan entri yang telah diperbarui ke dalam array
+                        $updatedItems[] = $accecories;
+                    }
+                }
+            }
+        }
+
+        return $updatedItems;
+    }
+
+    function updateSpkPricingAdditional($spk_id, $request)
+    {
+        $updatedItems = [];
+
+        // Pastikan $request->spk_pricing_additional_price adalah array dan memiliki elemen
+        if (is_array($request->spk_pricing_additional_price) && count($request->spk_pricing_additional_price) > 0) {
+            foreach ($request->spk_pricing_additional_price as $item) {
+                // Periksa apakah 'spk_pricing_additional_id' disetel dalam setiap item
+                if (!isset($item["spk_pricing_additional_id"])) {
+                    // Jika 'spk_pricing_additional_id' tidak disetel, buat entri baru
+                    $create = SpkPricingAdditional::create([
+                        "spk_id" => $spk_id,
+                        "spk_pricing_additional_price" => $item["price"],
+                        "spk_pricing_additional_note" => isset($item["note"]) ? $item["note"] : null
+                    ]);
+                    $updatedItems[] = $create;
+                } else {
+                    // Jika 'spk_pricing_additional_id' disetel, perbarui entri yang ada
+                    $accessory = SpkPricingAdditional::find($item["spk_pricing_additional_id"]);
+
+                    // Periksa apakah entri ditemukan
+                    if ($accessory) {
+                        $accessory->update([
+                            "spk_pricing_additional_price" => $item["price"],
+                            "spk_pricing_additional_note" => isset($item["note"]) ? $item["note"] : null
+                        ]);
+                        // Tambahkan entri yang telah diperbarui ke dalam array
+                        $updatedItems[] = $accessory;
+                    } else {
+                        // Handle error gracefully if entry not found
+                        // Misalnya, lewati entri ini atau tangani kesalahan sesuai kebutuhan Anda
+                    }
+                }
+            }
+        }
+
+        return $updatedItems;
+    }
+
+    function updateDeliveryKtp($spk_id, $request)
+    {
+        $find = SpkDeliveryKtp::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_delivery_ktp not found!", 400);
+        }
+        $find->update([
+            "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+            "spk_delivery_ktp_customer_address" => $request->spk_delivery_ktp_customer_address,
+            "spk_delivery_ktp_city" => $request->spk_delivery_ktp_city,
+            "spk_delivery_ktp_no_phone" => $request->spk_delivery_ktp_no_phone,
+            "spk_delivery_ktp_no_telp" => $request->spk_delivery_ktp_no_telp
+        ]);
+
+        return $find;
+    }
+
+    function updateDeliveryNeq($spk_id, $request)
+    {
+        $find = SpkDeliveryNeq::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_delivery_neq not found!", 400);
+        }
+        $find->update([
+            "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+            "dealer_neq_id" => $request->dealer_delivery_neq_id,
+            "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
+            "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
+        ]);
+
+        return $find;
+    }
+
+    function updateDeliveryDomicile($spk_id, $request)
+    {
+        $find = SpkDeliveryDomicile::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_delivery_domicile not found!", 400);
+        }
+
+        $find->update([
+            "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
+            "spk_delivery_domicile_address" => $request->spk_delivery_domicile_address,
+            "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
+            "spk_delivery_file_sk" => "null"
+        ]);
+
+        return $find;
+    }
+
+
+    function updateDeliveryDealer($spk_id, $request)
+    {
+        $find = SpkDeliveryDealer::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_delivery_dealer not found!", 400);
+        }
+        $find->update([
+            "spk_delivery_dealer_customer_name" => $request->spk_delivery_dealer_customer_name,
+            "spk_delivery_dealer_no_phone" => $request->spk_delivery_dealer_no_phone
+        ]);
+
+        return $find;
+    }
+
+    function createFileSKupdate($createSpkDelivery, $request)
+    {
+
+        $createSpkDocument = [];
+        if ($request->spk_delivery_file_sk) {
+            // if (!isset($createSpkDelivery->spk_delivery_domicile_id)) {
+            //     DB::rollBack();
+            //     throw new \Exception("uuid spk_delivery_domicile_id not found!", 400);
+            // }
+            foreach ($request->file("spk_delivery_file_sk") as $item) {
+                $imagePath = $item->store('spk', 'public');
+
+                $createSpkDocument[] = SpkDeliveryFileSk::create([
+                    "spk_delivery_domicile_id" => $createSpkDelivery->spk_delivery_domicile_id,
+                    "file" => $imagePath
+                ]);
+            }
+        }
+
+        return $createSpkDocument;
     }
 
     public function updateSpk(Request $request, $spk_id)
@@ -76,22 +433,86 @@ class SPKController extends Controller
 
             $findSpk = self::findSPK($spk_id);
 
+            $findSpk->update([
+                "spk_delivery_type" => $request->spk_delivery_type
+            ]);
+
             //update SPK General
             $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
 
+            //update SPK unit
+            $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
+
+            //update SPK transaction
+            $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
+
+            //update SPK customer
+            $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
+
+            //update SPK legal
+            $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
+
+            // update spk document
+            $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
+
+            // update spk document another
+            $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
+
+            // update spk pricing
+            $updateSpkPricing = self::updateSpkPricing($spk_id, $request);
+
+            // update spk pricing accecories
+            $updateSpkPricingAccecories = self::updateSpkPricingAccecories($spk_id, $request);
+
+            // update spk pricing additional
+            $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
+
             //buat spk log
-            // $createSPKLog = self::createSpkLog($findSpk, $user, "Create Spk");
+            $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
+
+            //buat spk delivery berdasarkan type
+            if ($request->spk_delivery_type === "ktp") {
+                $createSPKDelivery = self::updateDeliveryKtp($spk_id, $request);
+            }
+            if ($request->spk_delivery_type === "neq") {
+                $createSPKDelivery = self::updateDeliveryNeq($spk_id, $request);
+            }
+            if ($request->spk_delivery_type === "dealer") {
+                $createSPKDelivery = self::updateDeliveryDealer($spk_id, $request);
+            }
+            if ($request->spk_delivery_type === "domicile") {
+                $createSPKDelivery = self::updateDeliveryDomicile($spk_id, $request);
+                $createFileSK = null;
+                if (isset($createSPKDelivery->spk_delivery_domicile_id)) {
+                    $createFileSK = self::createFileSKupdate($createSPKDelivery, $request);
+                }
+            }
 
             $data = [
                 "spk" => $findSpk,
                 "spk_general" => $updateSPKGeneral,
-                // "spk_log" => $createSPKLog
+                "spk_log" => $createSPKLog,
+                "spk_unit" => $updateSPKUnit,
+                "spk_transaction" => $updateSPKTransaction,
+                "spk_customer" => $updateSPKCustomer,
+                "spk_legal" => $updateSPKLegal,
+                "spk_document" => $updateSpkDocument,
+                "spk_document_another" => $updateSpkDocumentAnother,
+                "spk_pricing" => $updateSpkPricing,
+                "spk_pricing_accecories" => $updateSpkPricingAccecories,
+                "spk_pricing_additional" => $updateSpkPricingAdditional,
+                "spk_delivery" => $createSPKDelivery
             ];
+
+            if ($request->spk_delivery_type === "domicile") {
+                $data["file_sk"] = $createFileSK;
+            }
 
             return ResponseFormatter::success($data, "Successfully created SPK !");
         } catch (\Throwable $e) {
+            $statusCode = $e->getCode() === 0 ? 400 : $e->getCode();
             DB::rollback();
-            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+            return ResponseFormatter::error($e->getMessage(), $statusCode == "400" ? "bad request" : "internal server", $statusCode);
         }
     }
 
@@ -722,8 +1143,10 @@ class SPKController extends Controller
             }
             if ($request->spk_delivery_type === "domicile") {
                 $createSPKDelivery = self::createSpkDeliveryDomicile($createSPK, $request);
-
-                $createFileSK = self::createFileSK($createSPKDelivery, $request);
+                $createFileSK = null;
+                if (isset($createSPKDelivery->spk_delivery_domicile_id)) {
+                    $createFileSK = self::createFileSK($createSPKDelivery, $request);
+                }
             }
 
             //buat spk log
