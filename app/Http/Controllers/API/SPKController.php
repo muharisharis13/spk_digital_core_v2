@@ -475,7 +475,7 @@ class SPKController extends Controller
             "spk_pricing_booster" => $request->spk_pricing_booster,
             "spk_pricing_commission" => $request->spk_pricing_commission,
             "spk_pricing_commission_surveyor" => $request->spk_pricing_commission_surveyor,
-            // "broker_id" => $request->broker_id,
+            "broker_id" => $request->broker_id,
             "spk_pricing_broker_name" => $request->spk_pricing_broker_name,
             "spk_pricing_broker_commission" => $request->spk_pricing_broker_commission,
             "spk_pricing_cashback" => $request->spk_pricing_cashback,

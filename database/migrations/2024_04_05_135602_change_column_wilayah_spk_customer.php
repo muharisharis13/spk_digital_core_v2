@@ -14,10 +14,10 @@ return new class extends Migration
         //
 
         Schema::table('spk_customers', function (Blueprint $table) {
-            $table->dropForeign(['province_id']);
-            $table->dropForeign(['city_id']);
-            $table->dropForeign(['district_id']);
-            $table->dropForeign(['sub_district_id']);
+            // $table->dropForeign(['province_id']);
+            // $table->dropForeign(['city_id']);
+            // $table->dropForeign(['district_id']);
+            // $table->dropForeign(['sub_district_id']);
 
             // $table->dropColumn(["province_id"]);
             // $table->dropColumn(["city_id"]);
