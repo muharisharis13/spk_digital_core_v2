@@ -28,12 +28,14 @@ return new class extends Migration
             $table->string("indent_note")->nullable();
             $table->integer("amount_total")->default(0);
             $table->uuid("sales_id")->nullable();
-            $table->uuid("salesname")->nullable();
+            $table->string("salesman_name")->nullable();
             // $table->foreign("sales_id")->references("sales_id")->on("sales")->onDelete("set null");
             $table->uuid("micro_finance_id")->nullable();
-            $table->foreign("micro_finance_id")->references("micro_finance_id")->on("micro_finances")->onDelete("set null");
+            $table->string("microfinance_name")->nullable();
+            // $table->foreign("micro_finance_id")->references("micro_finance_id")->on("micro_finances")->onDelete("set null");
             $table->uuid("leasing_id")->nullable();
-            $table->foreign("leasing_id")->references("leasing_id")->on("leasings")->onDelete("set null");
+            $table->string("leasing_name")->nullable();
+            // $table->foreign("leasing_id")->references("leasing_id")->on("leasings")->onDelete("set null");
             $table->timestamps();
         });
     }

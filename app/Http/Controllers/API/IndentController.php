@@ -437,10 +437,25 @@ class IndentController extends Controller
                         "indent_note" => "nullable",
                         "amount_total" => "required",
                         "sales_id" => "required",
-                        "salesname" => "required",
-                        "micro_finance_id" => "nullable",
-                        "leasing_id" => "nullable"
+                        "salesman_name" => "required",
+                        // "micro_finance_id" => "nullable",
+                        // "leasing_id" => "nullable"
                     ]);
+
+                    $validator->sometimes(
+                        ["micro_finance_id", "microfinance_name"],
+                        "required",
+                        function ($input) {
+                            return $input->indent_type === "cash";
+                        }
+                    );
+                    $validator->sometimes(
+                        ["leasing_id", "leasing_name"],
+                        "required",
+                        function ($input) {
+                            return $input->indent_type === "credit";
+                        }
+                    );
 
                     if ($validator->fails()) {
                         return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
@@ -458,9 +473,11 @@ class IndentController extends Controller
                         "indent_note" => $request->indent_note,
                         "amount_total" => $request->amount_total,
                         "sales_id" => $request->sales_id,
-                        "salesname" => $request->salesname,
+                        "salesman_name" => $request->salesman_name,
                         "micro_finance_id" => $request->micro_finance_id,
+                        "microfinance_name" => $request->microfinance_name,
                         "leasing_id" => $request->leasing_id,
+                        "leasing_name" => $request->leasing_name,
                     ]);
                 }
 
@@ -501,16 +518,23 @@ class IndentController extends Controller
                 "indent_note" => "nullable",
                 "amount_total" => "required",
                 "sales_id" => "required",
-                "salesname" => "required",
+                "salesman_name" => "required",
                 // "micro_finance_id" => "nullable",
-                "leasing_id" => "nullable"
+                // "leasing_id" => "nullable"
             ]);
 
             $validator->sometimes(
-                ["micro_finance_id"],
+                ["micro_finance_id", "microfinance_name"],
                 "required",
                 function ($input) {
                     return $input->indent_type === "cash";
+                }
+            );
+            $validator->sometimes(
+                ["leasing_id", "leasing_name"],
+                "required",
+                function ($input) {
+                    return $input->indent_type === "credit";
                 }
             );
 
@@ -536,9 +560,11 @@ class IndentController extends Controller
                 "indent_note" => $request->indent_note,
                 "amount_total" => $request->amount_total,
                 "sales_id" => $request->sales_id,
-                "salesname" => $request->salesname,
+                "salesman_name" => $request->salesman_name,
                 "micro_finance_id" => $request->micro_finance_id,
+                "microfinance_name" => $request->microfinance_name,
                 "leasing_id" => $request->leasing_id,
+                "leasing_name" => $request->leasing_name,
                 "indent_number" => GenerateNumber::generate("INDENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indents", "indent_number")
             ]);
 
@@ -549,7 +575,7 @@ class IndentController extends Controller
                 "indent_log_action" => "Indent " . IndentStatusEnum::unpaid
             ]);
 
-            // DB::commit();
+            DB::commit();
 
             $data = [
                 "indent" => $createIndent,
