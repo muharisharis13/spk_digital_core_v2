@@ -282,9 +282,10 @@ class SPKController extends Controller
 
     function updateSpkDocument($spk_id, $request)
     {
+        $findAdditionaDocument = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
         if ($request->hasFile('spk_additional_document_ktp')) {
             $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
-            $findAdditionaDocument = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+
             if (!$findAdditionaDocument) {
                 DB::rollBack();
                 throw new \Exception("spk_additional_document ktp not found!", 400);
@@ -296,7 +297,6 @@ class SPKController extends Controller
         }
         if ($request->hasFile('spk_additional_document_kk')) {
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
-            $findAdditionaDocument = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
             if (!$findAdditionaDocument) {
                 DB::rollBack();
                 throw new \Exception("spk_additional_document kk not found!", 400);
