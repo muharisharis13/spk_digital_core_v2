@@ -125,13 +125,13 @@ class SPKController extends Controller
 
     function updateSpkGeneral($spk_id, $request)
     {
-        $find = SpkGeneral::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findGeneral = SpkGeneral::where("spk_id", $spk_id)->first();
+        if (!$findGeneral) {
             DB::rollBack();
             throw new \Exception("spk_general not found!", 400);
         }
 
-        $find->update([
+        $findGeneral->update([
             "indent_id" => $request->indent_id,
             "spk_general_date" => $request->spk_general_date,
             "spk_general_location" => $request->spk_general_location,
@@ -141,36 +141,36 @@ class SPKController extends Controller
             "dealer_id" => $request->dealer_id,
             "dealer_neq_id" => $request->dealer_neq_id
         ]);
-        return $find;
+        return $findGeneral;
     }
 
     function updateSpkUnit($spk_id, $request)
     {
-        $find = SpkUnit::where("spk_id", $spk_id)->first();
+        $findUnit = SpkUnit::where("spk_id", $spk_id)->first();
 
-        if (!$find) {
+        if (!$findUnit) {
             DB::rollBack();
             throw new \Exception("spk_unit not found!", 400);
         }
 
-        $find->update([
+        $findUnit->update([
             "motor_id" => $request->motor_id,
             "color_id" => $request->color_id
         ]);
-        return $find;
+        return $findUnit;
     }
 
 
     function updateSpkTransaction($spk_id, $request)
     {
-        $find = SpkTransaction::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findTransaction = SpkTransaction::where("spk_id", $spk_id)->first();
+        if (!$findTransaction) {
             DB::rollBack();
             throw new \Exception("spk_transaction not found!", 400);
         }
 
         if ($request->spk_transaction_method_payment == "cash") {
-            $find->update([
+            $findTransaction->update([
                 "spk_transaction_method_buying" => $request->spk_transaction_method_buying,
                 "spk_transaction_method_payment" => $request->spk_transaction_method_payment,
                 "spk_transaction_surveyor_name" => $request->spk_transaction_surveyor_name,
@@ -178,7 +178,7 @@ class SPKController extends Controller
                 "micro_finance_id" => $request->micro_finance_id,
             ]);
         } else {
-            $find->update([
+            $findTransaction->update([
                 "spk_transaction_method_buying" => $request->spk_transaction_method_buying,
                 "spk_transaction_method_payment" => $request->spk_transaction_method_payment,
                 "leasing_name" => $request->leasing_name,
@@ -192,18 +192,18 @@ class SPKController extends Controller
             ]);
         }
 
-        return $find;
+        return $findTransaction;
     }
 
     function updateSpkCustomer($spk_id, $request)
     {
-        $find = SpkCustomer::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findCustomer = SpkCustomer::where("spk_id", $spk_id)->first();
+        if (!$findCustomer) {
             DB::rollBack();
             throw new \Exception("spk_customer not found!", 400);
         }
 
-        $find->update([
+        $findCustomer->update([
             "spk_customer_nik" => $request->spk_customer_nik,
             "spk_customer_name" => $request->spk_customer_name,
             "spk_customer_address" => $request->spk_customer_address,
@@ -246,18 +246,18 @@ class SPKController extends Controller
 
         ]);
 
-        return $find;
+        return $findCustomer;
     }
 
     function updateSpkLegal($spk_id, $request)
     {
-        $find = SpkLegal::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findLegal = SpkLegal::where("spk_id", $spk_id)->first();
+        if (!$findLegal) {
             DB::rollBack();
             throw new \Exception("spk_legal not found!", 400);
         }
 
-        $find->update([
+        $findLegal->update([
             "spk_legal_nik" => $request->spk_legal_nik,
             "spk_legal_name" => $request->spk_legal_name,
             "spk_legal_address" => $request->spk_legal_address,
@@ -277,38 +277,38 @@ class SPKController extends Controller
             "spk_legal_no_phone" => $request->spk_legal_no_phone
         ]);
 
-        return $find;
+        return $findLegal;
     }
 
     function updateSpkDocument($spk_id, $request)
     {
         if ($request->hasFile('spk_additional_document_ktp')) {
             $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
-            $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
-            if (!$find) {
+            $findAdditionaDocument = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+            if (!$findAdditionaDocument) {
                 DB::rollBack();
                 throw new \Exception("spk_additional_document ktp not found!", 400);
             }
 
-            $find->update([
+            $findAdditionaDocument->update([
                 "spk_additional_document_ktp" => $imagePathKtp,
             ]);
         }
         if ($request->hasFile('spk_additional_document_kk')) {
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
-            $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
-            if (!$find) {
+            $findAdditionaDocument = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+            if (!$findAdditionaDocument) {
                 DB::rollBack();
                 throw new \Exception("spk_additional_document kk not found!", 400);
             }
-            $find->update([
+            $findAdditionaDocument->update([
                 "spk_additional_document_kk" => $imagePathKK,
             ]);
         }
 
 
 
-        return $find;
+        return $findAdditionaDocument;
     }
 
     function updateSpkDocumentAnother($spk_id, $request)
@@ -330,13 +330,13 @@ class SPKController extends Controller
 
     function updateSpkPricing($spk_id, $request)
     {
-        $find = SpkPricing::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findPricing = SpkPricing::where("spk_id", $spk_id)->first();
+        if (!$findPricing) {
             DB::rollBack();
             throw new \Exception("spk_pricing not found!", 400);
         }
 
-        $find->update([
+        $findPricing->update([
             "spk_pricing_off_the_road" => $request->spk_pricing_off_the_road,
             "spk_pricing_bbn" => $request->spk_pricing_bbn,
             "spk_pricing_on_the_road" => $request->spk_pricing_on_the_road,
@@ -364,7 +364,7 @@ class SPKController extends Controller
 
         ]);
 
-        return $find;
+        return $findPricing;
     }
 
     function updateSpkPricingAccecories($spk_id, $request)
@@ -443,12 +443,12 @@ class SPKController extends Controller
 
     function updateDeliveryKtp($spk_id, $request)
     {
-        $find = SpkDeliveryKtp::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findDeliveryKtp = SpkDeliveryKtp::where("spk_id", $spk_id)->first();
+        if (!$findDeliveryKtp) {
             DB::rollBack();
             throw new \Exception("spk_delivery_ktp not found!", 400);
         }
-        $find->update([
+        $findDeliveryKtp->update([
             "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
             "spk_delivery_ktp_customer_address" => $request->spk_delivery_ktp_customer_address,
             "spk_delivery_ktp_city" => $request->spk_delivery_ktp_city,
@@ -456,58 +456,58 @@ class SPKController extends Controller
             "spk_delivery_ktp_no_telp" => $request->spk_delivery_ktp_no_telp
         ]);
 
-        return $find;
+        return $findDeliveryKtp;
     }
 
     function updateDeliveryNeq($spk_id, $request)
     {
-        $find = SpkDeliveryNeq::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findDeliveryNeq = SpkDeliveryNeq::where("spk_id", $spk_id)->first();
+        if (!$findDeliveryNeq) {
             DB::rollBack();
             throw new \Exception("spk_delivery_neq not found!", 400);
         }
-        $find->update([
+        $findDeliveryNeq->update([
             "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
             "dealer_neq_id" => $request->dealer_delivery_neq_id,
             "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
             "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
         ]);
 
-        return $find;
+        return $findDeliveryNeq;
     }
 
     function updateDeliveryDomicile($spk_id, $request)
     {
-        $find = SpkDeliveryDomicile::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findDeliveryDomicile = SpkDeliveryDomicile::where("spk_id", $spk_id)->first();
+        if (!$findDeliveryDomicile) {
             DB::rollBack();
             throw new \Exception("spk_delivery_domicile not found!", 400);
         }
 
-        $find->update([
+        $findDeliveryDomicile->update([
             "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
             "spk_delivery_domicile_address" => $request->spk_delivery_domicile_address,
             "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
             "spk_delivery_file_sk" => "null"
         ]);
 
-        return $find;
+        return $findDeliveryDomicile;
     }
 
 
     function updateDeliveryDealer($spk_id, $request)
     {
-        $find = SpkDeliveryDealer::where("spk_id", $spk_id)->first();
-        if (!$find) {
+        $findDeliveryDealer = SpkDeliveryDealer::where("spk_id", $spk_id)->first();
+        if (!$findDeliveryDealer) {
             DB::rollBack();
             throw new \Exception("spk_delivery_dealer not found!", 400);
         }
-        $find->update([
+        $findDeliveryDealer->update([
             "spk_delivery_dealer_customer_name" => $request->spk_delivery_dealer_customer_name,
             "spk_delivery_dealer_no_phone" => $request->spk_delivery_dealer_no_phone
         ]);
 
-        return $find;
+        return $findDeliveryDealer;
     }
 
     function createFileSKupdate($createSpkDelivery, $request)
@@ -628,7 +628,7 @@ class SPKController extends Controller
                 $data["file_sk"] = $createFileSK;
             }
 
-            DB::commit();
+            // DB::commit();
 
             return ResponseFormatter::success($data, "Successfully updated SPK !");
         } catch (\Throwable $e) {
