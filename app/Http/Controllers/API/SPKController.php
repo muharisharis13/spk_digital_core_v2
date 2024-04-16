@@ -126,6 +126,10 @@ class SPKController extends Controller
     function updateSpkGeneral($spk_id, $request)
     {
         $find = SpkGeneral::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_general not found!", 400);
+        }
 
         $find->update([
             "indent_id" => $request->indent_id,
@@ -144,7 +148,10 @@ class SPKController extends Controller
     {
         $find = SpkUnit::where("spk_id", $spk_id)->first();
 
-
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_unit not found!", 400);
+        }
 
         $find->update([
             "motor_id" => $request->motor_id,
@@ -157,6 +164,10 @@ class SPKController extends Controller
     function updateSpkTransaction($spk_id, $request)
     {
         $find = SpkTransaction::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_transaction not found!", 400);
+        }
 
         if ($request->spk_transaction_method_payment == "cash") {
             $find->update([
@@ -187,6 +198,10 @@ class SPKController extends Controller
     function updateSpkCustomer($spk_id, $request)
     {
         $find = SpkCustomer::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_customer not found!", 400);
+        }
 
         $find->update([
             "spk_customer_nik" => $request->spk_customer_nik,
@@ -237,6 +252,10 @@ class SPKController extends Controller
     function updateSpkLegal($spk_id, $request)
     {
         $find = SpkLegal::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_legal not found!", 400);
+        }
 
         $find->update([
             "spk_legal_nik" => $request->spk_legal_nik,
@@ -266,6 +285,10 @@ class SPKController extends Controller
         if ($request->hasFile('spk_additional_document_ktp')) {
             $imagePathKtp = $request->file('spk_additional_document_ktp')->store('spk', 'public');
             $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
+            if (!$find) {
+                DB::rollBack();
+                throw new \Exception("spk_additional_document ktp not found!", 400);
+            }
 
             $find->update([
                 "spk_additional_document_ktp" => $imagePathKtp,
@@ -274,7 +297,10 @@ class SPKController extends Controller
         if ($request->hasFile('spk_additional_document_kk')) {
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
             $find = SpkAdditionalDocument::where("spk_id", $spk_id)->first();
-
+            if (!$find) {
+                DB::rollBack();
+                throw new \Exception("spk_additional_document kk not found!", 400);
+            }
             $find->update([
                 "spk_additional_document_kk" => $imagePathKK,
             ]);
@@ -305,6 +331,10 @@ class SPKController extends Controller
     function updateSpkPricing($spk_id, $request)
     {
         $find = SpkPricing::where("spk_id", $spk_id)->first();
+        if (!$find) {
+            DB::rollBack();
+            throw new \Exception("spk_pricing not found!", 400);
+        }
 
         $find->update([
             "spk_pricing_off_the_road" => $request->spk_pricing_off_the_road,
