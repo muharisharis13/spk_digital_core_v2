@@ -247,6 +247,7 @@ Route::prefix("v1")->group(function () {
             Route::prefix("delete")->group(function () {
                 Route::delete("/dcmt-another/{id}", [SPKController::class, "deleteFileDocumentAnother"]);
                 Route::delete("/dcmt-file-sk/{id}", [SPKController::class, "deleteFileDocumentSK"]);
+                Route::delete("/price-accessories/{id}", [SPKController::class, "deletePriceAccessories"]);
                 // Route::delete("/ktp/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKtp"]);
                 // Route::delete("/kk/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKK"]);
             });

@@ -33,6 +33,22 @@ class SPKController extends Controller
 {
     //
 
+    public function deletePriceAccessories(Request $request, $spk_pricing_accecories_id)
+    {
+        try {
+            $find = SpkPricingAccecories::where("spk_pricing_accecories_id", $spk_pricing_accecories_id)->first();
+            DB::beginTransaction();
+
+            $find->delete();
+
+            return
+                ResponseFormatter::success("Berhasil Hapus Pricing Accessories", "Successfully deleted item");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function deleteFileDocumentSK(Request $request, $id)
     {
         try {
@@ -40,6 +56,7 @@ class SPKController extends Controller
             DB::beginTransaction();
 
             $find->delete();
+            DB::commit();
 
             return ResponseFormatter::success("Berhasil Hapus document file SK", "Successfully deleted item");
         } catch (\Throwable $e) {
@@ -55,6 +72,7 @@ class SPKController extends Controller
             DB::beginTransaction();
 
             $find->delete();
+            DB::commit();
 
             return ResponseFormatter::success("Berhasil Hapus document another", "Successfully deleted item");
         } catch (\Throwable $e) {
@@ -73,6 +91,8 @@ class SPKController extends Controller
                 "spk_additional_document_kk" => "NULL"
             ]);
 
+            DB::commit();
+
             return ResponseFormatter::success("Berhasil Hapus document KK", "Successfully deleted item");
         } catch (\Throwable $e) {
             DB::rollback();
@@ -88,6 +108,7 @@ class SPKController extends Controller
             $find->update([
                 "spk_additional_document_ktp" => "NULL"
             ]);
+            DB::commit();
 
             return ResponseFormatter::success("Berhasil Hapus document KTP", "Successfully deleted item");
         } catch (\Throwable $e) {
