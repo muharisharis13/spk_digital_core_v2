@@ -40,6 +40,7 @@ class SPKController extends Controller
             DB::beginTransaction();
 
             $find->delete();
+            DB::commit();
 
             return
                 ResponseFormatter::success("Berhasil Hapus Pricing Accessories", "Successfully deleted item");
