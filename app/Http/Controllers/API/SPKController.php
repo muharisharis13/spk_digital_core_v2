@@ -604,7 +604,12 @@ class SPKController extends Controller
         } catch (\Throwable $e) {
             $statusCode = $e->getCode() === 0 ? 400 : $e->getCode();
             DB::rollback();
-            return ResponseFormatter::error($e->getMessage(), $statusCode == "400" ? "bad request" : "internal server", $statusCode);
+
+            if ($statusCode === 1000) {
+                return ResponseFormatter::error("The HTTP status code \"1000\" is not valid.", "invalid status", $statusCode);
+            }
+
+            return ResponseFormatter::error($e->getMessage(), $statusCode == 400 ? "bad request" : "internal server", $statusCode);
         }
     }
 
