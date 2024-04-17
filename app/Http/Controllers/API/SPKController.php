@@ -734,7 +734,7 @@ class SPKController extends Controller
                 $data["file_sk"] = $createFileSK;
             }
 
-            // DB::commit();
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully updated SPK !");
         } catch (\Throwable $e) {
