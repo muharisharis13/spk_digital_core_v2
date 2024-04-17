@@ -569,8 +569,14 @@ class SPKController extends Controller
     {
         $findDeliveryNeq = SpkDeliveryNeq::where("spk_id", $spk_id)->first();
         if (!$findDeliveryNeq) {
-            DB::rollBack();
-            throw new \Exception("spk_delivery_neq not found!", 400);
+
+            return $findDeliveryNeq = SpkDeliveryNeq::create([
+                "spk_id" => $spk_id,
+                "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+                "dealer_neq_id" => $request->dealer_delivery_neq_id,
+                "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
+                "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
+            ]);
         }
         $findDeliveryNeq->update([
             "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
