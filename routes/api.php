@@ -244,6 +244,11 @@ Route::prefix("v1")->group(function () {
             Route::get("/list", [SPKController::class, "getPaginateSpk"]);
             Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"]);
 
+            Route::prefix("purchase-order")->group(function () {
+                Route::post("/create/{id}", [SPKController::class, "createPurchaseOrder"]);
+                Route::put("/create-act-tac/{id}", [SPKController::class, "updateActualPurchase"]);
+            });
+
             Route::prefix("delete")->group(function () {
                 Route::delete("/dcmt-another/{id}", [SPKController::class, "deleteFileDocumentAnother"]);
                 Route::delete("/dcmt-file-sk/{id}", [SPKController::class, "deleteFileDocumentSK"]);

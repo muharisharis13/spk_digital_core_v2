@@ -22,6 +22,8 @@ use App\Models\SpkLog;
 use App\Models\SpkPricing;
 use App\Models\SpkPricingAccecories;
 use App\Models\SpkPricingAdditional;
+use App\Models\SpkPurchaseOrder;
+use App\Models\SpkPurchaseOrderFile;
 use App\Models\SpkTransaction;
 use App\Models\SpkUnit;
 use Illuminate\Http\Request;
@@ -32,6 +34,110 @@ use Illuminate\Support\Facades\Validator;
 class SPKController extends Controller
 {
     //
+
+    public function updateActualPurchase(Request $request, $spk_purchase_order_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "spk_purchase_order_act_tac" => "required",
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $updatePurchaseOrder = SpkPurchaseOrder::where("spk_purchase_order_id", $spk_purchase_order_id)->first();
+
+            $updatePurchaseOrder->update([
+                "spk_purchase_order_act_tac" => $request->spk_purchase_order_act_tac
+            ]);
+
+            $user = Auth::user();
+
+            //buat spk log
+            $createSPKLog =
+                SpkLog::create([
+                    "spk_log_action" => "update purchase actual order",
+                    "user_id" => $user->user_id,
+                    "spk_id" => $updatePurchaseOrder->spk_id
+                ]);
+
+            $data = [
+                "spk_purchase_order" => $updatePurchaseOrder,
+                "spk_log" => $createSPKLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully updated actual tac !");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function createPurchaseOrder(Request $request, $spk_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "spk_purchase_order_date" => "required",
+                "spk_purchase_order_no" => "required",
+                "spk_purchase_order_type" => "required",
+                "spk_purchase_order_tac" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $createPurchaseOrder = SpkPurchaseOrder::create([
+                "spk_id" => $spk_id,
+                "spk_purchase_order_date" => $request->spk_purchase_order_date,
+                "spk_purchase_order_no" => $request->spk_purchase_order_no,
+                "spk_purchase_order_type" => $request->spk_purchase_order_type,
+                "spk_purchase_order_tac" => $request->spk_purchase_order_tac,
+                "spk_purchase_order_act_tac" => 0
+            ]);
+
+            $createSpkPurchaseOrderFile = [];
+            if ($request->spk_purchase_order_files) {
+                foreach ($request->file("spk_purchase_order_files") as $item) {
+                    $imagePath = $item->store('spk', 'public');
+
+                    $createSpkPurchaseOrderFile[] = SpkPurchaseOrderFile::create([
+                        "spk_purchase_order_id" => $createPurchaseOrder->spk_purchase_order_id,
+                        "spk_purchase_order_file_path" => $imagePath
+                    ]);
+                }
+            }
+            $user = Auth::user();
+
+            //buat spk log
+            $createSPKLog =
+                SpkLog::create([
+                    "spk_log_action" => "create purchase order",
+                    "user_id" => $user->user_id,
+                    "spk_id" => $spk_id
+                ]);
+
+            DB::commit();
+
+            $data = [
+                "spk_purchase_order" => $createPurchaseOrder,
+                "spk_purchase_order_file" => $createSpkPurchaseOrderFile,
+                "spk_log" => $createSPKLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully created !");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function deletePriceAccessories(Request $request, $spk_pricing_accecories_id)
     {
