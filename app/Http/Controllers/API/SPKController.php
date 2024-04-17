@@ -664,7 +664,7 @@ class SPKController extends Controller
     public function updateSpk(Request $request, $spk_id)
     {
         try {
-            $validator  = Validator::make($request->all(), self::validator);
+            $validator  = Validator::make($request->all(), self::validatorUpdate);
             self::isDealerRequired($validator);
             self::isDealerNeqRequired($validator);
             self::spk_transaction_method_payment_credit($validator);
@@ -797,6 +797,142 @@ class SPKController extends Controller
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
+
+    // validator untuk update
+    const validatorUpdate = [
+        "spk_general_location" => "required|in:dealer,neq",
+        "indent_id" => "nullable",
+        "spk_general_date" => "nullable",
+        "sales_name" => "required",
+        "sales_id" => "required",
+        "spk_general_method_sales" => "required",
+        "dealer_id" => "nullable",
+        "dealer_neq_id" => "nullable",
+        "motor_id" => "required",
+        "color_id" => "required",
+        "spk_transaction_method_buying" => "required|in:on_the_road,off_the_road",
+        "spk_transaction_method_payment" => "required|in:cash,credit",
+        "leasing_name" => 'nullable',
+        "leasing_id" => 'nullable',
+        "spk_transaction_down_payment" => "nullable",
+        "spk_transaction_tenor" => "nullable",
+        "spk_transaction_instalment" => "nullable",
+        // "spk_transaction_surveyor_name" => "nullable",
+        "microfinance_name" => "nullable",
+        "micro_finance_id" => "nullable",
+        //spk customer
+        "spk_customer_nik" => "required",
+        "spk_customer_name" => "required",
+        "spk_customer_address" => "required",
+        "province" => "required",
+        "province_id" => "required",
+        "city" => "required",
+        "city_id" => "required",
+        "district" => "required",
+        "district_id" => "required",
+        "sub_district" => "required",
+        "sub_district_id" => "required",
+        "spk_customer_postal_code" => "nullable",
+        "spk_customer_birth_place" => "required",
+        "spk_customer_birth_date" => "required",
+        "spk_customer_gender" => "required|in:man,woman",
+        "spk_customer_telp" => "nullable",
+        "spk_customer_no_phone" => "required",
+        "spk_customer_no_wa" => "nullable",
+        "spk_customer_religion" => "required",
+        "marital_id" => "required",
+        "marital_name" => "required",
+        "hobbies_id" => "nullable",
+        "hobbies_name" => "nullable",
+        "spk_customer_mother_name" => "nullable",
+        "spk_customer_npwp" => 'nullable',
+        "spk_customer_email" => "nullable",
+        "residence_id" => "required",
+        "education_id" => "required",
+        "work_id" => "required",
+        "residence_name" => "required",
+        "education_name" => "required",
+        "work_name" => "required",
+        "spk_customer_length_of_work" => "nullable",
+        "spk_customer_income" => "required",
+        "spk_customer_outcome" => "required",
+        "motor_brand_id" => "nullable",
+        "motor_brand_name" => "nullable",
+        "spk_customer_motor_type_before" => "nullable",
+        "spk_customer_motor_year_before" => "nullable",
+
+        // spk legal
+        "spk_legal_nik" => "required",
+        "spk_legal_name" => "required",
+        "spk_legal_address" => "required",
+        "spk_legal_province" => "required",
+        "spk_legal_province_id" => "required",
+        "spk_legal_city" => "required",
+        "spk_legal_city_id" => "required",
+        "spk_legal_district" => "required",
+        "spk_legal_district_id" => "required",
+        "spk_legal_sub_district" => "required",
+        "spk_legal_sub_district_id" => "required",
+        "spk_legal_postal_code" => "nullable",
+        "spk_legal_birth_place" => "required",
+        "spk_legal_birth_date" => "required",
+        "spk_legal_gender" => "required|in:man,woman",
+        "spk_legal_telp" => "nullable",
+        "spk_legal_no_phone" => "required",
+
+        //spk document
+
+        "spk_additional_document_ktp" => "nullable|mimes:png,jpg,pdf|max:5120",
+        "spk_additional_document_kk" => "nullable|mimes:png,jpg,pdf|max:5120",
+        "spk_additional_document_another.*" => 'nullable|mimes:jpg,png,pdf|max:5120',
+
+
+        //spk pricing
+
+        "spk_pricing_off_the_road" => "required",
+        "spk_pricing_bbn" => "required",
+        "spk_pricing_on_the_road" => "required",
+        "spk_pricing_indent_nominal" => "nullable",
+        "spk_pricing_discount" => "nullable",
+        "spk_pricing_subsidi" => "nullable",
+        "spk_pricing_booster" => "nullable",
+        "spk_pricing_commission" => "nullable",
+        "spk_pricing_commission_surveyor" => "nullable",
+        "broker_id" => "nullable",
+        "spk_pricing_broker_name" => "nullable",
+        "spk_pricing_broker_commission" => "nullable",
+        "spk_pricing_cashback" => "nullable",
+        "spk_pricing_delivery_cost" => "nullable",
+        "spk_pricing_on_the_road_note" => "nullable",
+        "spk_pricing_indent_note" => "nullable",
+        "spk_pricing_discount_note" => "nullable",
+        "spk_pricing_subsidi_note" => "nullable",
+        "spk_pricing_booster_note" => "nullable",
+        "spk_pricing_commission_note" => "nullable",
+        "spk_pricing_surveyor_commission_note" => "nullable",
+        "spk_pricing_broker_note" => "nullable",
+        "spk_pricing_broker_commission_note" => "nullable",
+        "spk_pricing_cashback_note" => "nullable",
+        "spk_pricing_delivery_cost_note" => "nullable",
+
+
+
+        //spk accecories
+
+        "spk_pricing_accecories_price" => "nullable|array",
+        "spk_pricing_accecories_price.*.price" => "nullable",
+        "spk_pricing_accecories_price.*.note" => "nullable",
+
+        //spk accecories additional
+
+        "spk_pricing_additional_price" => "nullable|array",
+        "spk_pricing_additional_price.*.price" => "nullable",
+        "spk_pricing_additional_price.*.note" => "nullable",
+
+        //spk delivery
+        "spk_delivery_type" => "required|in:ktp,neq,domicile,dealer"
+
+    ];
 
     const validator = [
         "spk_general_location" => "required|in:dealer,neq",
