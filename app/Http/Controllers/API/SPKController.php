@@ -551,59 +551,72 @@ class SPKController extends Controller
     {
         $findDeliveryKtp = SpkDeliveryKtp::where("spk_id", $spk_id)->first();
         if (!$findDeliveryKtp) {
-            DB::rollBack();
-            throw new \Exception("spk_delivery_ktp not found!", 400);
-        }
-        $findDeliveryKtp->update([
-            "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
-            "spk_delivery_ktp_customer_address" => $request->spk_delivery_ktp_customer_address,
-            "spk_delivery_ktp_city" => $request->spk_delivery_ktp_city,
-            "spk_delivery_ktp_no_phone" => $request->spk_delivery_ktp_no_phone,
-            "spk_delivery_ktp_no_telp" => $request->spk_delivery_ktp_no_telp
-        ]);
+            return SpkDeliveryKtp::create([
+                "spk_id" => $spk_id, "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+                "spk_delivery_ktp_customer_address" => $request->spk_delivery_ktp_customer_address,
+                "spk_delivery_ktp_city" => $request->spk_delivery_ktp_city,
+                "spk_delivery_ktp_no_phone" => $request->spk_delivery_ktp_no_phone,
+                "spk_delivery_ktp_no_telp" => $request->spk_delivery_ktp_no_telp
 
-        return $findDeliveryKtp;
+            ]);
+        } else {
+
+            $findDeliveryKtp->update([
+                "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+                "spk_delivery_ktp_customer_address" => $request->spk_delivery_ktp_customer_address,
+                "spk_delivery_ktp_city" => $request->spk_delivery_ktp_city,
+                "spk_delivery_ktp_no_phone" => $request->spk_delivery_ktp_no_phone,
+                "spk_delivery_ktp_no_telp" => $request->spk_delivery_ktp_no_telp
+            ]);
+
+            return $findDeliveryKtp;
+        }
     }
 
     function updateDeliveryNeq($spk_id, $request)
     {
         $findDeliveryNeq = SpkDeliveryNeq::where("spk_id", $spk_id)->first();
-        if (!$findDeliveryNeq) {
-
-            return $findDeliveryNeq = SpkDeliveryNeq::create([
-                "spk_id" => $spk_id,
-                "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
+        if (!isset($findDeliveryNeq->spk_id)) {
+            $createNew =
+                SpkDeliveryNeq::create([
+                    "spk_id" => $spk_id,
+                    "dealer_neq_id" => $request->dealer_delivery_neq_id,
+                    "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
+                    "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
+                ]);
+            return $createNew;
+        } else {
+            $findDeliveryNeq->update([
                 "dealer_neq_id" => $request->dealer_delivery_neq_id,
                 "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
                 "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
             ]);
-        }
-        $findDeliveryNeq->update([
-            "spk_delivery_ktp_customer_name" => $request->spk_delivery_ktp_customer_name,
-            "dealer_neq_id" => $request->dealer_delivery_neq_id,
-            "dealer_delivery_neq_customer_name" => $request->dealer_delivery_neq_customer_name,
-            "dealer_delivery_neq_customer_no_phone" => $request->dealer_delivery_neq_customer_no_phone,
-        ]);
 
-        return $findDeliveryNeq;
+            return $findDeliveryNeq;
+        }
     }
 
     function updateDeliveryDomicile($spk_id, $request)
     {
         $findDeliveryDomicile = SpkDeliveryDomicile::where("spk_id", $spk_id)->first();
         if (!$findDeliveryDomicile) {
-            DB::rollBack();
-            throw new \Exception("spk_delivery_domicile not found!", 400);
+            return SpkDeliveryDomicile::create([
+                "spk_id" => $spk_id,
+                "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
+                "spk_delivery_domicile_address" => $request->spk_delivery_domicile_address,
+                "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
+                "spk_delivery_file_sk" => "null"
+            ]);
+        } else {
+            $findDeliveryDomicile->update([
+                "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
+                "spk_delivery_domicile_address" => $request->spk_delivery_domicile_address,
+                "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
+                "spk_delivery_file_sk" => "null"
+            ]);
+
+            return $findDeliveryDomicile;
         }
-
-        $findDeliveryDomicile->update([
-            "spk_delivery_domicile_customer_name" => $request->spk_delivery_domicile_customer_name,
-            "spk_delivery_domicile_address" => $request->spk_delivery_domicile_address,
-            "spk_delivery_domicile_city" => $request->spk_delivery_domicile_city,
-            "spk_delivery_file_sk" => "null"
-        ]);
-
-        return $findDeliveryDomicile;
     }
 
 
@@ -611,15 +624,19 @@ class SPKController extends Controller
     {
         $findDeliveryDealer = SpkDeliveryDealer::where("spk_id", $spk_id)->first();
         if (!$findDeliveryDealer) {
-            DB::rollBack();
-            throw new \Exception("spk_delivery_dealer not found!", 400);
-        }
-        $findDeliveryDealer->update([
-            "spk_delivery_dealer_customer_name" => $request->spk_delivery_dealer_customer_name,
-            "spk_delivery_dealer_no_phone" => $request->spk_delivery_dealer_no_phone
-        ]);
+            return SpkDeliveryDealer::create([
+                "spk_id" => $spk_id,
+                "spk_delivery_dealer_customer_name" => $request->spk_delivery_dealer_customer_name,
+                "spk_delivery_dealer_no_phone" => $request->spk_delivery_dealer_no_phone
+            ]);
+        } else {
+            $findDeliveryDealer->update([
+                "spk_delivery_dealer_customer_name" => $request->spk_delivery_dealer_customer_name,
+                "spk_delivery_dealer_no_phone" => $request->spk_delivery_dealer_no_phone
+            ]);
 
-        return $findDeliveryDealer;
+            return $findDeliveryDealer;
+        }
     }
 
     function createFileSKupdate($createSpkDelivery, $request)
@@ -647,18 +664,18 @@ class SPKController extends Controller
     public function updateSpk(Request $request, $spk_id)
     {
         try {
-            // $validator  = Validator::make($request->all(), self::validator);
-            // self::isDealerRequired($validator);
-            // self::isDealerNeqRequired($validator);
-            // self::spk_transaction_method_payment_credit($validator);
-            // self::spk_transaction_method_payment_cash($validator);
-            // self::isSelectedSpkDeliveryKtp($validator);
-            // self::isSelectedSpkDeliveryNeq($validator);
-            // self::isSelectedSpkDeliveryDomicile($validator);
-            // self::isSelectedSpkDeliveryDealer($validator);
-            // if ($validator->fails()) {
-            //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-            // }
+            $validator  = Validator::make($request->all(), self::validator);
+            self::isDealerRequired($validator);
+            self::isDealerNeqRequired($validator);
+            self::spk_transaction_method_payment_credit($validator);
+            self::spk_transaction_method_payment_cash($validator);
+            self::isSelectedSpkDeliveryKtp($validator);
+            self::isSelectedSpkDeliveryNeq($validator);
+            self::isSelectedSpkDeliveryDomicile($validator);
+            self::isSelectedSpkDeliveryDealer($validator);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
 
             $user = Auth::user();
             DB::beginTransaction();
@@ -703,6 +720,7 @@ class SPKController extends Controller
             $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
 
             //buat spk delivery berdasarkan type
+            $createSPKDelivery = null;
             if ($request->spk_delivery_type === "ktp") {
                 $createSPKDelivery = self::updateDeliveryKtp($spk_id, $request);
             }
