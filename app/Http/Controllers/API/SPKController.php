@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\UnitStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -26,6 +27,8 @@ use App\Models\SpkPurchaseOrder;
 use App\Models\SpkPurchaseOrderFile;
 use App\Models\SpkTransaction;
 use App\Models\SpkUnit;
+use App\Models\Unit;
+use App\Models\UnitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +37,176 @@ use Illuminate\Support\Facades\Validator;
 class SPKController extends Controller
 {
     //
+
+    public function addCRO(Request $request, $spk_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "is_cro_check" => "nullable",
+                "spk_cro_check_note" => "nullable"
+            ]);
+
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getSpk = Spk::where("spk_id", $spk_id)->first();
+
+
+            $getSpk->update([
+                "is_cro_check" => $request->is_cro_check,
+                "spk_cro_check_note" => $request->spk_cro_check_note
+            ]);
+
+
+            $user = Auth::user();
+
+
+            //buat spk log
+            $createSPKLog =
+                SpkLog::create([
+                    "spk_log_action" => "add CRO SPK",
+                    "user_id" => $user->user_id,
+                    "spk_id" => $spk_id
+                ]);
+
+
+            $data = [
+                "spk" => $getSpk,
+                "spk_log" => $createSPKLog
+            ];
+
+            DB::commit();
+
+
+            return ResponseFormatter::success($data, "Successfully add CRO Check");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function addShipment(Request $request, $spk_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "unit_id" => "required|uuid"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+            DB::beginTransaction();
+
+            $getSpkUnit = SpkUnit::where("spk_id", $spk_id)->first();
+
+            $getSpkUnit->update([
+                "unit_id" => $request->unit_id
+            ]);
+
+            $user = Auth::user();
+
+            // update status unit menjadi spk
+
+            $updateUnit = Unit::where("unit_id", $request->unit_id)->first();
+
+            $updateUnit->update([
+                "unit_status" => UnitStatusEnum::spk
+            ]);
+
+            //create log unit
+            $createUnitLog = UnitLog::create([
+                "unit_id" => $request->unit_id,
+                "user_id" => $user->user_id,
+                "unit_log_number" => "NULL",
+                "unit_log_action" => "update status to SPK",
+                "unit_log_status" => UnitStatusEnum::spk
+            ]);
+
+
+
+
+            //buat spk log
+            $createSPKLog =
+                SpkLog::create([
+                    "spk_log_action" => "add shipment SPK",
+                    "user_id" => $user->user_id,
+                    "spk_id" => $spk_id
+                ]);
+
+            // DB::commit();
+
+            $data = [
+                "spk_unit" => $getSpkUnit,
+                "spk_log" => $createSPKLog,
+                "unit" => $updateUnit,
+                "unit_log" => $createUnitLog
+            ];
+
+            return
+                ResponseFormatter::success($data, "Successfully add shipment");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function updateStatusSpk(Request $request, $spk_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "spk_status" => "required|in:finance_check,cancel"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+            DB::beginTransaction();
+
+            $getSpk = Spk::where("spk_id", $spk_id)->first();
+
+            if ($getSpk->spk_status === "finance_check" && $request->spk_status === "cancel") {
+                $getSpk->update([
+                    "spk_status" => $request->spk_status
+                ]);
+            } else {
+                $getSpk->update([
+                    "spk_status" => $request->spk_status
+                ]);
+            }
+
+            $user = Auth::user();
+
+
+            //buat spk log
+            $createSPKLog =
+                SpkLog::create([
+                    "spk_log_action" => "update status SPK",
+                    "user_id" => $user->user_id,
+                    "spk_id" => $spk_id
+                ]);
+
+            $data = [
+                "spk" => $getSpk,
+                "spk_log" => $createSPKLog
+            ];
+
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully update Status");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function updateActualPurchase(Request $request, $spk_purchase_order_id)
     {
@@ -71,6 +244,48 @@ class SPKController extends Controller
             ];
 
             return ResponseFormatter::success($data, "Successfully updated actual tac !");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+
+    public function deletePurchaseOrder(
+        Request $request,
+        $spk_purchase_order_id
+    ) {
+        try {
+
+            DB::beginTransaction();
+            $getSpkPo = SpkPurchaseOrder::where("spk_purchase_order_id", $spk_purchase_order_id)->first();
+
+
+            //delete file purchase order
+            SpkPurchaseOrderFile::where("spk_purchase_order_id", $getSpkPo->spk_purchase_order_id)->delete();
+
+
+            $user = Auth::user();
+
+            //buat spk log
+            $createSPKLog =
+                SpkLog::create([
+                    "spk_log_action" => "reset purchase order",
+                    "user_id" => $user->user_id,
+                    "spk_id" => $getSpkPo->spk_id
+                ]);
+
+            $getSpkPo->delete();
+
+            DB::commit();
+            $data = [
+                "spk_purchase_order" => $getSpkPo,
+                "spk_log" => $createSPKLog
+            ];
+
+
+            return
+                ResponseFormatter::success($data, "Successfully reset !");
         } catch (\Throwable $e) {
             DB::rollback();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);

@@ -75,6 +75,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/motor", [Master::class, "getListPaginateMotor"]);
             Route::get("/dealer-neq", [Master::class, "getListDealerNeq"]);
             Route::get("/mds", [Master::class, "getListDealerMDS"]);
+            Route::get("/dealer-selected", [Master::class, "getListDealerSelected"]);
             Route::get("/location-current", [Master::class, "getListLocationByUserLogin"]);
             Route::get("/main-dealer", [Master::class, "GelistPaginateMainDealer"]);
 
@@ -243,10 +244,14 @@ Route::prefix("v1")->group(function () {
             Route::post("/update/{spk_id}", [SPKController::class, "updateSpk"]);
             Route::get("/list", [SPKController::class, "getPaginateSpk"]);
             Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"]);
+            Route::put("/status/{spk_id}", [SPKController::class, "updateStatusSpk"]);
+            Route::post("/shipment/{spk_id}", [SPKController::class, "addShipment"]);
+            Route::post("/cro/{spk_id}", [SPKController::class, "addCRO"]);
 
             Route::prefix("purchase-order")->group(function () {
                 Route::post("/create/{id}", [SPKController::class, "createPurchaseOrder"]);
                 Route::put("/create-act-tac/{id}", [SPKController::class, "updateActualPurchase"]);
+                Route::delete("/delete/{id}", [SPKController::class, "deletePurchaseOrder"]);
             });
 
             Route::prefix("delete")->group(function () {

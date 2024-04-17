@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid("dealer_id")->nullable();
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
             $table->string("spk_status"); //create . finance check . spk
-            $table->enum("is_cro_check", [true, false])->nullable()->default(null);
+            $table->enum("is_cro_check", ['1', '0'])->nullable()->default(null);
             $table->text("spk_cro_check_note")->nullable();
             $table->timestamps();
         });

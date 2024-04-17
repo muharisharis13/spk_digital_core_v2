@@ -381,14 +381,32 @@ class Master extends Controller
         }
     }
 
+    public function getListDealerSelected(Request $request)
+    {
+        try {
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'asc');
+
+            $user = Auth::user();
+
+            $getListAllDealerSelected = DealerByUser::where("user_id", $user->user_id)->with(["dealer"])->orderBy($sortBy, $sortOrder)->get();
+
+            return ResponseFormatter::success($getListAllDealerSelected);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function getListDealerMDS(Request $request)
     {
         try {
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'asc');
 
-            $getListAllDealer = DealerByUser::with(["dealer"])
-                ->orderBy($sortBy, $sortOrder)->get();
+
+
+            // $getListAllDealer = DealerByUser::with(["dealer"])
+            $getListAllDealer = Dealer::orderBy($sortBy, $sortOrder)->get();
 
             return ResponseFormatter::success($getListAllDealer);
         } catch (\Throwable $e) {
