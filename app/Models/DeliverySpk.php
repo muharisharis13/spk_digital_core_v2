@@ -6,15 +6,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SpkLog extends Model
+class DeliverySpk extends Model
 {
     use HasFactory, HasUuids;
     protected $guarded = [];
 
-    protected $primaryKey = "spk_log_id";
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, "user_id");
-    }
+    protected $primaryKey = "delivery_spk_id";
 }
