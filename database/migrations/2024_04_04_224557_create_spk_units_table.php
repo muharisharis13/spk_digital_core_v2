@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign("spk_id")->references("spk_id")->on("spks")->onDelete("set null");
             $table->uuid("unit_id")->nullable();
             $table->foreign("unit_id")->references("unit_id")->on("unit")->onDelete("set null");
+            $table->string("spk_uniit_year");
             $table->timestamps();
         });
     }

@@ -94,7 +94,8 @@ class SPKController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "unit_id" => "required|uuid"
+                "unit_id" => "required|uuid",
+                "unit_year" => "required"
             ]);
 
             if ($validator->fails()) {
@@ -107,7 +108,8 @@ class SPKController extends Controller
             $getSpkUnit = SpkUnit::where("spk_id", $spk_id)->first();
 
             $getSpkUnit->update([
-                "unit_id" => $request->unit_id
+                "unit_id" => $request->unit_id,
+                "spk_unit_year" => $request->unit_year
             ]);
 
             $user = Auth::user();
@@ -140,7 +142,7 @@ class SPKController extends Controller
                     "spk_id" => $spk_id
                 ]);
 
-            // DB::commit();
+            DB::commit();
 
             $data = [
                 "spk_unit" => $getSpkUnit,
