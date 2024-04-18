@@ -137,6 +137,11 @@ class SPKController extends Controller
 
             DB::beginTransaction();
 
+            //update status spk
+            Spk::where("spk_id", $spk_id)->update([
+                "spk_status" => "spk"
+            ]);
+
             $getSpkUnit = SpkUnit::where("spk_id", $spk_id)->first();
 
             $getSpkUnit->update([

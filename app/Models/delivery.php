@@ -51,4 +51,8 @@ class delivery extends Model
     {
         return $this->hasOne(DeliveryNeqReturn::class, "delivery_id", "delivery_id");
     }
+    public function delivery_spk()
+    {
+        return $this->hasOne(DeliverySpk::class, "delivery_id", "delivery_id");
+    }
 }

@@ -12,4 +12,14 @@ class DeliverySpk extends Model
     protected $guarded = [];
 
     protected $primaryKey = "delivery_spk_id";
+
+    public function delivery()
+    {
+        return $this->belongsTo(delivery::class, "delivery_id");
+    }
+
+    public function spk()
+    {
+        return $this->belongsTo(Spk::class, "spk_id");
+    }
 }

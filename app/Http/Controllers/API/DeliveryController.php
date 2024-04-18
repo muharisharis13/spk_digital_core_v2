@@ -18,6 +18,7 @@ use App\Models\DeliveryNeq;
 use App\Models\DeliveryNeqReturn;
 use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
+use App\Models\DeliverySpk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -136,6 +137,9 @@ class DeliveryController extends Controller
                 case "neq_return":
                     $getDetailDelivery->load("delivery_neq_return.neq_return.neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.neq_return.dealer_neq");
                     break;
+                case "spk":
+                    $getDetailDelivery->load("delivery_spk.spk.spk_unit.unit.motor");
+                    break;
             }
 
 
@@ -205,6 +209,8 @@ class DeliveryController extends Controller
                 $getPaginateDelivery =    $getPaginateDelivery->with(["delivery_neq.neq.neq_unit"]);
             } else if ($delivery_type === 'neq_return') {
                 $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_neq_return.neq_return.neq_return_unit"]);
+            } else if ($delivery_type === 'spk') {
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_spk.spk.spk_unit"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);
@@ -299,6 +305,8 @@ class DeliveryController extends Controller
                 $deliveryType = DeliveryTypeEnum::neq;
             } elseif ($request->neq_return_id) {
                 $deliveryType = DeliveryTypeEnum::neq_return;
+            } elseif ($request->spk_id) {
+                $deliveryType = DeliveryTypeEnum::spk;
             }
 
             DB::beginTransaction();
@@ -365,6 +373,12 @@ class DeliveryController extends Controller
                     "delivery_id" => $createDelivery->delivery_id
                 ]);
                 $data["deliver_neq_return"] = $createDeliverNeqReturn;
+            } else if (isset($request->spk_id)) {
+                $createDeliverySpk = DeliverySpk::create([
+                    "spk_id" => $request->spk_id,
+                    "delivery_id" => $createDelivery->delivery_id
+                ]);
+                $data["deliver_spk"] = $createDeliverySpk;
             }
 
 
