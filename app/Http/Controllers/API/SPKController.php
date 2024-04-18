@@ -242,6 +242,7 @@ class SPKController extends Controller
                 "spk_purchase_order" => $updatePurchaseOrder,
                 "spk_log" => $createSPKLog
             ];
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully updated actual tac !");
         } catch (\Throwable $e) {
