@@ -38,6 +38,38 @@ class SPKController extends Controller
 {
     //
 
+    public function deleteSPK(Request $request, $spk_id)
+    {
+        try {
+            DB::beginTransaction();
+
+            Spk::where("spk_id", $spk_id)->delete();
+            SpkAdditionalDocument::where("spk_id")->delete();
+            SpkAdditionalDocumentAnother::where("spk_id", $spk_id)->delete();
+            SpkCustomer::where("spk_id", $spk_id)->delete();
+            SpkDeliveryDealer::where("spk_id", $spk_id)->delete();
+            SpkDeliveryDomicile::where("spk_id", $spk_id)->delete();
+            SpkDeliveryKtp::where("spk_id", $spk_id)->delete();
+            SpkDeliveryNeq::where("spk_id", $spk_id)->delete();
+            SpkGeneral::where("spk_id", $spk_id)->delete();
+            SpkLegal::where("spk_id", $spk_id)->delete();
+            SpkLog::where("spk_id", $spk_id)->delete();
+            SpkPricing::where("spk_id", $spk_id)->delete();
+            SpkPricingAccecories::where("spk_id", $spk_id)->delete();
+            SpkPricingAdditional::where("spk_id", $spk_id)->delete();
+            SpkPurchaseOrder::where("spk_id", $spk_id)->delete();
+            SpkTransaction::where("spk_id", $spk_id)->delete();
+            SpkUnit::where("spk_id", $spk_id)->delete();
+
+            DB::commit();
+
+            return ResponseFormatter::success("Berhasil Hapus");
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function addCRO(Request $request, $spk_id)
     {
         try {

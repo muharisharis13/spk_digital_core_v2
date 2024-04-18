@@ -242,6 +242,7 @@ Route::prefix("v1")->group(function () {
         Route::prefix("spk")->group(function () {
             Route::post("/create", [SPKController::class, "createSPK"]);
             Route::post("/update/{spk_id}", [SPKController::class, "updateSpk"]);
+            Route::delete("/delete/{spk_id}", [SPKController::class, "deleteSPK"]);
             Route::get("/list", [SPKController::class, "getPaginateSpk"]);
             Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"]);
             Route::put("/status/{spk_id}", [SPKController::class, "updateStatusSpk"]);
