@@ -1044,7 +1044,54 @@ class SPKController extends Controller
     {
         try {
             $limit = $request->input("limit", 5);
+            $q = $request->input("q");
+            $sales_name = $request->input("sales_name");
+            $spk_transaction_method_payment = $request->input("spk_transaction_method_payment");
+            $motor_name = $request->input("motor_name");
+            $spk_status = $request->input("spk_status");
+            $spk_general_location = $request->input("spk_general_location");
+            $dealer_id = $request->input("dealer_id");
+            $dealer_neq_id = $request->input("dealer_neq_id");
+
+
+
             $getPaginate = Spk::latest()
+                ->where("spk_status", "LIKE", "%$spk_status%")
+                ->whereHas("spk_general", function ($query) use ($sales_name) {
+                    return $query->where("sales_name", "LIKE", "%$sales_name%");
+                })
+                ->whereHas("spk_transaction", function ($query) use ($spk_transaction_method_payment) {
+                    return $query->where("spk_transaction_method_payment", "LIKE", "%$spk_transaction_method_payment%");
+                })
+                ->whereHas("spk_unit", function ($query) use ($motor_name) {
+                    return $query->whereHas("motor", function ($queryMotor) use ($motor_name) {
+                        return $queryMotor->where("motor_name", "LIKE", "%$motor_name%");
+                    });
+                })
+                ->whereHas("spk_general", function ($query) use ($spk_general_location) {
+                    return $query->where("dealer_id", "LIKE", "%$spk_general_location%")
+                        ->orWhere("dealer_neq_id", "LIKE", "%$spk_general_location%");
+                })
+                ->when($q, function ($query) use ($q) {
+                    return $query->where("spk_number", "LIKE", "%$q%")
+                        ->orWhereHas("spk_transaction", function ($queryTransaction) use ($q) {
+                            return $queryTransaction->where("spk_transaction_method_payment", "LIKE", "%$q%");
+                        })
+                        ->orWhereHas("spk_customer", function ($queryCustomer) use ($q) {
+                            return $queryCustomer->where("spk_customer_name", "LIKE", "%$q%");
+                        })
+                        ->orWhereHas("spk_unit", function ($queryMotor) use ($q) {
+                            return $queryMotor->whereHas("motor", function ($queryMotor2) use ($q) {
+                                return $queryMotor2->where("motor_name", "LIKE", "%$q%");
+                            })
+                                ->orWhereHas("unit", function ($queryUnit) use ($q) {
+                                    return $queryUnit->where("unit_frame", "LIKE", "%$q%");
+                                });
+                        })
+                        ->orWhereHas("spk_general", function ($query) use ($q) {
+                            return $query->where("sales_name", "LIKE", "%$q%");
+                        });
+                })
                 ->paginate($limit);
 
             return ResponseFormatter::success($getPaginate);
