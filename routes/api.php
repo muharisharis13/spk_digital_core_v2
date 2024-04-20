@@ -53,8 +53,13 @@ Route::prefix("v1")->group(function () {
 
     Route::middleware("auth:sanctum")->group(function () {
 
+        Route::prefix("permissions")->group(function () {
+            Route::get("/list", [UserController::class, "getPermissionAttribute"]);
+        });
+
         Route::prefix("user")->group(function () {
             Route::post("/assign-permission", [UserController::class, "assignPermission"]);
+            Route::get("/user-permission", [UserController::class, "getPermissionUser"]);
             Route::post("/logout", [UserController::class, "logout"]);
         });
 
@@ -69,6 +74,11 @@ Route::prefix("v1")->group(function () {
             Route::get("/list", [UnitContoller::class, "getListPaginateUnit"]);
             // ->middleware('permission:read_unit');
             Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"]);
+
+            Route::prefix("pricelist")->group(function () {
+                Route::post("/create", [UnitContoller::class, "addPrice"]);
+                Route::get("/list", [UnitContoller::class, "getListPriceList"]);
+            });
         });
 
         Route::prefix("master")->group(function () {

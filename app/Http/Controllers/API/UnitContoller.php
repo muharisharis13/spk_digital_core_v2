@@ -7,13 +7,70 @@ use App\Enums\NeqStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\PricelistMotor;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class UnitContoller extends Controller
 {
     //
+
+
+    public function getListPriceList(Request $request)
+    {
+        try {
+            $getListPriceListt = PricelistMotor::latest()->get();
+
+
+            return ResponseFormatter::success($getListPriceListt);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function addPrice(Request $request,)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "motor_id" => "required",
+                "off_the_road" => "required",
+                "bbn" => "required",
+                "pricelist_location_type" => "required|in:neq,dealer",
+            ]);
+
+            $validator->sometimes(["dealer_id", "dealer_neq_id"], "required", function ($input) {
+                return $input->pricelist_location_type === 'neq';
+            });
+            $validator->sometimes(["dealer_id"], "required", function ($input) {
+                return $input->pricelist_location_type === 'dealer';
+            });
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $createPriceList = PricelistMotor::create([
+                "motor_id" => $request->motor_id,
+                "off_the_road" => $request->off_the_road,
+                "bbn" => $request->bbn,
+                "pricelist_location_type" => $request->pricelist_location_type,
+                "dealer_id" => $request->dealer_id,
+                "dealer_neq_id" => $request->dealer_neq_id
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($createPriceList, "Successfully createtd pricelist");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function getDetailUnit(Request $request, $unit_id)
     {

@@ -4,14 +4,41 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\ModelHasPermission;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
 {
     //
+
+    public function getPermissionAttribute()
+    {
+        try {
+            $allPermission =  Permission::latest()->get();
+
+            return ResponseFormatter::success($allPermission);
+        } catch (\Throwable $e) {
+
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+
+    public function getPermissionUser(Request $request)
+    {
+        try {
+            $getPermissionUser = User::with("permissions")->latest()->get();
+
+
+            return ResponseFormatter::success($getPermissionUser);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function logout(Request $request)
     {
