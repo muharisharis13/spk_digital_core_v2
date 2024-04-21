@@ -31,4 +31,9 @@ class SpkGeneral extends Model
     {
         return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
     }
+
+    public function spk()
+    {
+        return $this->belongsTo(Spk::class, "spk_id");
+    }
 }

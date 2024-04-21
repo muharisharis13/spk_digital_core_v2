@@ -302,7 +302,7 @@ class IndentController extends Controller
         try {
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
-                ->with(["motor", "color", "indent_log.user", "indent_payment.bank", "indent_payment_refund"])
+                ->with(["motor", "color", "indent_log.user", "indent_payment.bank", "indent_payment_refund", "spk_general.spk"])
                 ->first();
 
 
@@ -335,7 +335,7 @@ class IndentController extends Controller
             $searchQuery = $request->input("q");
 
             $getPaginateIndent = Indent::latest()
-                ->with(["motor", "color"])
+                ->with(["motor", "color", "spk_general.spk"])
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->when($indentStatus, function ($query) use ($indentStatus) {
                     $query->where("indent_status", $indentStatus);

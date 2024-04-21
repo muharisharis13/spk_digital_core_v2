@@ -49,4 +49,9 @@ class Indent extends Model
     {
         return $this->belongsTo(Dealer::class, "dealer_id");
     }
+
+    public function spk_general()
+    {
+        return $this->hasOne(SpkGeneral::class, "indent_id");
+    }
 }
