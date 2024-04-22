@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\DealerByUser;
 use App\Models\ModelHasPermission;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -73,6 +74,28 @@ class UserController extends Controller
             }
 
             return ResponseFormatter::success("Permission assigned successfully");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function selectDealerByUser($dealer_by_user_id)
+    {
+        try {
+            $user = Auth::user();
+            $getPreviousDealerByUser = DealerByUser::where("user_id", $user->user_id)->first();
+            $getPreviousDealerByUser->update([
+                'isSelected' => false
+            ]);
+            $getDealer = DealerByUser::with(['dealer'])->where('dealer_by_user_id', $dealer_by_user_id)->first();
+            if ($getDealer) {
+                $getDealer->update(([
+                    'isSelected' => true
+                ]));
+            } else {
+                return ResponseFormatter::error('Dealer by User not found', "Bad Request", 400);
+            }
+            return ResponseFormatter::success($getDealer);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }

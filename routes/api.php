@@ -61,6 +61,7 @@ Route::prefix("v1")->group(function () {
             Route::post("/assign-permission", [UserController::class, "assignPermission"]);
             Route::get("/user-permission", [UserController::class, "getPermissionUser"]);
             Route::post("/logout", [UserController::class, "logout"]);
+            Route::put("/select-dealer/{dealer_by_user_id}", [UserController::class, "selectDealerByUser"]);
         });
 
         Route::prefix("shipping-order")->group(function () {
