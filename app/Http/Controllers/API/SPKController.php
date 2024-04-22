@@ -20,6 +20,10 @@ use App\Models\SpkDeliveryNeq;
 use App\Models\SpkGeneral;
 use App\Models\SpkLegal;
 use App\Models\SpkLog;
+use App\Models\SpkPayment;
+use App\Models\SpkPaymentList;
+use App\Models\SpkPaymentListImage;
+use App\Models\SpkPaymentLog;
 use App\Models\SpkPricing;
 use App\Models\SpkPricingAccecories;
 use App\Models\SpkPricingAdditional;
@@ -37,6 +41,209 @@ use Illuminate\Support\Facades\Validator;
 class SPKController extends Controller
 {
     //
+
+    public function addSpkPayment(Request $request, $spk_payment_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "spk_payment_img" => "nullable|array",
+                "spk_payment_img.*.img" => "required|mimes:png,jpg,pdf|max:5120",
+                "spk_payment_list_method" => "required",
+                "spk_payment_list_amount" => "required|integer",
+                "spk_payment_list_note" => "nullable",
+                "spk_payment_list_date" => "required"
+            ]);
+
+            $validator->sometimes(["bank_id",], 'required', function ($input) {
+                return $input->spk_payment_list_method == 'bank_transfer';
+            });
+            $validator->sometimes(["bank_id",], 'required', function ($input) {
+                return $input->spk_payment_list_method == 'giro';
+            });
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            if ($request->spk_payment_list_method == "cash" && isset($request->bank_id)) {
+                DB::rollBack();
+                return
+                    ResponseFormatter::error("Please Delete bank id for payment method cash", "Bad Request", 400);
+            }
+
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            // create payment
+
+            $createPayment = SpkPaymentList::create([
+                "spk_payment_id" => $spk_payment_id,
+                "spk_payment_list_method" => $request->spk_payment_list_method,
+                "bank_id" => $request->bank_id,
+                "spk_payment_list_amount" => $request->spk_payment_list_amount,
+                "spk_payment_list_date" => $request->spk_payment_list_date,
+                "spk_payment_list_note" => $request->spk_payment_list_note,
+                "spk_payment_list_number" => GenerateNumber::generate("SPK-PAYMENT-LIST", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_payment_lists", "spk_payment_list_number")
+            ]);
+
+            $createPaymentImg = [];
+
+            if ($request->spk_payment_img) {
+                foreach ($request->file("spk_payment_img") as $item) {
+                    $imagePath = $item["img"]->store("spk", "public");
+
+                    $createPaymentImg[] = SpkPaymentListImage::create([
+                        "spk_payment_list_id" => $createPayment->spk_payment_list_id,
+                        "spk_payment_list_img" => $imagePath
+                    ]);
+                }
+            }
+
+
+            // melakukan pengecekan apakah pembayaran sudah lunas apa belum dari total list spk payment
+            $totalSpkPayment = SpkPaymentList::where("spk_payment_id", $spk_payment_id)->sum('spk_payment_list_amount');
+
+            $getDetail = SpkPayment::latest()
+                ->with(["spk"])
+                ->where("spk_payment_id", $spk_payment_id)
+                ->first();
+
+
+            if ($getDetail->spk_payment_type === "dp") {
+
+                $spk_payment_amount_total = self::sumAmountTotalDp($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "leasing") {
+
+                $spk_payment_amount_total = self::sumAmountTotalLeasing($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "cash") {
+
+                $spk_payment_amount_total = self::sumAmountTotalCash($getDetail);
+            }
+
+            // melakukan penjumlahan data lama dengan data baru
+            // $totalSpkPayment = $totalSpkPayment + $request->indent_payment_amount;
+
+            if (intval($totalSpkPayment) >  $spk_payment_amount_total) {
+                DB::rollBack();
+                return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
+            }
+
+
+            // buat log spk payment
+            $createSpkPaymentLog =  SpkPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_payment_log_action" => "add payment",
+                "spk_payment_id" => $spk_payment_id
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "spk_payment_list" => $createPayment,
+                "spk_payment_list_img" => $createPaymentImg,
+                "spk_payment_log" => $createSpkPaymentLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully add payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    function sumAmountTotalDp($getDetail)
+    {
+        $result = null;
+        $spk = $getDetail->spk;
+
+        $result = ($spk->spk_transaction->spk_transaction_down_payment ?? 0) -
+            ($spk->spk_pricing->spk_pricing_indent_nominal ?? 0) -
+            ($spk->spk_pricing->spk_pricing_discount ?? 0) - ($spk->spk_pricing->spk_pricing_over_discount ?? 0) - ($spk->spk_pricing->spk_pricing_subsidi ?? 0);
+
+        return $result;
+    }
+
+    function sumAmountTotalLeasing($getDetail)
+    {
+        $spk = $getDetail->spk;
+
+        $onTheRoad = ($spk->spk_pricing->spk_pricing_on_the_road ?? 0);
+
+
+        return $onTheRoad - $spk->spk_transaction->spk_transaction_down_payment;
+    }
+
+
+    function sumAmountTotalCash($getDetail)
+    {
+        $result = null;
+        $spk = $getDetail->spk;
+
+        $result =
+            ($spk->spk_pricing->spk_pricing_on_the_road ?? 0) -
+            ($spk->spk_pricing->spk_pricing_indent_nominal ?? 0) -
+            ($spk->spk_pricing->spk_pricing_discount ?? 0) -
+            ($spk->spk_pricing->spk_pricing_over_discount ?? 0) -
+            ($spk->spk_pricing->spk_pricing_subsidi ?? 0);
+
+        return $result;
+    }
+
+    public function getDetailSpkPayment(Request $request, $spk_payment_id)
+    {
+        try {
+
+            $getDetail = SpkPayment::latest()
+                ->with(["spk"])
+                ->where("spk_payment_id", $spk_payment_id)
+                ->first();
+
+            if ($getDetail->spk_payment_type === "dp") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalDp($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "leasing") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalLeasing($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "cash") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalCash($getDetail);
+            }
+
+
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function getPaginateSpkPayment(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $getPaginate = SpkPayment::latest()
+                ->with(["spk"])
+                ->where("dealer_id", $getDealerSelected->dealer_id)
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function deleteSPK(Request $request, $spk_id)
     {
@@ -122,6 +329,68 @@ class SPKController extends Controller
         }
     }
 
+    function generateSpkPayment($detailTransaction, $spk_id, $getDealerSelected, $user)
+    {
+
+
+
+        if ($detailTransaction->spk_transaction_method_payment === "cash") {
+
+            $createSpkPayment = SpkPayment::create([
+                "spk_payment_number" =>
+                GenerateNumber::generate("SPK-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_payments", "spk_payment_number"),
+                "spk_id" => $spk_id,
+                "spk_payment_for" => "customer",
+                "dealer_id" => $getDealerSelected->dealer_id,
+                "spk_payment_type" => "cash",
+            ]);
+
+            // buat log spk payment
+            SpkPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_payment_log_action" => "create SPK Payment",
+                "spk_payment_id" => $createSpkPayment->spk_payment_id
+            ]);
+        } else {
+            $createSpkPaymentCustomer =  SpkPayment::create([
+                "spk_payment_number" =>
+                GenerateNumber::generate("SPK-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_payments", "spk_payment_number"),
+                "spk_id" => $spk_id,
+                "spk_payment_for" => "customer",
+                "dealer_id" => $getDealerSelected->dealer_id,
+                "spk_payment_type" => "dp"
+            ]);
+
+            // buat log spk payment
+            SpkPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_payment_log_action" => "create SPK Payment",
+                "spk_payment_id" => $createSpkPaymentCustomer->spk_payment_id
+            ]);
+
+            if (isset($createSpkPaymentCustomer->spk_payment_id)) {
+
+                $createSpkPaymentLeasing = SpkPayment::create([
+                    "spk_payment_number" =>
+                    GenerateNumber::generate("SPK-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_payments", "spk_payment_number"),
+                    "spk_id" => $spk_id,
+                    "spk_payment_for" => "leasing",
+                    "dealer_id" => $getDealerSelected->dealer_id,
+                    "spk_payment_type" => "leasing"
+                ]);
+                // buat log spk payment
+                SpkPaymentLog::create([
+                    "user_id"
+                    => $user->user_id,
+                    "spk_payment_log_action" => "create SPK Payment",
+                    "spk_payment_id" => $createSpkPaymentLeasing->spk_payment_id
+                ]);
+            }
+        }
+    }
+
     public function addShipment(Request $request, $spk_id)
     {
         try {
@@ -150,6 +419,7 @@ class SPKController extends Controller
             ]);
 
             $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             // update status unit menjadi spk
 
@@ -178,6 +448,14 @@ class SPKController extends Controller
                     "user_id" => $user->user_id,
                     "spk_id" => $spk_id
                 ]);
+
+
+            // mendapatkan spk transaction
+            $getDetailSpkTransaction = SpkTransaction::where("spk_id", $spk_id)->first();
+
+            // generate spk payment
+
+            self::generateSpkPayment($getDetailSpkTransaction, $spk_id, $getDealerSelected, $user);
 
             DB::commit();
 

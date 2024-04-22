@@ -273,6 +273,12 @@ Route::prefix("v1")->group(function () {
                 // Route::delete("/ktp/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKtp"]);
                 // Route::delete("/kk/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKK"]);
             });
+
+            Route::prefix("payment")->group(function () {
+                Route::get("/list", [SPKController::class, "getPaginateSpkPayment"]);
+                Route::get("/detail/{spk_payment_id}", [SPKController::class, "getDetailSpkPayment"]);
+                Route::post("/create/{spk_payment_id}", [SPKController::class, "addSpkPayment"]);
+            });
         });
     });
 });
