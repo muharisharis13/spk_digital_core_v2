@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string("spk_pricing_broker_commission_note")->nullable();
             $table->string("spk_pricing_cashback_note")->nullable();
             $table->string("spk_pricing_delivery_cost_note")->nullable();
+            $table->string("spk_pricing_over_delivery_note")->nullable();
         });
     }
 
