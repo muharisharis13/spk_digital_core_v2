@@ -1053,6 +1053,7 @@ class SPKController extends Controller
             $dealer_id = $request->input("dealer_id");
             $dealer_neq_id = $request->input("dealer_neq_id");
             $is_cro_check = $request->input("is_cro_check");
+            $date = $request->input("date");
 
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
@@ -1063,6 +1064,9 @@ class SPKController extends Controller
                 ->where("dealer_id", $getDealerSelected->dealer_id)
                 ->where("is_cro_check", "LIKE", "%$is_cro_check%")
                 ->where("spk_status", "LIKE", "%$spk_status%")
+                ->when($date, function ($query) use ($date) {
+                    return $query->whereDate('created_at', 'LIKE', "%$date%");
+                })
                 ->whereHas("spk_general", function ($query) use ($sales_name) {
                     return $query->where("sales_name", "LIKE", "%$sales_name%");
                 })
