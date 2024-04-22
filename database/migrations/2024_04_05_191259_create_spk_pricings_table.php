@@ -28,6 +28,7 @@ return new class extends Migration
             $table->integer("spk_pricing_broker_commission")->nullable();
             $table->integer("spk_pricing_cashback")->nullable();
             $table->integer("spk_pricing_delivery_cost")->nullable();
+            $table->integer("spk_pricing_over_discount")->nullable();
             $table->timestamps();
         });
     }

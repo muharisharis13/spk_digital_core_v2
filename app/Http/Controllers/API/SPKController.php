@@ -1678,6 +1678,7 @@ class SPKController extends Controller
             "spk_pricing_broker_commission_note" => $request->spk_pricing_broker_commission_note,
             "spk_pricing_cashback_note" => $request->spk_pricing_cashback_note,
             "spk_pricing_delivery_cost_note" => $request->spk_pricing_delivery_cost_note,
+            "spk_pricing_over_discount" => $request->spk_pricing_over_discount
         ]);
     }
 
