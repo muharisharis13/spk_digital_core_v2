@@ -13,7 +13,7 @@ class SpkPayment extends Model
 
     protected $primaryKey = "spk_payment_id";
 
-    protected $with = ["spk_payment_list", "spk_payment_log"];
+    protected $with = ["spk_payment_list_refund", "spk_payment_list", "spk_payment_log"];
 
 
     public function spk()
@@ -29,5 +29,10 @@ class SpkPayment extends Model
     public function spk_payment_list()
     {
         return $this->hasMany(SpkPaymentList::class, "spk_payment_id");
+    }
+
+    public function spk_payment_list_refund()
+    {
+        return $this->hasMany(SpkPaymentListRefund::class, "spk_payment_id");
     }
 }
