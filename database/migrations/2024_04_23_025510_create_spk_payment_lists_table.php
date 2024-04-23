@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid("spk_payment_list_id")->primary();
             $table->uuid("spk_payment_id")->nullable();
             $table->foreign("spk_payment_id")->references("spk_payment_id")->on("spk_payments")->onDelete("set null");
-            $table->enum("spk_payment_list_method", ["cash", "bank", "giro"]);
+            $table->enum("spk_payment_list_method", ["cash", "bank_transfer", "giro"]);
             $table->uuid("bank_id")->nullable();
             $table->foreign("bank_id")->references("bank_id")->on("banks")->onDelete("set null");
             $table->integer("spk_payment_list_amount");
