@@ -725,7 +725,10 @@ class SPKController extends Controller
 
             // generate spk excess payment
             $total_amount = $getDetailSpkTransaction->spk_transaction_down_payment - $getDetailSpkPricing->spk_pricing_indent_nominal - $getDetailSpkPricing->spk_pricing_discount - $getDetailSpkPricing->spk_pricing_subsidi - ($getDetailSpkPricing->spk_pricing_over_discount ?? 0);
-            self::generateExcessFund($spk_id, $getDealerSelected, $total_amount);
+
+            if ($total_amount < 0) {
+                self::generateExcessFund($spk_id, $getDealerSelected, $total_amount);
+            }
 
             DB::commit();
 
