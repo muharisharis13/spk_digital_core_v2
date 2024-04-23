@@ -1340,7 +1340,10 @@ class SPKController extends Controller
 
             $getPaginate = Spk::latest()
                 ->where("dealer_id", $getDealerSelected->dealer_id)
-                ->where("is_cro_check", "LIKE", "%$is_cro_check%")
+                ->when($is_cro_check, function ($query) use ($is_cro_check) {
+                    return $query->where("is_cro_check", "LIKE", "%$is_cro_check%");
+                })
+                // ->where("is_cro_check", "LIKE", "%$is_cro_check%")
                 ->where("spk_status", "LIKE", "%$spk_status%")
                 ->when($date, function ($query) use ($date) {
                     return $query->whereDate('created_at', 'LIKE', "%$date%");
