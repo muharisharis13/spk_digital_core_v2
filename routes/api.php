@@ -286,6 +286,9 @@ Route::prefix("v1")->group(function () {
                 Route::get("/list", [SPKController::class, "getPaginateSpkPayment"]);
                 Route::get("/detail/{spk_payment_id}", [SPKController::class, "getDetailSpkPayment"]);
                 Route::post("/create/{spk_payment_id}", [SPKController::class, "addSpkPayment"]);
+                Route::delete("/delete/{spk_payment_list_id}", [SPKController::class, "deletePayment"]);
+                Route::put("/refund/{spk_payment_id}", [SPKController::class, "refundAllPaymentt"]);
+                Route::put("/status/{spk_payment_id}", [SPKController::class, "updateStatusPaymentList"]);
             });
         });
     });

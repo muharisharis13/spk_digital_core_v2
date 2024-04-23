@@ -23,6 +23,7 @@ use App\Models\SpkLog;
 use App\Models\SpkPayment;
 use App\Models\SpkPaymentList;
 use App\Models\SpkPaymentListImage;
+use App\Models\SpkPaymentListRefund;
 use App\Models\SpkPaymentLog;
 use App\Models\SpkPricing;
 use App\Models\SpkPricingAccecories;
@@ -41,6 +42,152 @@ use Illuminate\Support\Facades\Validator;
 class SPKController extends Controller
 {
     //
+
+    public function updateStatusPaymentList(Request $request, $spk_payment_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "spk_payment_status" => "required|in:cashier_check,finance_check"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailSpkPaymentDetail = SpkPayment::where("spk_payment_id", $spk_payment_id)->first();
+
+
+            $getDetailSpkPaymentDetail->update([
+                "spk_payment_status" => $request->spk_payment_status
+            ]);
+
+            $user = Auth::user();
+
+            // buat log spk payment
+            $createLog = SpkPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_payment_log_action" => "Update Status SPK Payment to $request->spk_payment_status",
+                "spk_payment_id" => $spk_payment_id
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "spk_payment" => $getDetailSpkPaymentDetail,
+                "spk_payment_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "successfully update status SPK Payment !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function refundAllPaymentt(Request $request, $spk_payment_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "spk_payment_list_refund_note" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            // mendapatkan total payment yang sudah terjadi
+            $totalSpkPaymentList = SpkPaymentList::where("spk_payment_id", $spk_payment_id)->sum('spk_payment_list_amount');
+
+
+            DB::beginTransaction();
+            $createtPaymentListRefund = SpkPaymentListRefund::create([
+                "spk_payment_id" => $spk_payment_id,
+                "spk_payment_list_refund_amount_total" => intval($totalSpkPaymentList),
+                "spk_payment_list_refund_number" => GenerateNumber::generate("REFUND-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_payment_list_refunds", "spk_payment_list_refund_number"),
+                "spk_payment_list_refund_note" => $request->spk_payment_list_refund_note
+            ]);
+
+
+            //melakukan penghapusan spk payment list secara keseluruhan
+            SpkPaymentList::where("spk_payment_id", $spk_payment_id)->delete();
+
+
+            //melakukan update spk payment status menjadi unpaid
+            SpkPayment::where("spk_payment_id", $spk_payment_id)->update([
+                "spk_payment_status" => "unpaid"
+            ]);
+
+
+            $user = Auth::user();
+
+            // buat log spk payment
+            SpkPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_payment_log_action" => "Refund All Payment SPK",
+                "spk_payment_id" => $spk_payment_id
+            ]);
+
+
+            DB::commit();
+
+
+            return ResponseFormatter::success($createtPaymentListRefund, "Successfully refund all spk payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function deletePayment(Request $request, $spk_payment_list_id)
+    {
+        try {
+            $getDetailPaymentList = SpkPaymentList::where("spk_payment_list_id", $spk_payment_list_id)->first();
+
+            DB::beginTransaction();
+
+
+
+
+
+            $user = Auth::user();
+
+            // buat log spk payment
+            $createSpkPaymentLog =  SpkPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_payment_log_action" => "delete payment " . $getDetailPaymentList->spk_payment_list_amount,
+                "spk_payment_id" => $getDetailPaymentList->spk_payment_id
+            ]);
+
+            //delete image file
+            SpkPaymentListImage::where("spk_payment_list_id", $spk_payment_list_id)->delete();
+
+            $getDetailPaymentList->delete();
+
+
+            $data = [
+                "spk_payment_list" => $getDetailPaymentList,
+                "spk_payment_log" => $createSpkPaymentLog
+            ];
+
+
+            DB::commit();
+
+
+            return ResponseFormatter::success($data, "Successfully deleted payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function addSpkPayment(Request $request, $spk_payment_id)
     {

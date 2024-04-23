@@ -14,6 +14,8 @@ class IndentPayment extends Model
 
     protected $primaryKey = "indent_payment_id";
 
+    protected $with = ["indent_payment_img"];
+
 
     public function bank()
     {
@@ -23,6 +25,12 @@ class IndentPayment extends Model
     public function indent()
     {
         return $this->belongsTo(Indent::class, "indent_id");
+    }
+
+
+    public function indent_payment_img()
+    {
+        return $this->hasMany(IndentPaymentImage::class, "indent_payment_id");
     }
 
 

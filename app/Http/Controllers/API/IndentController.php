@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Indent;
 use App\Models\IndentLog;
 use App\Models\IndentPayment;
+use App\Models\IndentPaymentImage;
 use App\Models\IndentPaymentRefund;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -125,6 +126,7 @@ class IndentController extends Controller
 
             DB::beginTransaction();
 
+
             // melakukan penggatian payment dari paid ke unpaid atau dari cashier check ke unpaid dan seterusnya
 
             $getDetailIndent = Indent::where("indent_id", $getDetailIndentPayment->indent_id)->first();
@@ -135,6 +137,10 @@ class IndentController extends Controller
             // $getDetailIndent->update([
             //     "indent_status" => IndentStatusEnum::unpaid
             // ]);
+
+
+            //delete file img payment jika ada
+            IndentPaymentImage::where("indent_payment_id", $indent_payment_id)->delete();
 
 
             $getDetailIndentPayment->delete();
@@ -216,7 +222,8 @@ class IndentController extends Controller
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "indent_payment_img" => "nullable|image|mimes:png,jpg|max:5120",
+                "indent_payment_img" => "array|nullable",
+                "indent_payment_img.*.img" => "required|mimes:png,jpg,pdf|max:5120",
                 "indent_payment_method" => "required|in:cash,bank_transfer,giro",
                 "bank_id" => "nullable",
                 "indent_payment_amount" => "integer|required|min:1",
@@ -235,11 +242,6 @@ class IndentController extends Controller
                 return
                     ResponseFormatter::error("Please Delete bank id for payment method cash", "Bad Request", 400);
             }
-            if ($request->hasFile('indent_payment_img')) {
-                $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
-            } else {
-                $imagePath = null; // or any default value you prefer
-            }
 
             // $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
 
@@ -249,7 +251,7 @@ class IndentController extends Controller
 
             $createIndentPayment = IndentPayment::create([
                 "indent_id" => $indent_id,
-                "indent_payment_img" => $imagePath,
+                "indent_payment_img" => "null",
                 "indent_payment_method" => $request->indent_payment_method,
                 "bank_id" => $request->bank_id,
                 "indent_payment_amount" => $request->indent_payment_amount,
@@ -257,6 +259,31 @@ class IndentController extends Controller
                 "indent_payment_note" => $request->indent_payment_note,
                 "indent_payment_number" => GenerateNumber::generate("PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_payments", "indent_payment_number")
             ]);
+
+
+
+            $createPaymentImg = [];
+
+            if ($request->indent_payment_img) {
+                foreach ($request->file("indent_payment_img") as $item) {
+                    $imagePath = $item["img"]->store("indent", "public");
+
+                    $createPaymentImg[] = IndentPaymentImage::create([
+                        "indent_payment_id" => $createIndentPayment->indent_payment_id,
+                        "indent_payment_img" => $imagePath
+                    ]);
+                }
+            }
+
+
+            if ($request->hasFile('indent_payment_img')) {
+                $imagePath = $request->file('indent_payment_img')->store('indent', 'public');
+            } else {
+                $imagePath = null; // or any default value you prefer
+            }
+
+
+
 
             // melakukan pengecekan apakah pembayaran sudah lunas apa belum dari total list indent payment
             $totalIndentPayment = IndentPayment::where("indent_id", $indent_id)->where("indent_payment_type", "payment")->sum('indent_payment_amount');
@@ -287,6 +314,7 @@ class IndentController extends Controller
             $data = [
                 "indent" => $getDetailIndent,
                 "indent_payment" => $createIndentPayment,
+                "indent_payment_img" => $createPaymentImg,
                 "indent_log" => $createLogIndent,
                 "totalIndentPayment" => intval($totalIndentPayment)
             ];
