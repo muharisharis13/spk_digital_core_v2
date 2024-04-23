@@ -35,6 +35,7 @@ use App\Models\SpkTransaction;
 use App\Models\SpkUnit;
 use App\Models\Unit;
 use App\Models\UnitLog;
+use App\Models\Indent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +67,7 @@ class SPKController extends Controller
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "spk_payment_status" => "required|in:cashier_check,finance_check"
+                "spk_payment_status" => "required|in:cashier_check,paid"
             ]);
 
             if ($validator->fails()) {
@@ -664,9 +665,33 @@ class SPKController extends Controller
 
             $updateUnit = Unit::where("unit_id", $request->unit_id)->first();
 
+
+
             $updateUnit->update([
                 "unit_status" => UnitStatusEnum::spk
             ]);
+
+
+            $getSpk = Spk::where("spk_id", $spk_id)->first();
+
+            //update status indent menjadi spk
+
+            $getIndent = Indent::where("indent_id", $getSpk->spk_general->indent_id)->first();
+
+            if (isset($getIndent)) {
+                if ($getIndent->indent_status === "spk") {
+                    DB::rollBack();
+                    return
+                        ResponseFormatter::error("Indent Sudah memiliki spk harap ganti indent", "bad request", 400);
+                }
+
+                $getIndent->update([
+                    "indent_status" => "spk"
+                ]);
+            } else {
+                DB::rollback();
+                return ResponseFormatter::error("Indent Tidak ditemukan", "bad request", 400);
+            }
 
             //create log unit
             $createUnitLog = UnitLog::create([
@@ -719,6 +744,8 @@ class SPKController extends Controller
         }
     }
 
+
+
     public function updateStatusSpk(Request $request, $spk_id)
     {
         try {
@@ -736,9 +763,50 @@ class SPKController extends Controller
             $getSpk = Spk::where("spk_id", $spk_id)->first();
 
             if ($getSpk->spk_status === "finance_check" && $request->spk_status === "cancel") {
+                //melakukan cancel spk
                 $getSpk->update([
                     "spk_status" => $request->spk_status
                 ]);
+
+                //melakukan update indent menjadi finance check
+
+                $getDetailIndent = Indent::where("indent_id", $getSpk->spk_general->indent_id)->first();
+
+                if (isset($getDetailIndent)) {
+                    $getDetailIndent->update([
+                        "indent_status" => "finance_check"
+                    ]);
+                } else {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Indent Tidak ditemukan", "bad request!", 400);
+                }
+
+                //melakukan update unit menjadi on hand kembali
+
+                $getDetailUnit =  Unit::where("unit_id", $getSpk->spk_unit->unit_id)->first();
+
+                if (isset($getDetailUnit)) {
+                    $getDetailUnit->update([
+                        "unit_status" => "on_hand"
+                    ]);
+                } else {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Unit Tidak ditemukan", "bad request!", 400);
+                }
+
+                //update payment menjadi cancel
+                //logika nyaa => check dlu pembayaran apakah status sudah unpaid -> jika sudah unpaid maka table spk payment menjadi status cancel
+
+                $getDetailSpkPayment = SpkPayment::where("spk_id", $spk_id)->first();
+
+                if ($getDetailSpkPayment->spk_payment_status === "unpaid") {
+                    $getDetailSpkPayment->update([
+                        "spk_payment_status" => "cancel"
+                    ]);
+                } else {
+                    DB::rollBack();
+                    return ResponseFormatter::error("pembayaran harus di unpaid kan dahulu sebelum melakukan pembatalan", "bad request!", 400);
+                }
             } else {
                 $getSpk->update([
                     "spk_status" => $request->spk_status
