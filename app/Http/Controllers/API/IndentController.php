@@ -436,22 +436,22 @@ class IndentController extends Controller
                         "indent_type" => "required|in:cash,credit",
                         "indent_note" => "nullable",
                         "amount_total" => "required",
-                        "sales_id" => "required",
+                        // "sales_id" => "required",
                         "salesman_name" => "required",
                         // "micro_finance_id" => "nullable",
                         // "leasing_id" => "nullable"
                     ]);
 
                     $validator->sometimes(
-                        ["micro_finance_id", "microfinance_name"],
-                        "required",
+                        ["microfinance_name"],
+                        "nullable",
                         function ($input) {
                             return $input->indent_type === "cash";
                         }
                     );
                     $validator->sometimes(
-                        ["leasing_id", "leasing_name"],
-                        "required",
+                        ["leasing_name"],
+                        "nullable",
                         function ($input) {
                             return $input->indent_type === "credit";
                         }
