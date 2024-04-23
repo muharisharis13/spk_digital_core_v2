@@ -231,13 +231,66 @@ class SPKController extends Controller
     {
         try {
             $limit = $request->input("limit", 5);
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $transaction_type = $request->input("transaction_type");
+            $payment_type = $request->input("payment_type");
+            $payment_status = $request->input("payment_status");
+            $q = $request->input("q");
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
+
             $getPaginate = SpkPayment::latest()
                 ->with(["spk"])
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
+                })
+                ->whereHas("spk", function ($query) use ($transaction_type) {
+                    return $query->whereHas("spk_transaction", function ($queryTransaction) use ($transaction_type) {
+                        return $queryTransaction->where("spk_transaction_method_payment", "LIKE", "%$transaction_type%");
+                    });
+                })
+                ->where("spk_payment_type", "LIKE", "%$payment_type%")
+                ->when($payment_status, function ($query) use ($payment_status) {
+                    return $query->where("spk_payment_status", $payment_status);
+                })
+                ->when($q, function ($query) use ($q) {
+                    return $query->whereHas("spk", function ($querySpk) use ($q) {
+                        return $querySpk->where("spk_number", "LIKE", "%$q%")
+                            ->orWhereHas("spk_legal", function ($querySpkLegal) use ($q) {
+                                return $querySpkLegal->where("spk_legal_name", "LIKE", "%$q%");
+                            })
+                            ->orWhereHas("spk_customer", function ($queryCustomer) use ($q) {
+                                return $queryCustomer->where("spk_customer_name", "LIKE", "%$q%");
+                            })
+                            ->orWhereHas("spk_transaction", function ($queryTransaction) use ($q) {
+                                return $queryTransaction->where("spk_transaction_method_payment", "LIKE", "%$q%");
+                            });
+                    })
+                        ->orWhere("spk_payment_status", "LIKE", "%$query%");
+                })
                 ->where("dealer_id", $getDealerSelected->dealer_id)
                 ->paginate($limit);
+
+
+            foreach ($getPaginate as $item) {
+                if (isset($item->spk_payment_type) && $item->spk_payment_type === "dp") {
+
+                    $item["spk_payment_amount_total"] = self::sumAmountTotalDp($item);
+                }
+                if (isset($item->spk_payment_type) &&  $item->spk_payment_type === "leasing") {
+
+                    $item["spk_payment_amount_total"] = self::sumAmountTotalLeasing($item);
+                }
+                if (isset($item->spk_payment_type) &&  $item->spk_payment_type === "cash") {
+
+                    $item["spk_payment_amount_total"] = self::sumAmountTotalCash($item);
+                }
+            }
 
             return ResponseFormatter::success($getPaginate);
         } catch (\Throwable $e) {
@@ -2077,6 +2130,7 @@ class SPKController extends Controller
             self::isSelectedSpkDeliveryNeq($validator);
             self::isSelectedSpkDeliveryDomicile($validator);
             self::isSelectedSpkDeliveryDealer($validator);
+            //custome body untuk adira ==>null
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
