@@ -370,6 +370,10 @@ class SPKController extends Controller
                 "spk_payment_id" => $createSpkPaymentCustomer->spk_payment_id
             ]);
 
+            // Penundaan selama satu menit di sini
+            sleep(30); // Satu menit
+
+
             if (isset($createSpkPaymentCustomer->spk_payment_id)) {
 
                 $createSpkPaymentLeasing = SpkPayment::create([
