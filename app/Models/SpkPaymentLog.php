@@ -12,4 +12,10 @@ class SpkPaymentLog extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_payment_log_id";
+    protected $with = ["user"];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
 }

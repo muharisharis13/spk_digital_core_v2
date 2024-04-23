@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\ResponseFormatter;
+use App\Http\Controllers\API\AdiraController;
 use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
@@ -48,6 +49,12 @@ Route::prefix("v1")->group(function () {
         });
         Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
         Route::get("/province", [ExportPDFController::class, "getProvince"]);
+    });
+
+
+    Route::prefix("adira-spk")->group(function () {
+        Route::post("/create", [AdiraController::class, "createSPK"]);
+        Route::get("/list", [AdiraController::class, "getPaginateSpk"]);
     });
 
 
@@ -251,6 +258,7 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("spk")->group(function () {
+
             Route::post("/create", [SPKController::class, "createSPK"]);
             Route::post("/update/{spk_id}", [SPKController::class, "updateSpk"]);
             Route::delete("/delete/{spk_id}", [SPKController::class, "deleteSPK"]);

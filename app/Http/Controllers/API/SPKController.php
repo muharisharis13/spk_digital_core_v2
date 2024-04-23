@@ -81,6 +81,10 @@ class SPKController extends Controller
 
             // create payment
 
+            $spk_payment_list_method = strtoupper($request->spk_payment_list_method);
+            $alias = GenerateAlias::generate($getDealerSelected->dealer->dealer_name);
+            $number = "SPK-$spk_payment_list_method-PAYMENT";
+
             $createPayment = SpkPaymentList::create([
                 "spk_payment_id" => $spk_payment_id,
                 "spk_payment_list_method" => $request->spk_payment_list_method,
@@ -88,7 +92,7 @@ class SPKController extends Controller
                 "spk_payment_list_amount" => $request->spk_payment_list_amount,
                 "spk_payment_list_date" => $request->spk_payment_list_date,
                 "spk_payment_list_note" => $request->spk_payment_list_note,
-                "spk_payment_list_number" => GenerateNumber::generate("SPK-PAYMENT-LIST", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_payment_lists", "spk_payment_list_number")
+                "spk_payment_list_number" => GenerateNumber::generate($number, $alias, "spk_payment_lists", "spk_payment_list_number")
             ]);
 
             $createPaymentImg = [];
