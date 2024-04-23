@@ -282,6 +282,10 @@ Route::prefix("v1")->group(function () {
                 // Route::delete("/kk/{spk_additional_document_id}", [SPKController::class, "deleteFileDocumentKK"]);
             });
 
+            Route::prefix("excess-payment")->group(function () {
+                Route::get("/list", [SPKController::class, "getpaginateExcessPayment"]);
+            });
+
             Route::prefix("payment")->group(function () {
                 Route::get("/list", [SPKController::class, "getPaginateSpkPayment"]);
                 Route::get("/detail/{spk_payment_id}", [SPKController::class, "getDetailSpkPayment"]);

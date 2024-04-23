@@ -17,6 +17,7 @@ use App\Models\SpkDeliveryDomicile;
 use App\Models\SpkDeliveryFileSk;
 use App\Models\SpkDeliveryKtp;
 use App\Models\SpkDeliveryNeq;
+use App\Models\SpkExcessFunds;
 use App\Models\SpkGeneral;
 use App\Models\SpkLegal;
 use App\Models\SpkLog;
@@ -42,6 +43,24 @@ use Illuminate\Support\Facades\Validator;
 class SPKController extends Controller
 {
     //
+
+
+    public function getpaginateExcessPayment(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+            $getPaginate = SpkExcessFunds::latest()
+                ->paginate($limit);
+            // Mengubah nilai negatif menjadi positif
+            foreach ($getPaginate->items() as $item) {
+                $item->spk_excess_fund_amount_total = abs($item->spk_excess_fund_amount_total);
+            }
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function updateStatusPaymentList(Request $request, $spk_payment_id)
     {
@@ -599,6 +618,18 @@ class SPKController extends Controller
         }
     }
 
+
+    function generateExcessFund($spk_id, $getDealerSelected, $amount_total)
+    {
+        $createExcessFund = SpkExcessFunds::create([
+            "spk_id" => $spk_id,
+            "spk_excess_fund_number" => GenerateNumber::generate("SPK-EXCESS-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_excess_funds", "spk_excess_fund_number"),
+            "spk_excess_fund_amount_total" => $amount_total
+        ]);
+
+        return $createExcessFund;
+    }
+
     public function addShipment(Request $request, $spk_id)
     {
         try {
@@ -660,10 +691,16 @@ class SPKController extends Controller
 
             // mendapatkan spk transaction
             $getDetailSpkTransaction = SpkTransaction::where("spk_id", $spk_id)->first();
+            // mendapatkan spk pricing
+            $getDetailSpkPricing = SpkPricing::where("spk_id", $spk_id)->first();
 
             // generate spk payment
 
             self::generateSpkPayment($getDetailSpkTransaction, $spk_id, $getDealerSelected, $user);
+
+            // generate spk excess payment
+            $total_amount = $getDetailSpkTransaction->spk_transaction_down_payment - $getDetailSpkPricing->spk_pricing_indent_nominal - $getDetailSpkPricing->spk_pricing_discount - $getDetailSpkPricing->spk_pricing_subsidi - ($getDetailSpkPricing->spk_pricing_over_discount ?? 0);
+            self::generateExcessFund($spk_id, $getDealerSelected, $total_amount);
 
             DB::commit();
 

@@ -12,4 +12,11 @@ class SpkExcessFunds extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_excess_fund_id";
+    // protected $with = ["spk"];
+
+
+    public function spk()
+    {
+        return $this->belongsTo(Spk::class, "spk_id");
+    }
 }
