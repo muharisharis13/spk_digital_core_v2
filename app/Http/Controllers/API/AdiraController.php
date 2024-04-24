@@ -52,7 +52,7 @@ class AdiraController extends Controller
             $getDealerSelected =
                 DealerByUser::where("user_id", $user)->where("isSelected", '1')->with(["dealer"])->first();
 
-            // return ResponseFormatter::success($getDealerSelected);
+            return ResponseFormatter::success($user);
 
 
             $getPaginate = Spk::latest()
