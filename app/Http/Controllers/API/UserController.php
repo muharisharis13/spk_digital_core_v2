@@ -9,6 +9,7 @@ use App\Models\ModelHasPermission;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 
@@ -79,16 +80,29 @@ class UserController extends Controller
         }
     }
 
-    public function selectDealerByUser($dealer_by_user_id)
+    public function selectDealerByUser(Request $request, $dealer_by_user_id)
     {
         try {
+
+            $validator = Validator::make($request->all(), [
+                "dealer_id" => "required",
+                "user_id" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
             $user = Auth::user();
-            $getPreviousDealerByUser = DealerByUser::where("user_id", $user->user_id)->first();
+
+            DB::beginTransaction();
+
+            $getPreviousDealerByUser = DealerByUser::where("dealer_by_user_id", $dealer_by_user_id)->first();
             $getPreviousDealerByUser->update([
                 'isSelected' => false
             ]);
-            $getDealer = DealerByUser::with(['dealer'])->where('dealer_by_user_id', $dealer_by_user_id)->first();
-            if ($getDealer) {
+
+            $getDealer = DealerByUser::with(['dealer'])->where('dealer_id', $request->dealer_id)->where("user_id", $user->user_id)->first();
+            if (isset($getDealer)) {
                 $getDealer->update(([
                     'isSelected' => true
                 ]));
@@ -97,6 +111,7 @@ class UserController extends Controller
             }
             return ResponseFormatter::success($getDealer);
         } catch (\Throwable $e) {
+            DB::rollback();
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
