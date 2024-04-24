@@ -54,7 +54,7 @@ Route::prefix("v1")->group(function () {
 
     Route::prefix("adira-spk")->group(function () {
         Route::post("/create", [AdiraController::class, "createSPK"]);
-        Route::post("/list", [AdiraController::class, "getPaginateSpk"]);
+        Route::get("/list", [AdiraController::class, "getPaginateSpk"]);
     });
 
 

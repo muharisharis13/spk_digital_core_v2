@@ -48,7 +48,7 @@ class AdiraController extends Controller
             $is_cro_check = $request->input("is_cro_check");
             $date = $request->input("date");
 
-            $user = $request->header("user_id");
+            $user = $request->input("user_id");
             $getDealerSelected =
                 DealerByUser::where("user_id", $user)->where("isSelected", '1')->with(["dealer"])->first();
 
