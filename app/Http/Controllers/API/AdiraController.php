@@ -49,7 +49,8 @@ class AdiraController extends Controller
             $date = $request->input("date");
 
             $user = $request->header("user_id");
-            $getDealerSelected = GetDealerByUserSelected::GetUser($user);
+            $getDealerSelected =
+                DealerByUser::where("user_id", $user)->where("isSelected", true)->with(["dealer"])->first();
 
             return ResponseFormatter::success($getDealerSelected);
 
