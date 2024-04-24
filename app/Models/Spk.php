@@ -12,7 +12,7 @@ class Spk extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_id";
-    protected $with = ["spk_log.user", "spk_legal", "spk_unit.color", "spk_pricing", "spk_unit.motor", "spk_unit.unit", "spk_transaction", "spk_general.indent", "spk_general.sales", "spk_general.dealer", "spk_general.dealer_neq", "spk_customer", "spk_additional_document", "spk_additional_document_another", "spk_pricing_accecories", "spk_pricing_additional", "spk_delivery_ktp", "spk_delivery_dealer_neq", "spk_delivery_dealer", "spk_delivery_domicile", "spk_purchase_order", "delivery_spk.delivery"];
+    protected $with = ["spk_excess_fund", "spk_legal", "spk_unit.color", "spk_pricing", "spk_unit.motor", "spk_unit.unit", "spk_transaction", "spk_general.indent", "spk_general.sales", "spk_general.dealer", "spk_general.dealer_neq", "spk_customer", "spk_additional_document", "spk_additional_document_another", "spk_pricing_accecories", "spk_pricing_additional", "spk_delivery_ktp", "spk_delivery_dealer_neq", "spk_delivery_dealer", "spk_delivery_domicile", "spk_purchase_order", "delivery_spk.delivery", "spk_log.user"];
 
     public function spk_delivery_domicile()
     {
@@ -88,5 +88,10 @@ class Spk extends Model
     public function delivery_spk()
     {
         return $this->hasOne(DeliverySpk::class, "spk_id");
+    }
+
+    public function spk_excess_fund()
+    {
+        return $this->hasOne(SpkExcessFunds::class, "spk_id");
     }
 }

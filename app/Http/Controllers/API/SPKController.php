@@ -67,7 +67,7 @@ class SPKController extends Controller
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "spk_payment_status" => "required|in:cashier_check,paid"
+                "spk_payment_status" => "required|in:cashier_check,finance_check"
             ]);
 
             if ($validator->fails()) {
@@ -301,10 +301,10 @@ class SPKController extends Controller
             // melakukan penjumlahan data lama dengan data baru
             // $totalSpkPayment = $totalSpkPayment + $request->indent_payment_amount;
 
-            if (intval($totalSpkPayment) >  $spk_payment_amount_total) {
-                DB::rollBack();
-                return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
-            }
+            // if (intval($totalSpkPayment) >  $spk_payment_amount_total) {
+            //     DB::rollBack();
+            //     return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
+            // }
 
 
             // buat log spk payment

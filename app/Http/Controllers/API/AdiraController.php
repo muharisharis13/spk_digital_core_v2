@@ -52,7 +52,6 @@ class AdiraController extends Controller
             $getDealerSelected = GetDealerByUserSelected::GetUser($user);
 
 
-
             $getPaginate = Spk::latest()
                 ->where("dealer_id", $getDealerSelected->dealer_id)
                 ->when($is_cro_check, function ($query) use ($is_cro_check) {
