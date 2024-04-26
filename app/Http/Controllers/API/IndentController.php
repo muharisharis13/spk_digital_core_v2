@@ -553,7 +553,7 @@ class IndentController extends Controller
 
             $validator->sometimes(
                 ["micro_finance_id", "microfinance_name"],
-                "required",
+                "nullable",
                 function ($input) {
                     return $input->indent_type === "cash";
                 }

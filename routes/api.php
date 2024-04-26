@@ -284,6 +284,7 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("excess-payment")->group(function () {
                 Route::get("/list", [SPKController::class, "getpaginateExcessPayment"]);
+                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"]);
             });
 
             Route::prefix("payment")->group(function () {

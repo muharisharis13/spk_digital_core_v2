@@ -45,6 +45,18 @@ class SPKController extends Controller
 {
     //
 
+    public function getDetailExcessPayment(Request $request, $spk_excess_fund_id)
+    {
+        try {
+            $getDetail = SpkExcessFunds::where("spk_excess_fund_id", $spk_excess_fund_id)->with(["spk"])->first();
+
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
 
     public function getpaginateExcessPayment(Request $request)
     {
@@ -2061,7 +2073,7 @@ class SPKController extends Controller
     function spk_transaction_method_payment_cash($validator)
     {
         return
-            $validator->sometimes(["microfinance_name", "micro_finance_id"], 'required', function ($input) {
+            $validator->sometimes(["microfinance_name", "micro_finance_id"], 'nullable', function ($input) {
                 return $input->spk_transaction_method_buying == 'cash';
             });
     }
