@@ -302,6 +302,12 @@ Route::prefix("v1")->group(function () {
             Route::post("/create", [ReturUnitController::class, "createReturUnit"]);
             Route::get("/list", [ReturUnitController::class, "getPaginateReturUnit"]);
             Route::get("/detail/{retur_unit_id}", [ReturUnitController::class, "getDetailReturUnit"]);
+            Route::put("/update/{retur_unit_id}", [ReturUnitController::class, "editReturUNit"]);
+            Route::delete("/delete/{retur_unit_id}", [ReturUnitController::class, "deleteRetur"]);
+
+            Route::prefix("unit-list")->group(function () {
+                Route::delete("/delete/{retur_unit_list_id}", [ReturUnitController::class, "deleteReturUnitList"]);
+            });
         });
     });
 });

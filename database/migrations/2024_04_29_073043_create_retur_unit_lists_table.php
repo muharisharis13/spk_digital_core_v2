@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign("retur_unit_id")->references("retur_unit_id")->on("retur_units")->onDelete("set null");
             $table->uuid("unit_id")->nullable();
             $table->foreign("unit_id")->references("unit_id")->on("unit")->onDelete("set null");
+            $table->enum("retur_unit_list_status", ["request", "approved", "reject"])->default("request");
             $table->timestamps();
         });
     }
