@@ -13,6 +13,7 @@ use App\Http\Controllers\API\NeqController;
 use App\Http\Controllers\API\NeqReturnController;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
+use App\Http\Controllers\API\ReturUnitController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\SPKController;
 use App\Http\Controllers\API\UnitContoller;
@@ -295,6 +296,12 @@ Route::prefix("v1")->group(function () {
                 Route::put("/refund/{spk_payment_id}", [SPKController::class, "refundAllPaymentt"]);
                 Route::put("/status/{spk_payment_id}", [SPKController::class, "updateStatusPaymentList"]);
             });
+        });
+
+        Route::prefix("retur-unit")->group(function () {
+            Route::post("/create", [ReturUnitController::class, "createReturUnit"]);
+            Route::get("/list", [ReturUnitController::class, "getPaginateReturUnit"]);
+            Route::get("/detail/{retur_unit_id}", [ReturUnitController::class, "getDetailReturUnit"]);
         });
     });
 });
