@@ -281,7 +281,6 @@ class ReturUnitController extends Controller
                 "main_dealer_name" => "required",
                 "main_dealer_id" => "required",
                 "dealer_type" => "required|in:mds,independent",
-                "dealer_id" => "required",
                 "retur_unit_reason" => "nullable",
                 "units" => "array|required",
                 "unit.*.unit_id" => "required",
@@ -299,7 +298,6 @@ class ReturUnitController extends Controller
 
             $getDetailReturUnit->update([
                 "dealer_type" => $request->dealer_type,
-                "dealer_id" => $request->dealer_id,
                 "retur_unit_reason" => $request->retur_unit_reason,
                 "main_dealer_name" => $request->main_dealer_name,
                 "main_dealer_id" => $request->main_dealer_id,
