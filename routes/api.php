@@ -59,6 +59,13 @@ Route::prefix("v1")->group(function () {
     });
 
 
+    Route::prefix("secret")->group(function () {
+        Route::prefix("retur-unit")->group(function () {
+            Route::post("/update-unit/{id}", [ReturUnitController::class, "receivedApprovedReject"])->middleware(["checkApiKeyMD"]);
+        });
+    });
+
+
     Route::middleware("auth:sanctum")->group(function () {
 
         Route::prefix("permissions")->group(function () {
@@ -308,13 +315,6 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("unit-list")->group(function () {
                 Route::delete("/delete/{retur_unit_list_id}", [ReturUnitController::class, "deleteReturUnitList"]);
-            });
-        });
-
-
-        Route::prefix("secret")->group(function () {
-            Route::prefix("retur-unit")->group(function () {
-                Route::post("/update-unit/{id}", [ReturUnitController::class, "receivedApprovedReject"])->middleware(["checkApiKeyMD"]);
             });
         });
     });
