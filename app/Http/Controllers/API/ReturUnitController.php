@@ -63,7 +63,7 @@ class ReturUnitController extends Controller
 
             $allChangeStatus = true;
             foreach ($getReturUnitList as $unitLoop) {
-                if ($unitLoop->retur_unit_list_status !== 'approved' || $unitLoop->retur_unit_list_status !== 'reject') {
+                if ($unitLoop->retur_unit_list_status !== 'approved' && $unitLoop->retur_unit_list_status !== 'reject') {
                     $allChangeStatus = false;
                     break; // Jika ada satu unit yang tidak on_hand, hentikan loop
                 }
