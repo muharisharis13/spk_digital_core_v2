@@ -415,7 +415,6 @@ class ReturUnitController extends Controller
                 "main_dealer_name" => "required",
                 "main_dealer_id" => "required",
                 "dealer_type" => "required|in:mds,independent",
-                "dealer_id" => "required",
                 "retur_unit_reason" => "nullable",
                 "retur_unit_dealer_destination_id" => "required",
                 "retur_unit_dealer_destination_name" => "required",
