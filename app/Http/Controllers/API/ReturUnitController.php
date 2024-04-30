@@ -23,6 +23,52 @@ class ReturUnitController extends Controller
 {
     //
 
+    public function receivedApprovedReject(Request $request, $retur_unit_list_frame_number)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "retur_unit_list_status" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+
+
+            $getDetailReturUnitList = ReturUnitList::with(["unit"])
+                ->whereHas("unit", function ($query) use ($retur_unit_list_frame_number) {
+                    return $query->where("unit_frame", $retur_unit_list_frame_number);
+                });
+
+            if (isset($getDetailReturUnitList->retur_unit_list_id)) {
+                $getDetailReturUnitList->update([
+                    "retur_unit_list_status" => $request->retur_unit_list_status
+                ]);
+            }
+
+            //create log unit retur
+            $createReturUnitLog = ReturUnitLog::create([
+                "retur_unit_id" => $getDetailReturUnitList->retur_unit->retur_unit_id,
+                "retur_unit_log_action" => "update status unit list to $request->retur_unit_list_status"
+            ]);
+
+            $data = [
+                "retur_unit_list" => $getDetailReturUnitList,
+                "retur_unit_log" => $createReturUnitLog
+            ];
+
+
+            return ResponseFormatter::success($data, "Successfully updated status");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function confirmStatusReturUnit(Request $request, $retur_unit_id)
     {
         try {
@@ -72,7 +118,7 @@ class ReturUnitController extends Controller
                     "retur_unit_list_motor" => $retur_unit->unit->motor->motor_name,
                     "retur_unit_list_frame_number" => $retur_unit->unit->unit_frame,
                     "retur_unit_list_engine_number" => $retur_unit->unit->unit_engine,
-                    "retur_unit_list_color" => $retur_unit->unit->unit_color
+                    "retur_unit_list_color" => $retur_unit->unit->unit_color,
                 ];
 
                 // Tambahkan unit ke dalam array $data['units']

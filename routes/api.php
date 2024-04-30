@@ -310,5 +310,12 @@ Route::prefix("v1")->group(function () {
                 Route::delete("/delete/{retur_unit_list_id}", [ReturUnitController::class, "deleteReturUnitList"]);
             });
         });
+
+
+        Route::prefix("secret")->group(function () {
+            Route::prefix("retur-unit")->group(function () {
+                Route::post("/update-unit/{id}", [ReturUnitController::class, "receivedApprovedReject"])->middleware(["checkApiKeyMD"]);
+            });
+        });
     });
 });
