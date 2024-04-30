@@ -212,7 +212,15 @@ class ReturUnitController extends Controller
 
 
             if ($getDetailReturUnit->retur_unit_status === "create") {
-                ReturUnitList::where("retur_unit_id", $retur_unit_id)->delete();
+                $returUnitList = ReturUnitList::where("retur_unit_id", $retur_unit_id)->get();
+
+                foreach ($returUnitList as $item) {
+                    Unit::where("unit_id", $item["unit_id"])->first()->update([
+                        "unit_status" => "on_hand"
+                    ]);
+                }
+
+                $returUnitList->delete();
                 $getDetailReturUnit->delete();
             } else {
                 DB::rollBack();
