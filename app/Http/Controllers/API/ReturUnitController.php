@@ -56,6 +56,8 @@ class ReturUnitController extends Controller
                 "retur_unit_log_action" => "update status unit list to $request->retur_unit_list_status"
             ]);
 
+            DB::commit();
+
             $data = [
                 "retur_unit_list" => $getDetailReturUnitList,
                 "retur_unit_log" => $createReturUnitLog
