@@ -166,6 +166,7 @@ class RepairController extends Controller
         try {
             $validator  = Validator::make($request->all(), [
                 "main_dealer_id" => "required",
+                "main_dealer_name" => "required",
                 "repair_reason" => "required",
                 "repair_unit" => "required|array",
                 "repair_unit.*.unit_id" => "required",
@@ -181,6 +182,7 @@ class RepairController extends Controller
 
             Repair::where("repair_id", $repair_id)->update([
                 "main_dealer_id" => $request->main_dealer_id,
+                "main_dealer_name" => $request->main_dealer_name,
                 "repair_reason" => $request->repair_reason,
             ]);
             $getDetailRepair = Repair::where("repair_id", $repair_id)
@@ -310,6 +312,7 @@ class RepairController extends Controller
         try {
             $validator  = Validator::make($request->all(), [
                 "main_dealer_id" => "required",
+                "main_dealer_name" => "required",
                 "repair_reason" => "required",
                 "repair_unit" => "required|array",
                 "repair_unit.*.unit_id" => "required"
@@ -326,6 +329,7 @@ class RepairController extends Controller
 
             $createRepair = Repair::create([
                 "main_dealer_id" => $request->main_dealer_id,
+                "main_dealer_name" => $request->main_dealer_name,
                 "repair_reason" => $request->repair_reason,
                 "repair_status" => RepairStatusEnum::create,
                 "repair_number" => GenerateNumber::generate("TEMP-REPAIR", GenerateAlias::generate($getDealer->dealer->dealer_name), "repairs", "repair_number"),
