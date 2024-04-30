@@ -10,5 +10,5 @@ class ApiSecret extends Model
 {
     use HasFactory, HasUuids;
     protected $guarded = [];
-    protected $with = ["api_secret_id"];
+    protected $primaryKey = "api_secret_id";
 }

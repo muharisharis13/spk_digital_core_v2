@@ -7,6 +7,7 @@ use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\ApiSecret;
 use App\Models\ReturUnit;
 use App\Models\ReturUnitList;
 use App\Models\ReturUnitLog;
@@ -15,6 +16,7 @@ use App\Models\UnitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class ReturUnitController extends Controller
@@ -24,7 +26,78 @@ class ReturUnitController extends Controller
     public function confirmStatusReturUnit(Request $request, $retur_unit_id)
     {
         try {
-            # code...
+
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+            $getDetailReturUnit = ReturUnit::where("retur_unit_id", $retur_unit_id)
+                ->with(["dealer", "retur_unit_list.unit"])
+                ->first();
+
+            $getDetailReturUnit->update([
+                "retur_unit_status" => "confirm"
+            ]);
+
+            //create log unit retur
+            $createReturUnitLog = ReturUnitLog::create([
+                "retur_unit_id" => $retur_unit_id,
+                "user_id" => $user->user_id,
+                "retur_unit_log_action" => "update status to confirm"
+            ]);
+
+            $getApiKeySecret = ApiSecret::get()->first();
+
+
+
+
+            $data = [
+                "retur_unit_number_dealer" => $getDetailReturUnit->retur_unit_number,
+                "main_dealer_id" => $getDetailReturUnit->main_dealer_id,
+                "dealer_name" => $getDetailReturUnit->dealer->dealer_name,
+                "dealer_code" => $getDetailReturUnit->dealer->dealer_code,
+                "retur_unit_reason" => $getDetailReturUnit->retur_unit_reason,
+                "units" => []
+            ];
+
+            // Loop melalui setiap unit dan tambahkan ke dalam data
+            foreach ($getDetailReturUnit->retur_unit_list as $retur_unit) {
+                // Buat array untuk mewakili setiap unit
+                $unit_data = [
+                    "retur_unit_list_motor" => $retur_unit->unit->motor->motor_name,
+                    "retur_unit_list_frame_number" => $retur_unit->unit->unit_frame,
+                    "retur_unit_list_engine_number" => $retur_unit->unit->unit_engine,
+                    "retur_unit_list_color" => $retur_unit->unit->unit_color
+                ];
+
+                // Tambahkan unit ke dalam array $data['units']
+                $data['units'][] = $unit_data;
+            }
+
+            $createReturUnitToMD = Http::withHeaders([
+                'ALFA-API-KEY' => $getApiKeySecret->api_secret_key,
+                'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
+            ])->post('http://103.165.240.34:9003/api/v1/secret/retur-unit/create', $data);
+
+            $createReturUnitToMD = $createReturUnitToMD->json();
+            $dataResponse = null;
+
+            if (isset($createReturUnitToMD["meta"]["code"]) && $createReturUnitToMD["meta"]["code"] == 200) {
+                $dataResponse = [
+                    "retur_unit" => $getDetailReturUnit,
+                    "retur_unit_log" => $createReturUnitLog
+                ];
+                DB::commit();
+
+
+                return ResponseFormatter::success($dataResponse, "Successfully update status to confirm");
+            } else {
+                DB::rollBack();
+                return $createReturUnitToMD;
+            }
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
