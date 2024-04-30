@@ -218,9 +218,9 @@ class ReturUnitController extends Controller
                     Unit::where("unit_id", $item["unit_id"])->first()->update([
                         "unit_status" => "on_hand"
                     ]);
+                    $item->delete();
                 }
 
-                $returUnitList->delete();
                 $getDetailReturUnit->delete();
             } else {
                 DB::rollBack();
