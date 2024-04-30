@@ -124,7 +124,7 @@ class ReturUnitController extends Controller
 
 
             $getDetailReturUnit = ReturUnit::where("retur_unit_id", $retur_unit_id)
-                ->with(["dealer", "retur_unit_list.unit"])
+                ->with(["dealer", "retur_unit_list.unit.shipping_order"])
                 ->first();
 
             $getDetailReturUnit->update([
@@ -162,6 +162,7 @@ class ReturUnitController extends Controller
                     "retur_unit_list_frame_number" => $retur_unit->unit->unit_frame,
                     "retur_unit_list_engine_number" => $retur_unit->unit->unit_engine,
                     "retur_unit_list_color" => $retur_unit->unit->unit_color,
+                    "shipping_order_number" => $retur_unit->unit->shipping_order->shipping_order_number
                 ];
 
                 // Tambahkan unit ke dalam array $data['units']
@@ -456,7 +457,6 @@ class ReturUnitController extends Controller
                     "unit_log_number" => $createReturUnit->retur_unit_id,
                     "unit_log_action" => "update status to hold",
                     "unit_log_status" => "hold",
-
                 ]);
             }
 
