@@ -56,6 +56,22 @@ class ReturUnitController extends Controller
                 "retur_unit_log_action" => "update status unit list to $request->retur_unit_list_status"
             ]);
 
+            $getReturUnitList = ReturUnitList::where("retur_unit_id", $getDetailReturUnitList->retur_unit_id)->get();
+
+            $allChangeStatus = true;
+            foreach ($getReturUnitList as $unitLoop) {
+                if ($unitLoop->retur_unit_list_status !== 'approved' || $unitLoop->retur_unit_list_status !== 'reject') {
+                    $allChangeStatus = false;
+                    break; // Jika ada satu unit yang tidak on_hand, hentikan loop
+                }
+            }
+
+            if ($allChangeStatus) {
+                ReturUnit::where("retur_unit_id", $getDetailReturUnitList->retur_unit_id)->update([
+                    "retur_unit_status" => "approved"
+                ]);
+            }
+
             DB::commit();
 
             $data = [
