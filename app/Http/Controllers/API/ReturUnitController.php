@@ -42,7 +42,7 @@ class ReturUnitController extends Controller
             $getDetailReturUnitList = ReturUnitList::with(["unit"])
                 ->whereHas("unit", function ($query) use ($retur_unit_list_frame_number) {
                     return $query->where("unit_frame", $retur_unit_list_frame_number);
-                });
+                })->first();
 
             if (isset($getDetailReturUnitList->retur_unit_list_id)) {
                 $getDetailReturUnitList->update([
