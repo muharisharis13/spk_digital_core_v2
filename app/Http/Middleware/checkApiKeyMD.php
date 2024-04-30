@@ -21,8 +21,8 @@ class checkApiKeyMD
         $apiKey = $request->header('DEALER-API-KEY');
         $dealerCode = $request->header('DEALER-CODE');
 
-        $getApiKey = ApiSecret::where("api_secret_key", $apiKey);
-        $getDealer = Dealer::where("dealer_code", $dealerCode);
+        $getApiKey = ApiSecret::where("api_secret_key", $apiKey)->first();
+        $getDealer = Dealer::where("dealer_code", $dealerCode)->first();
 
         // Memeriksa apakah API key ada dan sesuai dengan yang diharapkan
         if (isset($getApiKey->api_key_secret) && isset($getDealer->dealer_id)) {
