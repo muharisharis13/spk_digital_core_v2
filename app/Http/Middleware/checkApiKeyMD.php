@@ -25,7 +25,7 @@ class checkApiKeyMD
         $getDealer = Dealer::where("dealer_code", $dealerCode)->first();
 
         // Memeriksa apakah API key ada dan sesuai dengan yang diharapkan
-        if (isset($getApiKey->api_key_secret) && isset($getDealer->dealer_id)) {
+        if (isset($getApiKey->api_secret_key) && isset($getDealer->dealer_id)) {
             // Jika API key valid, lanjutkan permintaan
             return $next($request);
         } else {
