@@ -48,6 +48,29 @@ class ReturUnitController extends Controller
                 $getDetailReturUnitList->update([
                     "retur_unit_list_status" => $request->retur_unit_list_status
                 ]);
+                if ($request->retur_unit_list_status === "approved") {
+                    Unit::where("unit_id", $getDetailReturUnitList->unit->unit_id)->first()->update([
+                        "unit_status" => "retur"
+                    ]);
+
+                    UnitLog::create([
+                        "unit_id" => $getDetailReturUnitList->unit_id,
+                        "unit_log_number" => $getDetailReturUnitList->retur_unit->retur_unit_number,
+                        "unit_log_action" => "update status to on_hand",
+                        "unit_log_status" => "retur",
+                    ]);
+                }
+                if ($request->retur_unit_list_status === "reject") {
+                    Unit::where("unit_id", $getDetailReturUnitList->unit->unit_id)->first()->update([
+                        "unit_status" => "on_hand"
+                    ]);
+                    UnitLog::create([
+                        "unit_id" => $getDetailReturUnitList->unit_id,
+                        "unit_log_number" => $getDetailReturUnitList->retur_unit->retur_unit_number,
+                        "unit_log_action" => "update status to on_hand",
+                        "unit_log_status" => "on_hand",
+                    ]);
+                }
             }
 
             //create log unit retur
