@@ -28,7 +28,8 @@ class ReturUnitController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                "retur_unit_list_status" => "required"
+                "retur_unit_list_status" => "required",
+                "shipping_order_number" => "required"
             ]);
 
             if ($validator->fails()) {
@@ -37,11 +38,16 @@ class ReturUnitController extends Controller
 
             DB::beginTransaction();
 
+            $shipping_order_number = $request->shipping_order_number;
 
 
-            $getDetailReturUnitList = ReturUnitList::with(["unit"])
-                ->whereHas("unit", function ($query) use ($retur_unit_list_frame_number) {
-                    return $query->where("unit_frame", $retur_unit_list_frame_number);
+
+            $getDetailReturUnitList = ReturUnitList::with(["unit.shipping_order"])
+                ->whereHas("unit", function ($query) use ($retur_unit_list_frame_number, $shipping_order_number) {
+                    return $query->where("unit_frame", $retur_unit_list_frame_number)
+                        ->whereHas("shipping_order", function ($query) use ($shipping_order_number) {
+                            return $query->where("shipping_order_number", $shipping_order_number);
+                        });
                 })->first();
 
             if (isset($getDetailReturUnitList->retur_unit_list_id)) {
