@@ -129,7 +129,7 @@ class RepairController extends Controller
 
             $deleteRepair = Repair::where("repair_id", $repair_id)
                 ->where("repair_status", RepairStatusEnum::create)
-                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
+                ->with(["dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
                 ->first();
 
 
@@ -184,7 +184,7 @@ class RepairController extends Controller
                 "repair_reason" => $request->repair_reason,
             ]);
             $getDetailRepair = Repair::where("repair_id", $repair_id)
-                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
+                ->with(["dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
                 ->first();
 
             if (!isset($getDetailRepair->repair_id)) {
@@ -222,7 +222,7 @@ class RepairController extends Controller
             DB::commit();
 
             $getDetailRepair = Repair::where("repair_id", $repair_id)
-                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
+                ->with(["dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user"])
                 ->first();
 
 
@@ -237,7 +237,7 @@ class RepairController extends Controller
     {
         try {
             $getDetailRepairUnit = Repair::where("repair_id", $repair_id)
-                ->with(["dealer", "main_dealer", "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user", "delivery_repair.delivery"])
+                ->with(["dealer",  "repair_unit.unit", "repair_unit.unit.motor", "repair_log.user", "delivery_repair.delivery"])
                 ->first();
 
             if (!$getDetailRepairUnit) {
@@ -270,13 +270,11 @@ class RepairController extends Controller
 
             $getPaginateRepair = Repair::latest()->with(["repair_unit" => function ($query) {
                 $query->where("is_return", false);
-            }, "repair_log.user", "dealer", "main_dealer"])
+            }, "repair_log.user", "dealer"])
                 ->where(function ($query) use ($searchQuery) {
                     $query->where('repair_number', 'LIKE', "%$searchQuery%")
                         ->orWhere('repair_status', 'LIKE', "%$searchQuery%")
-                        ->whereHas("main_dealer", function ($queryMainDealer) use ($searchQuery) {
-                            return $queryMainDealer->where("main_dealer_name", 'LIKE', "%$searchQuery%");
-                        });
+                        ->orWhere('main_dealer_name', 'LIKE', "%$searchQuery%");
                 })
                 ->where("repair_status", "LIKE", "%$repair_status%")
                 ->when($startDate, function ($query) use ($startDate) {

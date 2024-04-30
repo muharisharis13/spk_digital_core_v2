@@ -17,10 +17,6 @@ class Repair extends Model
 
 
 
-    public function main_dealer()
-    {
-        return $this->belongsTo(MainDealer::class, "main_dealer_id");
-    }
     public function dealer()
     {
         return $this->belongsTo(Dealer::class, "dealer_id");

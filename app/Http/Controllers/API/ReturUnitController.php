@@ -60,6 +60,8 @@ class ReturUnitController extends Controller
                 "dealer_name" => $getDetailReturUnit->dealer->dealer_name,
                 "dealer_code" => $getDetailReturUnit->dealer->dealer_code,
                 "retur_unit_reason" => $getDetailReturUnit->retur_unit_reason,
+                "retur_unit_dealer_destination_id" => $getDetailReturUnit->retur_unit_dealer_destination_id,
+                "retur_unit_dealer_destination_name" => $getDetailReturUnit->retur_unit_dealer_destination_name,
                 "units" => []
             ];
 
@@ -77,10 +79,12 @@ class ReturUnitController extends Controller
                 $data['units'][] = $unit_data;
             }
 
+            $url = '/secret/retur-unit/create';
+
             $createReturUnitToMD = Http::withHeaders([
                 'ALFA-API-KEY' => $getApiKeySecret->api_secret_key,
                 'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
-            ])->post('http://103.165.240.34:9003/api/v1/secret/retur-unit/create', $data);
+            ])->post(env('API_MD_BASE') . $url, $data);
 
             $createReturUnitToMD = $createReturUnitToMD->json();
             $dataResponse = null;
@@ -186,6 +190,8 @@ class ReturUnitController extends Controller
                 "units" => "array|required",
                 "unit.*.unit_id" => "required",
                 "unit.*.retur_unit_list_id" => "nullable",
+                "retur_unit_dealer_destination_id" => "required",
+                "retur_unit_dealer_destination_name" => "required",
             ]);
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
@@ -201,6 +207,8 @@ class ReturUnitController extends Controller
                 "retur_unit_reason" => $request->retur_unit_reason,
                 "main_dealer_name" => $request->main_dealer_name,
                 "main_dealer_id" => $request->main_dealer_id,
+                "retur_unit_dealer_destination_id" => $request->retur_unit_dealer_destination_id,
+                "retur_unit_dealer_destination_name" => $request->retur_unit_dealer_destination_name,
             ]);
 
             $user = Auth::user();
@@ -282,7 +290,12 @@ class ReturUnitController extends Controller
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             $getPaginateReturUnit = ReturUnit::latest()
-                ->with(["dealer"])
+                ->with(["dealer", "retur_unit_list"])
+                ->withCount([
+                    "retur_unit_list as retur_unit_list_total" => function ($query) {
+                        $query->selectRaw("count(*)");
+                    }
+                ])
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
@@ -308,6 +321,8 @@ class ReturUnitController extends Controller
                 "dealer_type" => "required|in:mds,independent",
                 "dealer_id" => "required",
                 "retur_unit_reason" => "nullable",
+                "retur_unit_dealer_destination_id" => "required",
+                "retur_unit_dealer_destination_name" => "required",
                 "units" => "array|required",
                 "unit.*.unit_id" => "required"
             ]);
@@ -324,11 +339,13 @@ class ReturUnitController extends Controller
             $createReturUnit = ReturUnit::create([
                 "retur_unit_status" => "create",
                 "dealer_type" => $request->dealer_type,
-                "dealer_id" => $request->dealer_id,
+                "dealer_id" => $getDealer->dealer_id,
                 "retur_unit_reason" => $request->retur_unit_reason,
                 "main_dealer_name" => $request->main_dealer_name,
                 "main_dealer_id" => $request->main_dealer_id,
-                "retur_unit_number" => GenerateNumber::generate("RETUR-UNIT", GenerateAlias::generate($getDealer->dealer->dealer_name), "retur_units", "retur_unit_number")
+                "retur_unit_number" => GenerateNumber::generate("RETUR-UNIT", GenerateAlias::generate($getDealer->dealer->dealer_name), "retur_units", "retur_unit_number"),
+                "retur_unit_dealer_destination_id" => $request->retur_unit_dealer_destination_id,
+                "retur_unit_dealer_destination_name" => $request->retur_unit_dealer_destination_name,
             ]);
 
             $createReturUnitList = [];
