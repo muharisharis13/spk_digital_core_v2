@@ -15,6 +15,7 @@ use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ReturUnitController;
 use App\Http\Controllers\API\ShippingOrderController;
+use App\Http\Controllers\API\ShippingOrderController2;
 use App\Http\Controllers\API\SPKController;
 use App\Http\Controllers\API\UnitContoller;
 use App\Http\Controllers\API\UserController;
@@ -81,6 +82,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("shipping-order")->group(function () {
             Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
+            Route::post("/sync-data2", [ShippingOrderController2::class, "syncShippingOrderMD"]);
             Route::get("/list", [ShippingOrderController::class, "getListShippingOrder"]);
             Route::get("/detail/{shipping_order_id}", [ShippingOrderController::class, "getDetailShippingOrder"]);
         });
