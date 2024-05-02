@@ -18,6 +18,68 @@ class UnitContoller extends Controller
 {
     //
 
+    public function clonePriceList(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "location_before" => "required",
+                // "location_type_before" => "required|in:dealer,neq",
+                "location_after" => "required",
+                "location_type_after" => "required|in:dealer,neq",
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            $location_before = $request->location_before;
+
+            //mendapatkan location awal pricelist
+            $getPriceListBefore = PricelistMotor::latest()
+                ->when($location_before, function ($query) use ($location_before) {
+                    return $query->where("dealer_id", "LIKE", "%$location_before%")
+                        ->orWhere("dealer_neq_id", "LIKE", "%$location_before%");
+                })
+                ->get();
+
+
+            //membuat location baru untuk pricelist di dealer atau di neq
+
+            $createPriceListAfter = [];
+
+            foreach ($getPriceListBefore as $item) {
+                $pricelistData = [
+                    "motor_id" => $item->motor_id,
+                    "off_the_road" => $item->off_the_road,
+                    "bbn" => $item->bbn,
+                    "pricelist_location_type" => $request->location_type_after,
+                ];
+
+                // Memasukkan dealer_id hanya jika pricelist_location_type adalah 'dealer'
+                if ($request->location_type_after === 'dealer') {
+                    $pricelistData['dealer_id'] = $request->location_after;
+                }
+
+                // Memasukkan dealer_neq_id hanya jika pricelist_location_type adalah 'neq'
+                if ($request->location_type_after === 'neq') {
+                    $pricelistData['dealer_neq_id'] = $request->location_after;
+                }
+
+
+                $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
+            }
+
+            DB::commit();
+
+
+            return ResponseFormatter::success($createPriceListAfter, "Successfully clone price list");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
 
     public function getListPriceList(Request $request)
     {
