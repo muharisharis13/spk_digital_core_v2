@@ -109,6 +109,7 @@ class UserController extends Controller
             } else {
                 return ResponseFormatter::error('Dealer by User not found', "Bad Request", 400);
             }
+            DB::commit();
             return ResponseFormatter::success($getDealer);
         } catch (\Throwable $e) {
             DB::rollback();
