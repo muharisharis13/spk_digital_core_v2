@@ -1671,7 +1671,7 @@ class SPKController extends Controller
                 ->when($is_cro_check === "null", function ($query) {
                     return $query->whereNull("is_cro_check");
                 })
-                ->when($is_cro_check !== "null", function ($query) use ($is_cro_check) {
+                ->when($is_cro_check, function ($query) use ($is_cro_check) {
                     return $query->where("is_cro_check", "LIKE", "%$is_cro_check%");
                 })
                 ->where("spk_status", "LIKE", "%$spk_status%")
