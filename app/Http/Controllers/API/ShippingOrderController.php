@@ -10,6 +10,7 @@ use App\Enums\UnitStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\ApiSecret;
 use App\Models\Color;
 use App\Models\Dealer;
 use App\Models\Motor;
@@ -32,6 +33,29 @@ class ShippingOrderController extends Controller
     //     $this->middleware('auth:api',['except' => ['login']]);
     // }
 
+    protected function updateStatusUnitToMainDealer($unit_frame, $shipping_order_delivery_number)
+    {
+        $url = '/secret/unit/update-status';
+        $getApiKeySecret = ApiSecret::get()->first();
+
+        $user = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+        $data = [
+            "unit_frame" => $unit_frame,
+            "shipping_order_delivery_number" => $shipping_order_delivery_number
+        ];
+
+        $updateStatusUnitToMainDealer = Http::withHeaders([
+            'ALFA-API-KEY' => $getApiKeySecret->api_secret_key,
+            'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
+        ])->post("http://103.165.240.34:9003/api/v1" . $url, $data);
+
+        $updateStatusUnitToMainDealer = $updateStatusUnitToMainDealer->json();
+
+        return $updateStatusUnitToMainDealer;
+    }
+
     public function updateTerimaUnitShippingOrder(Request $request, $unit_id)
     {
         try {
@@ -44,11 +68,14 @@ class ShippingOrderController extends Controller
 
             $currentDate = Carbon::now()->format('Y-m-d');
 
-            $updateUnit = Unit::where("unit_id", $unit_id)->update([
+            $updateUnit = Unit::where("unit_id", $unit_id)->first();
+
+            $updateUnit->update([
                 "unit_status" => UnitStatusEnum::on_hand,
                 "unit_note" => $request->unit_note,
                 "unit_received_date" => $currentDate
             ]);
+
             $getUnit = Unit::where("unit_id", $unit_id)->with(["shipping_order", "dealer"])->first();
 
             if (!$getUnit) {
@@ -87,15 +114,21 @@ class ShippingOrderController extends Controller
                 ]);
             }
 
+            $resultUpdateToMainDealer =  $this->updateStatusUnitToMainDealer($getUnit->unit_frame, $getUnit->shipping_order->shipping_order_delivery_number);
 
 
-            DB::commit();
+            if (isset($resultUpdateToMainDealer["meta"]["code"]) && $resultUpdateToMainDealer["meta"]["code"] === 200) {
+                DB::commit();
 
-            if ($updateUnit === 0) {
+                if ($updateUnit === 0) {
 
-                return ResponseFormatter::error("Unit Not Found !", "Bad Request", 400);
+                    return ResponseFormatter::error("Unit Not Found !", "Bad Request", 400);
+                } else {
+                    return ResponseFormatter::success($updateUnit, "Successfully updated !");
+                }
             } else {
-                return ResponseFormatter::success($updateUnit, "Successfully updated !");
+                DB::rollBack();
+                return $resultUpdateToMainDealer;
             }
         } catch (\Throwable $e) {
             DB::rollBack();
