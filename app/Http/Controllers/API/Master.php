@@ -327,16 +327,26 @@ class Master extends Controller
             $sortBy = $request->input('sort_by', 'motor_name');
             $sortOrder = $request->input('sort_order', 'asc');
 
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+
             if ($paginate === "true") {
                 $getListMotor = Motor::where(function ($query) use ($searchQuery) {
                     $query->where("motor_name", "LIKE", "%$searchQuery%")
                         ->orWhere("motor_code", "LIKE", "%$searchQuery%");
-                })->orderBy($sortBy, $sortOrder)->paginate($limit);
+                })
+                    ->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
-                $getListMotor = Motor::where(function ($query) use ($searchQuery) {
-                    $query->where("motor_name", "LIKE", "%$searchQuery%")
-                        ->orWhere("motor_code", "LIKE", "%$searchQuery%");
-                })->orderBy($sortBy, $sortOrder)->get();
+                $getListMotor = Motor::with(["motor_pricelist" => function ($query) use ($getDealerSelected) {
+                    return $query->where("dealer_id", $getDealerSelected->dealer_id);
+                }])
+                    ->where(function ($query) use ($searchQuery) {
+                        $query->where("motor_name", "LIKE", "%$searchQuery%")
+                            ->orWhere("motor_code", "LIKE", "%$searchQuery%");
+                    })
+                    ->orderBy($sortBy, $sortOrder)->get();
             }
 
             return ResponseFormatter::success($getListMotor);

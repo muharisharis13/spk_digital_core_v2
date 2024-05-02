@@ -22,7 +22,15 @@ class UnitContoller extends Controller
     public function getListPriceList(Request $request)
     {
         try {
-            $getListPriceListt = PricelistMotor::latest()->get();
+
+            $location = $request->input("location");
+
+            $getListPriceListt = PricelistMotor::latest()
+                ->when($location, function ($query) use ($location) {
+                    return $query->where("dealer_id", "LIKE", "%$location%")
+                        ->orWhere("dealer_neq_id", "LIKE", "%$location%");
+                })
+                ->get();
 
 
             return ResponseFormatter::success($getListPriceListt);
@@ -41,7 +49,7 @@ class UnitContoller extends Controller
                 "pricelist_location_type" => "required|in:neq,dealer",
             ]);
 
-            $validator->sometimes(["dealer_id", "dealer_neq_id"], "required", function ($input) {
+            $validator->sometimes(["dealer_neq_id"], "required", function ($input) {
                 return $input->pricelist_location_type === 'neq';
             });
             $validator->sometimes(["dealer_id"], "required", function ($input) {
@@ -53,15 +61,26 @@ class UnitContoller extends Controller
             }
 
             DB::beginTransaction();
-
-            $createPriceList = PricelistMotor::create([
+            // Membuat array dengan kolom-kolom yang akan dimasukkan ke dalam database
+            $pricelistData = [
                 "motor_id" => $request->motor_id,
                 "off_the_road" => $request->off_the_road,
                 "bbn" => $request->bbn,
                 "pricelist_location_type" => $request->pricelist_location_type,
-                "dealer_id" => $request->dealer_id,
-                "dealer_neq_id" => $request->dealer_neq_id
-            ]);
+            ];
+
+            // Memasukkan dealer_id hanya jika pricelist_location_type adalah 'dealer'
+            if ($request->pricelist_location_type === 'dealer') {
+                $pricelistData['dealer_id'] = $request->dealer_id;
+            }
+
+            // Memasukkan dealer_neq_id hanya jika pricelist_location_type adalah 'neq'
+            if ($request->pricelist_location_type === 'neq') {
+                $pricelistData['dealer_neq_id'] = $request->dealer_neq_id;
+            }
+
+            // Membuat daftar harga dengan data yang telah disiapkan
+            $createPriceList = PricelistMotor::create($pricelistData);
 
             DB::commit();
 
