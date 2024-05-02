@@ -75,6 +75,7 @@ class ShippingOrderController2 extends Controller
                     //simpan data unit
                     foreach ($item["unit"] as $itemUnit) {
                         //check color jika ada buat jika tidak maka tidak dibuat
+
                         $createColor = Color::firstOrCreate([
                             "color_name" => $itemUnit["unit_color"]
                         ], [
@@ -90,18 +91,24 @@ class ShippingOrderController2 extends Controller
 
                         //check unit jika blm ada maka di simpan jika ada maka tidak akan di simpan,
 
-                        Unit::firstOrCreate([
-                            "unit_frame" => $itemUnit["unit_frame"],
-                            "unit_engine" => $itemUnit["unit_engine"]
-                        ], [
-                            "unit_frame" => $itemUnit["unit_frame"],
-                            "unit_engine" => $itemUnit["unit_engine"],
-                            "shipping_order_id" => $createShippingOrder->shipping_order_id,
-                            "motor_id" => $createMotor->motor_id,
-                            "dealer_id" => $getDetailDealer->dealer_id,
-                            "color_id" => $createColor->color_id,
-                            "unit_code" => 0
-                        ]);
+                        $shipping_order_delivery_number = $item["shipping_order_delivery_number"];
+
+                        Unit::with(["shipping_order"])
+                            ->whereHas("shipping_order", function ($query) use ($shipping_order_delivery_number) {
+                                return $query->where("shipping_order_delivery_number", $shipping_order_delivery_number);
+                            })
+                            ->firstOrCreate([
+                                "unit_frame" => $itemUnit["unit_frame"],
+                                "unit_engine" => $itemUnit["unit_engine"]
+                            ], [
+                                "unit_frame" => $itemUnit["unit_frame"],
+                                "unit_engine" => $itemUnit["unit_engine"],
+                                "shipping_order_id" => $createShippingOrder->shipping_order_id,
+                                "motor_id" => $createMotor->motor_id,
+                                "dealer_id" => $getDetailDealer->dealer_id,
+                                "color_id" => $createColor->color_id,
+                                "unit_code" => 0
+                            ]);
                     }
                 }
             }

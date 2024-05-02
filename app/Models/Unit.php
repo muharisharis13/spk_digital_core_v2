@@ -24,7 +24,8 @@ class Unit extends Model
         "motor_id",
         "dealer_neq_id",
         "dealer_id",
-        "unit_code"
+        "unit_code",
+        "color_id"
     ];
 
     protected $with = ["color"];
