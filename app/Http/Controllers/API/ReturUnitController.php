@@ -167,7 +167,7 @@ class ReturUnitController extends Controller
                     "retur_unit_list_motor" => $retur_unit->unit->motor->motor_name,
                     "retur_unit_list_frame_number" => $retur_unit->unit->unit_frame,
                     "retur_unit_list_engine_number" => $retur_unit->unit->unit_engine,
-                    "retur_unit_list_color" => $retur_unit->unit->unit_color,
+                    "retur_unit_list_color" => isset($retur_unit->unit->unit_color) ? $retur_unit->unit->unit_color : $retur_unit->unit->color->color_name,
                     "shipping_order_delivery_number" => $retur_unit->unit->shipping_order->shipping_order_delivery_number
                 ];
 
