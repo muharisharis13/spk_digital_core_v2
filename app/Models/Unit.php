@@ -27,6 +27,8 @@ class Unit extends Model
         "unit_code"
     ];
 
+    protected $with = ["color"];
+
     protected $primaryKey = "unit_id";
 
     protected $hidden = [
@@ -70,5 +72,10 @@ class Unit extends Model
     public function repair_unit()
     {
         return $this->hasOne(RepairUnitList::class, "unit_id");
+    }
+
+    public function color()
+    {
+        return $this->belongsTo(Color::class, "color_id");
     }
 }
