@@ -23,7 +23,7 @@ class ScheduleController extends Controller
     //
 
 
-    public function syncShippingOrderMD(Request $request)
+    public function syncShippingOrderMD()
     {
         ini_set('max_execution_time', 0);
         try {
