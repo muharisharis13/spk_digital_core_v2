@@ -55,6 +55,10 @@ class ScheduleController extends Controller
 
             $syncDataShipping = $syncDataShipping->json();
 
+            if ($syncDataShipping["meta"]["code"] === 401) {
+                return $syncDataShipping;
+            }
+
             if (count($syncDataShipping["data"]) > 0) {
                 foreach ($syncDataShipping["data"] as $item) {
 
