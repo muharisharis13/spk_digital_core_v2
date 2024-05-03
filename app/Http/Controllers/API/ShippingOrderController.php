@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Mockery\Undefined;
 
 class ShippingOrderController extends Controller
 {
@@ -98,7 +99,7 @@ class ShippingOrderController extends Controller
 
             $allOnHand = true;
             foreach ($getUnitByShippingOrderId as $unitLoop) {
-                if ($unitLoop->unit_status !== 'on_hand') {
+                if ($unitLoop->unit_status === null) {
                     $allOnHand = false;
                     break; // Jika ada satu unit yang tidak on_hand, hentikan loop
                 }
