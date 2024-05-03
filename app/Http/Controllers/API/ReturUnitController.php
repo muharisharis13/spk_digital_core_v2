@@ -62,7 +62,7 @@ class ReturUnitController extends Controller
                     UnitLog::create([
                         "unit_id" => $getDetailReturUnitList->unit_id,
                         "unit_log_number" => $getDetailReturUnitList->retur_unit->retur_unit_number,
-                        "unit_log_action" => "update status to on_hand",
+                        "unit_log_action" => "update status to retur",
                         "unit_log_status" => "retur",
                     ]);
                 }
