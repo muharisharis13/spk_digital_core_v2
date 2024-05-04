@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ScheduleController extends Controller
 {
@@ -33,24 +34,29 @@ class ScheduleController extends Controller
 
             DB::beginTransaction();
             $getApiKeySecret = ApiSecret::get()->first();
-            $user = Auth::user();
-            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+            // $user = Auth::user();
+            // $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             $url = '/secret/shipping-order/sync';
 
             // Mengambil tanggal saat ini
-            $date = Carbon::now();
+            $date = "2024-05-04";
+            // $date = Carbon::now();
 
             // Memformat tanggal
-            $formattedDate = $date->format('Y-m-d');
+            $formattedDate = $date;
+            // $formattedDate = $date->format('Y-m-d');
 
             $data = [
                 "shipping_date" => $formattedDate
             ];
 
+
+            // return $data;
+
             $syncDataShipping = Http::withHeaders([
                 'ALFA-API-KEY' => $getApiKeySecret->api_secret_key,
-                'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
+                // 'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
             ])->post("http://103.165.240.34:9003/api/v1" . $url, $data);
 
             $syncDataShipping = $syncDataShipping->json();
@@ -122,6 +128,7 @@ class ScheduleController extends Controller
 
             return $syncDataShipping;
         } catch (\Throwable $e) {
+            Log::info($e->getMessage());
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
