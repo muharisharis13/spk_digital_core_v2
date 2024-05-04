@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
 
             $controller = new ScheduleController();
             return  $controller->syncShippingOrderMD();
-        })->everyMinute();
+        })->everyTenMinutes();
     }
 
     /**
