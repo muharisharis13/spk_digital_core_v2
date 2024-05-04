@@ -40,12 +40,12 @@ class ScheduleController extends Controller
             $url = '/secret/shipping-order/sync';
 
             // Mengambil tanggal saat ini
-            $date = "2024-05-04";
-            // $date = Carbon::now();
+            // $date = "2024-05-04";
+            $date = Carbon::now();
 
             // Memformat tanggal
-            $formattedDate = $date;
-            // $formattedDate = $date->format('Y-m-d');
+            // $formattedDate = $date;
+            $formattedDate = $date->format('Y-m-d');
 
             $data = [
                 "shipping_date" => $formattedDate
