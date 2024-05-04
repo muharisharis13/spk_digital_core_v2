@@ -62,7 +62,7 @@ class ReturUnitController extends Controller
                     UnitLog::create([
                         "unit_id" => $getDetailReturUnitList->unit_id,
                         "unit_log_number" => $getDetailReturUnitList->retur_unit->retur_unit_number,
-                        "unit_log_action" => "update status to on_hand",
+                        "unit_log_action" => "update status to retur",
                         "unit_log_status" => "retur",
                     ]);
                 }
@@ -415,6 +415,19 @@ class ReturUnitController extends Controller
         }
     }
 
+    private function unitHaveEvent($unit_id)
+    {
+        if (!isset($unit_id)) {
+            return ResponseFormatter::error("unit id not found", "bad request", 400);
+        }
+        $getUnit = Unit::latest()
+            ->with(["event_list_unit"])
+            ->where("unit_id", $unit_id)
+            ->first();
+
+        return $getUnit->unit_location_status === 'event';
+    }
+
     public function createReturUnit(Request $request)
     {
         try {
@@ -438,6 +451,8 @@ class ReturUnitController extends Controller
             $user = Auth::user();
             $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
 
+
+
             $createReturUnit = ReturUnit::create([
                 "retur_unit_status" => "create",
                 "dealer_type" => $request->dealer_type,
@@ -453,6 +468,14 @@ class ReturUnitController extends Controller
             $createReturUnitList = [];
 
             foreach ($request->units as $item) {
+                //melakukan pengecekkan unit apakah berada di event atau di neq
+
+                if ($this->unitHaveEvent($item["unit_id"])) {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Unit " . $item["unit_id"] . "memiliki event, harap di return dahulu untuk melakukan retur ke main dealer", "Bad Request !", 400);
+                }
+
+
                 $createReturUnitList[] = ReturUnitList::create([
                     "retur_unit_id" => $createReturUnit->retur_unit_id,
                     "unit_id" => $item["unit_id"],
