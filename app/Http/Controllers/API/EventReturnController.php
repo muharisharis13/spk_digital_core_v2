@@ -115,39 +115,47 @@ class EventReturnController extends Controller
                 return ResponseFormatter::success("event return not found", "Bad Request", 400);
             }
 
-            foreach ($getDetailEventReturn->event_return_unit as $item) {
-                // update event unit ke is return true
+            if ($request->event_return_status === 'approve') {
 
-                $getDetailEventListUnit = EventListUnit::with(["unit"])->where("event_list_unit_id", $item["event_list_unit_id"])->first();
+                foreach ($getDetailEventReturn->event_return_unit as $item) {
+                    // update event unit ke is return true
 
-                Unit::where("unit_id", $getDetailEventListUnit->unit->unit_id)->update([
-                    "unit_location_status" => null
+                    $getDetailEventListUnit = EventListUnit::with(["unit"])->where("event_list_unit_id", $item["event_list_unit_id"])->first();
+
+                    Unit::where("unit_id", $getDetailEventListUnit->unit->unit_id)->update([
+                        "unit_location_status" => null
+                    ]);
+
+                    if ($getDetailEventListUnit->is_return === true) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("unit " . $getDetailEventListUnit->unit->unit_id . " sudah di return harap hapus.");
+                    }
+
+
+
+
+                    $getDetailEventListUnit = $getDetailEventListUnit->update([
+                        "is_return" => true
+                    ]);
+                }
+
+                $user = Auth::user();
+                // create event return log
+                $createEventLog = EventReturnLog::create([
+                    "event_return_id" => $getDetailEventReturn->event_return_id,
+                    "user_id" => $user->user_id,
+                    "event_return_log_action" => EventReturnStatusEnum::create,
+                    "event_return_log_note" => "create event return"
                 ]);
 
-
-
-
-                $getDetailEventListUnit = $getDetailEventListUnit->update([
-                    "is_return" => true
+                $getDetailEventReturn->update([
+                    "event_return_status" => $request->event_return_status
                 ]);
+
+                DB::commit();
+
+                return ResponseFormatter::success($getDetailEventReturn, "Success Update Status !");
             }
-
-            $user = Auth::user();
-            // create event return log
-            $createEventLog = EventReturnLog::create([
-                "event_return_id" => $getDetailEventReturn->event_return_id,
-                "user_id" => $user->user_id,
-                "event_return_log_action" => EventReturnStatusEnum::create,
-                "event_return_log_note" => "create event return"
-            ]);
-
-            $getDetailEventReturn->update([
-                "event_return_status" => $request->event_return_status
-            ]);
-
-            DB::commit();
-
-            return ResponseFormatter::success($getDetailEventReturn, "Success Update Status !");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
