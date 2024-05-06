@@ -103,7 +103,6 @@ class DeliveryController extends Controller
             switch ($getDetailDelivery->delivery_type) {
                 case "repair":
                     $getDetailDelivery->load([
-                        "delivery_repair.repair.main_dealer",
                         "delivery_repair.repair.repair_unit",
                         "delivery_repair.repair.repair_unit.unit.motor",
                     ]);
