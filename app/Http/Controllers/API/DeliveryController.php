@@ -197,7 +197,7 @@ class DeliveryController extends Controller
                 ->orderBy($sortBy, $sortOrder);
 
             if ($delivery_type === 'repair') {
-                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_repair.repair.main_dealer", "delivery_repair.repair.repair_unit"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_repair.repair.repair_unit"]);
             } else if ($delivery_type === 'repair_return') {
                 $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_repair_return.repair_return"]);
             } else if ($delivery_type === 'event') {
