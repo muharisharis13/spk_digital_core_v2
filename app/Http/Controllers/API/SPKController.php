@@ -62,7 +62,7 @@ class SPKController extends Controller
     {
         try {
             $limit = $request->input("limit", 5);
-            $getPaginate = SpkExcessFunds::latest()
+            $getPaginate = SpkExcessFunds::with(['spk'])->latest()
                 ->paginate($limit);
             // Mengubah nilai negatif menjadi positif
             foreach ($getPaginate->items() as $item) {
