@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
             $table->uuid("dealer_neq_id")->nullable();
             $table->foreign("dealer_neq_id")->references("dealer_neq_id")->on("dealer_neq")->onDelete("set null");
+            $table->integer("bbn")->default(0);
             $table->timestamps();
         });
     }

@@ -26,6 +26,7 @@ class UnitContoller extends Controller
                 // "location_type_before" => "required|in:dealer,neq",
                 "location_after" => "required",
                 "location_type_after" => "required|in:dealer,neq",
+                "discount" => "nullable"
             ]);
 
 
@@ -54,6 +55,7 @@ class UnitContoller extends Controller
                     "off_the_road" => $item->off_the_road,
                     "bbn" => $item->bbn,
                     "pricelist_location_type" => $request->location_type_after,
+                    "discount" => $request->discount
                 ];
 
                 // Memasukkan dealer_id hanya jika pricelist_location_type adalah 'dealer'
@@ -108,6 +110,7 @@ class UnitContoller extends Controller
             $validator = Validator::make($request->all(), [
                 "off_the_road" => "required",
                 "bbn" => "required",
+                "discount" => "nullable",
             ]);
 
             if ($validator->fails()) {
@@ -120,7 +123,8 @@ class UnitContoller extends Controller
 
             $getDetailPrice->update([
                 "off_the_road" => $request->off_the_road,
-                "bbn" => $request->bbn
+                "bbn" => $request->bbn,
+                "discount" => $request->discount,
             ]);
 
             DB::commit();
@@ -140,6 +144,7 @@ class UnitContoller extends Controller
                 "off_the_road" => "required",
                 "bbn" => "required",
                 "pricelist_location_type" => "required|in:neq,dealer",
+                "discount" => "nullable"
             ]);
 
             $validator->sometimes(["dealer_neq_id"], "required", function ($input) {
@@ -160,6 +165,7 @@ class UnitContoller extends Controller
                 "off_the_road" => $request->off_the_road,
                 "bbn" => $request->bbn,
                 "pricelist_location_type" => $request->pricelist_location_type,
+                "discount" => $request->discount
             ];
 
             // Memasukkan dealer_id hanya jika pricelist_location_type adalah 'dealer'
