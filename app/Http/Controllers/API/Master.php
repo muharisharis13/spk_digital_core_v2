@@ -320,27 +320,38 @@ class Master extends Controller
     public function getListPaginateMotor(Request $request)
     {
         try {
-            $searchQuery = $request->input('q');
-            $limit = $request->input('limit');
-            ($limit) ? $limit : $limit = 5;
-            $paginate = $request->input("paginate");
-            $sortBy = $request->input('sort_by', 'motor_name');
-            $sortOrder = $request->input('sort_order', 'asc');
 
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
 
+            $searchQuery = $request->input('q');
+            $limit = $request->input('limit');
+            ($limit) ? $limit : $limit = 5;
+            $paginate = $request->input("paginate");
+            $sortBy = $request->input('sort_by', 'motor_name');
+            $sortOrder = $request->input('sort_order', 'asc');
+            $location = $request->input("location", $getDealerSelected->dealer_id);
+
+
+
+
+
             if ($paginate === "true") {
-                $getListMotor = Motor::where(function ($query) use ($searchQuery) {
-                    $query->where("motor_name", "LIKE", "%$searchQuery%")
-                        ->orWhere("motor_code", "LIKE", "%$searchQuery%");
-                })
+                $getListMotor = Motor::with(["motor_pricelist" => function ($query) use ($location) {
+                    return $query->where("dealer_id", $location)
+                        ->orWhere("dealer_neq_id", $location);
+                }])
+                    ->where(function ($query) use ($searchQuery) {
+                        $query->where("motor_name", "LIKE", "%$searchQuery%")
+                            ->orWhere("motor_code", "LIKE", "%$searchQuery%");
+                    })
                     ->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
-                $getListMotor = Motor::with(["motor_pricelist" => function ($query) use ($getDealerSelected) {
-                    return $query->where("dealer_id", $getDealerSelected->dealer_id);
+                $getListMotor = Motor::with(["motor_pricelist" => function ($query) use ($location) {
+                    return $query->where("dealer_id", $location)
+                        ->orWhere("dealer_neq_id", $location);
                 }])
                     ->where(function ($query) use ($searchQuery) {
                         $query->where("motor_name", "LIKE", "%$searchQuery%")
