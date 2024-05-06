@@ -2093,6 +2093,16 @@ class SPKController extends Controller
 
     function createSPKGeneral($createSPK, $request)
     {
+
+        //melakukan pengecekan apakah indent sudah ada di tempat lain
+        $getDetailIndent = Indent::where("indent_id", $request->indent_id)
+            ->with(["spk_general"])
+            ->first();
+
+        if (isset($getDetailIndent->spk_general)) {
+            return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
+        }
+
         return SpkGeneral::create([
             "spk_id" => $createSPK->spk_id,
             "indent_id" => $request->indent_id,
