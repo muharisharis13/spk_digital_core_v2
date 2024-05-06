@@ -179,9 +179,7 @@ class DeliveryController extends Controller
                         ->orWhereHas("delivery_repair", function ($delivery_repair) use ($searchQuery) {
                             return $delivery_repair->whereHas("repair", function ($queryRepair) use ($searchQuery) {
                                 $queryRepair->where("repair_number", 'LIKE', "%$searchQuery%")
-                                    ->orWhereHas("main_dealer", function ($queryMainDealer) use ($searchQuery) {
-                                        $queryMainDealer->where("main_dealer_name", 'LIKE', "%$searchQuery%");
-                                    });
+                                    ->orWhere("main_dealer_name", "LIKE", "$searchQuery");
                             });
                         });
                 })
