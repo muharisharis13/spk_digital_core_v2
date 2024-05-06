@@ -81,7 +81,7 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("shipping-order")->group(function () {
-            Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
+            // Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
             Route::post("/sync-data2", [ShippingOrderController2::class, "syncShippingOrderMD"]);
             Route::get("/list", [ShippingOrderController::class, "getListShippingOrder"]);
             Route::get("/detail/{shipping_order_id}", [ShippingOrderController::class, "getDetailShippingOrder"]);

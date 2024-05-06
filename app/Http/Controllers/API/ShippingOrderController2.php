@@ -65,6 +65,8 @@ class ShippingOrderController2 extends Controller
                     //cari nama dealer berdasarkan nama dealer
                     $getDetailDealer = Dealer::where("dealer_code", $item["dealer"]["dealer_code"])->first();
 
+                    // return $getDetailDealer;
+
 
                     //simpan data shipping order
                     $createShippingOrder = ShippingOrder::firstOrCreate([
