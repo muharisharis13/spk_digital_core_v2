@@ -97,6 +97,7 @@ Route::prefix("v1")->group(function () {
                 Route::post("/create", [UnitContoller::class, "addPrice"]);
                 Route::get("/list", [UnitContoller::class, "getListPriceList"]);
                 Route::post("/clone", [UnitContoller::class, "clonePriceList"]);
+                Route::put("/update/{id}", [UnitContoller::class, "updatePrice"]);
             });
         });
 
@@ -170,6 +171,9 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("motor-brand")->group(function () {
                 Route::get("/list", [Master::class, "getListMotorBrand"]);
+            });
+            Route::prefix("motor")->group(function () {
+                Route::get("/detail/{id}", [Master::class, "getDetailMotor"]);
             });
         });
 

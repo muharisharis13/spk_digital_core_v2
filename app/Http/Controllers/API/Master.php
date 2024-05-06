@@ -317,6 +317,23 @@ class Master extends Controller
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
         }
     }
+
+    public function getDetailMotor(Request $request, $motor_id)
+    {
+        try {
+
+
+
+            $getDetail = Motor::with(["motor_pricelist"])
+
+                ->where("motor_id", $motor_id)
+                ->first();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
     public function getListPaginateMotor(Request $request)
     {
         try {

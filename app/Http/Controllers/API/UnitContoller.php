@@ -101,6 +101,37 @@ class UnitContoller extends Controller
         }
     }
 
+    public function updatePrice(Request $request, $pricelist_motor_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "off_the_road" => "required",
+                "bbn" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailPrice = PricelistMotor::where("pricelist_motor_id", $pricelist_motor_id)->first();
+
+            $getDetailPrice->update([
+                "off_the_road" => $request->off_the_road,
+                "bbn" => $request->bbn
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetailPrice, "Successfully update price");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function addPrice(Request $request,)
     {
         try {
