@@ -189,7 +189,7 @@ class ExportPDFController extends Controller
     {
 
         $response = delivery::where("delivery_id", $delivery_id)
-            ->with(["delivery_repair.repair.repair_unit.unit.motor", "delivery_repair.repair.main_dealer", "dealer"])
+            ->with(["delivery_repair.repair.repair_unit.unit.motor", "dealer"])
             ->first();
 
         return $response;

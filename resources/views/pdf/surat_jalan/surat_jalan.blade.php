@@ -74,7 +74,7 @@
     </div>
     <div style="clear: both;line-height:25px">
         <div style="margin-top:50px">Penerima :</div>
-        <strong>{{ $data->delivery_repair->repair->main_dealer->main_dealer_name }}</strong>
+        <strong>{{ $data->delivery_repair->repair->main_dealer_name }}</strong>
         <div style="width: 50%">Jln. H Adam malikNo. 34 C Silalas - Medan Barat Medan 20214, Sumatera Utara 0822</div>
     </div>
     <div style="clear: both;line-height:25px;margin-top:50px">
