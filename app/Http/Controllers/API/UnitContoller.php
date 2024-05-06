@@ -111,7 +111,7 @@ class UnitContoller extends Controller
                 "pricelist_location_type" => "required|in:neq,dealer",
             ]);
 
-            $validator->sometimes(["dealer_neq_id", "dealer_id"], "required", function ($input) {
+            $validator->sometimes(["dealer_neq_id"], "required", function ($input) {
                 return $input->pricelist_location_type === 'neq';
             });
             $validator->sometimes(["dealer_id"], "required", function ($input) {
@@ -139,7 +139,7 @@ class UnitContoller extends Controller
             // Memasukkan dealer_neq_id hanya jika pricelist_location_type adalah 'neq'
             if ($request->pricelist_location_type === 'neq') {
                 $pricelistData['dealer_neq_id'] = $request->dealer_neq_id;
-                $pricelistData['dealer_id'] = $request->dealer_id;
+                // $pricelistData['dealer_id'] = $request->dealer_id;
             }
 
             // Membuat daftar harga dengan data yang telah disiapkan
