@@ -18,6 +18,21 @@ class UnitContoller extends Controller
 {
     //
 
+    public function getDetailPriceList(Request $request, $pricelist_motor_id)
+    {
+        try {
+
+
+
+
+            $getPaginate = PricelistMotor::where("pricelist_motor_id", $pricelist_motor_id)->first();
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function clonePriceList(Request $request)
     {
         try {

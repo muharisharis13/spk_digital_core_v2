@@ -14,6 +14,8 @@ use App\Models\ApiSecret;
 use App\Models\Color;
 use App\Models\Dealer;
 use App\Models\Motor;
+use App\Models\PricelistMotor;
+use App\Models\PricelistMotorHistories;
 use App\Models\ShippingOrder;
 use App\Models\Unit;
 use App\Models\UnitLog;
@@ -65,11 +67,15 @@ class ShippingOrderController extends Controller
 
 
 
+
             $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
 
             $currentDate = Carbon::now()->format('Y-m-d');
 
-            $updateUnit = Unit::where("unit_id", $unit_id)->first();
+            $updateUnit = Unit::with(["motor"])->where("unit_id", $unit_id)->first();
 
             $updateUnit->update([
                 "unit_status" => UnitStatusEnum::on_hand,
@@ -94,6 +100,35 @@ class ShippingOrderController extends Controller
                 "unit_log_action" => UnitLogActionEnum::terima_unit,
                 "unit_log_status" => UnitLogStatusEnum::ON_HAND
             ]);
+
+
+            //buat pricelist motor berdasar dealer selected
+            $pricelistData = [
+                "motor_id" => $updateUnit->motor_id,
+                "off_the_road" => 0,
+                "bbn" => 0,
+                "pricelist_location_type" => "dealer",
+                "discount" => 0,
+                "dealer_id" => $getDealerByUserSelected->dealer_id
+            ];
+
+            $getDetailPriceListMotor = PricelistMotor::where([
+                "motor_id" => $updateUnit->motor_id,
+                "dealer_id" => $getDealerByUserSelected->dealer_id
+            ])->first();
+
+            if (!isset($getDetailPriceListMotor->pricelist_motor_histories_id)) {
+                $createPriceListMotor = PriceListMotor::create($pricelistData);
+                PricelistMotorHistories::create([
+                    "pricelist_motor_id" => $createPriceListMotor->pricelist_motor_histories_id,
+                    "off_the_road" => 0,
+                    "bbn" => 0,
+                    "commission" => 0,
+                    "user_id" => $user->user_id
+                ]);
+            }
+
+
 
             $getUnitByShippingOrderId = Unit::where("shipping_order_id", $getUnit->shipping_order_id)->get();
 

@@ -96,6 +96,7 @@ Route::prefix("v1")->group(function () {
             Route::prefix("pricelist")->group(function () {
                 Route::post("/create", [UnitContoller::class, "addPrice"]);
                 Route::get("/list", [UnitContoller::class, "getListPriceList"]);
+                Route::get("/detail/{id}", [UnitContoller::class, "getDetailPriceList"]);
                 Route::post("/clone", [UnitContoller::class, "clonePriceList"]);
                 Route::put("/update/{id}", [UnitContoller::class, "updatePrice"]);
             });
