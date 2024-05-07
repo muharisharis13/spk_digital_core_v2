@@ -12,7 +12,7 @@ class PricelistMotor extends Model
     protected $guarded = [];
 
     protected $primaryKey = "pricelist_motor_id";
-    protected $with = ["pricelist_motor_histories", "dealer", "dealer_neq"];
+    protected $with = ["motor", "pricelist_motor_histories", "dealer", "dealer_neq"];
 
     public function dealer()
     {
@@ -26,5 +26,10 @@ class PricelistMotor extends Model
     public function pricelist_motor_histories()
     {
         return $this->hasMany(PricelistMotorHistories::class, "pricelist_motor_id");
+    }
+
+    public function motor()
+    {
+        return $this->belongsTo(Motor::class, "motor_id");
     }
 }
