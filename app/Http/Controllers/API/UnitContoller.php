@@ -106,6 +106,7 @@ class UnitContoller extends Controller
             $limit = $request->input("limit", 5);
 
             $getListPriceListt = PricelistMotor::latest()
+                ->with(["motor",])
                 ->when($location, function ($query) use ($location) {
                     return $query->where("dealer_id", "LIKE", "%$location%")
                         ->orWhere("dealer_neq_id", "LIKE", "%$location%");

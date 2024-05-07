@@ -12,7 +12,7 @@ class PricelistMotor extends Model
     protected $guarded = [];
 
     protected $primaryKey = "pricelist_motor_id";
-    protected $with = ["motor", "pricelist_motor_histories", "dealer", "dealer_neq"];
+    protected $with = ["pricelist_motor_histories", "dealer", "dealer_neq"];
 
     public function dealer()
     {
