@@ -103,13 +103,14 @@ class UnitContoller extends Controller
         try {
 
             $location = $request->input("location");
+            $limit = $request->input("limit", 5);
 
             $getListPriceListt = PricelistMotor::latest()
                 ->when($location, function ($query) use ($location) {
                     return $query->where("dealer_id", "LIKE", "%$location%")
                         ->orWhere("dealer_neq_id", "LIKE", "%$location%");
                 })
-                ->get();
+                ->paginate($limit);
 
 
             return ResponseFormatter::success($getListPriceListt);
