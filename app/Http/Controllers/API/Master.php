@@ -461,18 +461,25 @@ class Master extends Controller
             $paginate = $request->input("paginate");
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'asc');
+            $selected_dealer  = $request->input("selected_dealer");
 
             if ($paginate === "true") {
                 $getListAllMDSMD = DealerNeq::where(function ($query) use ($searchQuery) {
                     $query->where("dealer_neq_name", "LIKE", "%$searchQuery%")
                         ->orWhere("dealer_neq_code", "LIKE", "%$searchQuery%");
                 })
+                    ->when($selected_dealer, function ($query) use ($selected_dealer) {
+                        return $query->where("dealer_id", $selected_dealer);
+                    })
                     ->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
                 $getListAllMDSMD = DealerNeq::where(function ($query) use ($searchQuery) {
                     $query->where("dealer_neq_name", "LIKE", "%$searchQuery%")
                         ->orWhere("dealer_neq_code", "LIKE", "%$searchQuery%");
                 })
+                    ->when($selected_dealer, function ($query) use ($selected_dealer) {
+                        return $query->where("dealer_id", $selected_dealer);
+                    })
                     ->orderBy($sortBy, $sortOrder)->get();
             }
 

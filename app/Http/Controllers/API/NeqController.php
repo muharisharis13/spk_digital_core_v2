@@ -265,7 +265,7 @@ class NeqController extends Controller
                 "neq_log_action" => "update"
             ]);
 
-
+            $createNeqUnit = [];
 
             foreach ($request->neq_unit as $item) {
                 if (isset($item["neq_unit_id"])) {
