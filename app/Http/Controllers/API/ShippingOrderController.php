@@ -124,7 +124,8 @@ class ShippingOrderController extends Controller
                     "off_the_road" => 0,
                     "bbn" => 0,
                     "commission" => 0,
-                    "user_id" => $user->user_id
+                    "user_id" => $user->user_id,
+                    "discount" => 0
                 ]);
             }
 

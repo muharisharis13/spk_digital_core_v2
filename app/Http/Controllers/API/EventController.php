@@ -310,7 +310,7 @@ class EventController extends Controller
             foreach ($request->event_unit as $item) {
                 if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
                     DB::rollBack();
-                    return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
+                    return ResponseFormatter::error("Unit " . $item['unit_id'] . " sudah memiliki neq / event, harap di-return dahulu untuk tersedia di transfer ke event", "Bad request !", 400);
                 }
                 $createEventUnit[] = EventListUnit::create([
                     "event_id" => $createEvent->event_id,
