@@ -39,6 +39,28 @@ class DeliveryController extends Controller
 
             DB::beginTransaction();
 
+            if ($getDetailDelivery->delivery_type === 'repair') {
+                DeliveryRepair::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === 'repair_return') {
+                DeliveryRepairReturn::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === 'neq') {
+                DeliveryNeq::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === 'neq_return') {
+                DeliveryNeqReturn::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === 'event') {
+                DeliveryEvent::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === 'event_return') {
+                DeliveryEventReturn::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === 'spk') {
+                DeliverySpk::where("delivery_id", $delivery_id)->delete();
+            }
+
             $getDetailDelivery->delete();
             DB::commit();
 
