@@ -83,8 +83,23 @@ class UnitContoller extends Controller
                     $pricelistData['dealer_neq_id'] = $request->location_after;
                 }
 
+                //melakukan pengecekan jika unit price nya sudah ada di dealer atau di neq yang sudah ada sebelumnya
 
-                $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
+                $locationAfter = $request->location_after;
+                $getDetailPriceListMotor = PricelistMotor::where([
+                    "motor_id" => $item->motor_id,
+
+                ])
+                    ->when($locationAfter, function ($query) use ($locationAfter) {
+                        return $query->where("dealer_id", "LIKE", "%$locationAfter%")
+                            ->orWhere("dealer_neq_id", "LIKE", "%$locationAfter%");
+                    })
+                    ->first();
+
+                if (!isset($getDetailPriceListMotor->pricelist_motor_id)) {
+
+                    $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
+                }
             }
 
             DB::commit();
