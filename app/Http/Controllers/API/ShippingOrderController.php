@@ -117,10 +117,10 @@ class ShippingOrderController extends Controller
                 "dealer_id" => $getDealerByUserSelected->dealer_id
             ])->first();
 
-            if (!isset($getDetailPriceListMotor->pricelist_motor_histories_id)) {
+            if (!isset($getDetailPriceListMotor->pricelist_motor_id)) {
                 $createPriceListMotor = PriceListMotor::create($pricelistData);
                 PricelistMotorHistories::create([
-                    "pricelist_motor_id" => $createPriceListMotor->pricelist_motor_histories_id,
+                    "pricelist_motor_id" => $createPriceListMotor->pricelist_motor_id,
                     "off_the_road" => 0,
                     "bbn" => 0,
                     "commission" => 0,
