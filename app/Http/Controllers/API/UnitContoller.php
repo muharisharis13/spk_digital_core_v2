@@ -25,7 +25,7 @@ class UnitContoller extends Controller
 
 
 
-            $getPaginate = PricelistMotor::where("pricelist_motor_id", $pricelist_motor_id)->first();
+            $getPaginate = PricelistMotor::where("pricelist_motor_id", $pricelist_motor_id)->with(["motor",])->first();
 
             return ResponseFormatter::success($getPaginate);
         } catch (\Throwable $e) {
