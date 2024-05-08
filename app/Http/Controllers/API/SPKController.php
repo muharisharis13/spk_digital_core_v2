@@ -700,9 +700,6 @@ class SPKController extends Controller
                 $getIndent->update([
                     "indent_status" => "spk"
                 ]);
-            } else {
-                DB::rollback();
-                return ResponseFormatter::error("Indent Tidak ditemukan", "bad request", 400);
             }
 
             //create log unit
