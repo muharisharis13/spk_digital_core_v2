@@ -214,7 +214,9 @@ class RepairReturnController extends Controller
 
             $validator  = Validator::make($request->all(), [
                 "repair_return_unit" => "required|array",
-                "repair_return_unit.*.repair_unit_list_id" => "required"
+                "repair_return_unit.*.repair_unit_list_id" => "required",
+                "repair_return_unit.*.is_delete" => "nullable",
+                "repair_return_unit.*.repair_return_unit_id" => "nullable"
             ]);
 
             if ($validator->fails()) {
@@ -239,6 +241,22 @@ class RepairReturnController extends Controller
                         "repair_return_id" => $repair_return_id,
                         "repair_unit_list_id" => $item["repair_unit_list_id"]
                     ]);
+                } else {
+                    $getDetailRepairReturnUnit = RepairReturnUnit::where("repair_return_unit_id", $item["repair_return_unit_id"])
+                        ->where("repair_unit_list_id", $item["repair_unit_list_id"])
+                        ->first();
+
+                    if (!isset($getDetailRepairReturnUnit->repair_return_unit_id)) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("Repair return not found", "Bad Request", 400);
+                    }
+
+                    if ($item["is_delete"] == "true") {
+                        $getDetailRepairReturnUnit->delete();
+                        RepairUnitList::where("repair_unit_list_id", $item["repair_unit_list_id"])->update([
+                            "is_return" => false
+                        ]);
+                    }
                 }
             }
 
