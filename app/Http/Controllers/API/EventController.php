@@ -229,19 +229,19 @@ class EventController extends Controller
             // add unit ke event list unit
 
             foreach ($request->event_unit as $item) {
-                if (isset($item["event_list_unit_id"])) {
-                    $getDetailEventListUnit = EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])
-                        ->where("unit_id", $item["unit_id"])
-                        ->first();
+                // if (isset($item["event_list_unit_id"])) {
+                //     $getDetailEventListUnit = EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])
+                //         ->where("unit_id", $item["unit_id"])
+                //         ->first();
 
-                    if (!isset($getDetailEventListUnit->event_list_unit_id)) {
-                        DB::rollBack();
-                        return ResponseFormatter::error("event unit not found", "Bad Request", 400);
-                    }
+                //     if (!isset($getDetailEventListUnit->event_list_unit_id)) {
+                //         DB::rollBack();
+                //         return ResponseFormatter::error("event unit not found", "Bad Request", 400);
+                //     }
 
-                    $getDetailEventListUnit->delete();
-                    // continue; // Skip if neq_unit_id exists
-                }
+                //     $getDetailEventListUnit->delete();
+                //     // continue; // Skip if neq_unit_id exists
+                // }
                 if (!isset($item['event_list_unit_id'])) {
                     if ($this->checkUnitIsHaveNEQ($item['unit_id'])) {
                         DB::rollBack();
@@ -259,6 +259,17 @@ class EventController extends Controller
                         DB::rollBack();
                         return ResponseFormatter::error("Unit dengan ID {$item['unit_id']} sudah terdaftar dalam event.", "Bad Request", 400);
                     }
+                } else {
+                    $getDetailEventListUnit = EventListUnit::where("event_list_unit_id", $item["event_list_unit_id"])
+                        ->where("unit_id", $item["unit_id"])
+                        ->first();
+
+                    if (!isset($getDetailEventListUnit->event_list_unit_id)) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("event unit not found", "Bad Request", 400);
+                    }
+
+                    $getDetailEventListUnit->delete();
                 }
             }
 
