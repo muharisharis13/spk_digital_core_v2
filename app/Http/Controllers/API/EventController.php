@@ -269,7 +269,9 @@ class EventController extends Controller
                         return ResponseFormatter::error("event unit not found", "Bad Request", 400);
                     }
 
-                    $getDetailEventListUnit->delete();
+                    if ($item["is_delete"] == "true") {
+                        $getDetailEventListUnit->delete();
+                    }
                 }
             }
 
