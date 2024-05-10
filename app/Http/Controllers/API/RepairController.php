@@ -170,6 +170,8 @@ class RepairController extends Controller
                 "repair_reason" => "required",
                 "repair_unit" => "required|array",
                 "repair_unit.*.unit_id" => "required",
+                "repair_unit.*.repair_unit_id" => "nullable",
+                "repair_unit.*.is_delete" => "nullable"
             ]);
 
             if ($validator->fails()) {
@@ -202,6 +204,8 @@ class RepairController extends Controller
             ]);
 
             foreach ($request->repair_unit as $item) {
+
+                // jika repair_unit_id
                 if (!isset($item["repair_unit_id"])) {
                     $createRepairUnit[] = RepairUnitList::create([
                         "repair_id" => $getDetailRepair->repair_id,
@@ -217,6 +221,29 @@ class RepairController extends Controller
                         "unit_log_action" => UnitLogActionEnum::repair,
                         "unit_log_status" => UnitLogStatusEnum::HOLD
                     ]);
+                } else {
+                    //cari unit di list
+                    $getDetailUnitRepair = RepairUnitList::where("repair_unit_list_id", $item["repair_unit_id"])
+                        ->where("unit_id", $item["unit_id"])
+                        ->first();
+
+                    if ($item["is_delete"] == "true") {
+                        if (!isset($getDetailUnitRepair->repair_unit_list_id)) {
+                            DB::rollBack();
+                            return ResponseFormatter::error("repair unit not found", "Bad Request", 400);
+                        }
+                        $getDetailUnitRepair->delete();
+                        Unit::where("unit_id", $item["unit_id"])->update([
+                            "unit_status" => UnitStatusEnum::on_hand
+                        ]);
+                        UnitLog::create([
+                            "unit_id" => $item["unit_id"],
+                            "user_id" => $user->user_id,
+                            "unit_log_number" => $getDetailRepair->repair_number,
+                            "unit_log_action" => UnitLogActionEnum::repair,
+                            "unit_log_status" => UnitLogStatusEnum::ON_HAND
+                        ]);
+                    }
                 }
             }
 
