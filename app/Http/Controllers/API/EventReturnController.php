@@ -228,7 +228,9 @@ class EventReturnController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "event_return_unit" => "required|array",
-                "event_return_unit.*.event_list_unit_id" => "required"
+                "event_return_unit.*.event_list_unit_id" => "required",
+                "event_return_unit.*.event_return_list_unit_id" => "nullable",
+                "event_return_unit.*.is_delete" => "nullable"
             ]);
 
 
@@ -250,6 +252,26 @@ class EventReturnController extends Controller
                     EventReturnListUnit::create([
                         "event_return_id" => $event_return_id,
                         "event_list_unit_id" => $item["event_list_unit_id"]
+                    ]);
+                } else {
+                    $getDetailEventReturnUnit = EventReturnListUnit::where("event_return_list_unit_id", $item["event_return_list_unit_id"])
+                        ->where("event_list_unit_id", $item["event_list_unit_id"])
+                        ->first();
+
+                    if (!isset($getDetailEventReturnUnit->event_return_list_unit_id)) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("event return not found", "Bad Request", 400);
+                    }
+
+                    if ($item["is_delete"] == "true") {
+
+                        $getDetailEventReturnUnit->delete();
+                    }
+
+
+                    // update event unit di kembalikan menjadi false
+                    EventListUnit::where("event_list_unit_id", $getDetailEventReturnUnit["event_list_unit_id"])->update([
+                        "is_return" => false
                     ]);
                 }
             }

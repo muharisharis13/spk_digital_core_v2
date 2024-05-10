@@ -239,7 +239,9 @@ class NeqController extends Controller
                 "dealer_neq_id" => "required",
                 "neq_note" => "nullable",
                 "neq_unit" => "required|array",
-                "neq_unit.*.unit_id" => "required"
+                "neq_unit.*.unit_id" => "required",
+                "neq_unit.*.neq_unit_id" => "nullable",
+                "neq_unit.*.is_delete" => "nullable"
             ]);
 
             if ($validator->fails()) {
@@ -269,7 +271,21 @@ class NeqController extends Controller
 
             foreach ($request->neq_unit as $item) {
                 if (isset($item["neq_unit_id"])) {
-                    continue; // Skip if neq_unit_id exists
+                    $getDetailNeqUnit = NeqUnit::where("neq_unit_id", $item["neq_unit_id"])
+                        ->where("unit_id", $item["unit_id"])
+                        ->first();
+
+                    if (!isset($getDetailNeqUnit->neq_unit_id)) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("neq unit not found", "Bad Request", 400);
+                    }
+
+                    if ($item["is_delete"] == "true") {
+
+                        $getDetailNeqUnit->delete();
+                    }
+
+                    // continue; // Skip if neq_unit_id exists
                 }
                 if (!isset($item["neq_unit_id"])) {
                     if ($this->checkUnitIsHaveEvent($item["unit_id"])) {

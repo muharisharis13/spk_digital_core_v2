@@ -169,7 +169,9 @@ class NeqReturnController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "neq_return_unit" => "required|array",
-                "neq_return_unit.*.neq_unit_id" => "required"
+                "neq_return_unit.*.neq_unit_id" => "required",
+                "neq_return_unit.*.neq_return_unit_id" => "nullable",
+                "neq_return_unit.*.is_delete" => "nullable"
             ]);
 
 
@@ -181,7 +183,18 @@ class NeqReturnController extends Controller
 
             foreach ($request->neq_return_unit as $item) {
                 if (isset($item["neq_return_unit_id"])) {
-                    continue; // Skip if neq_return_unit_id exists
+                    $getDetailNeqReturnUnit = NeqReturnUnit::where("neq_return_unit_id", $item["neq_return_unit_id"])
+                        ->where("neq_unit_id")->first();
+
+                    if (!isset($getDetailNeqReturnUnit->neq_return_unit_id)) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("neq return not found", "Bad Request", 400);
+                    }
+
+                    if ($item["is_delete"] == "true") {
+                        $getDetailNeqReturnUnit->delete();
+                    }
+                    // continue; // Skip if neq_return_unit_id exists
                 }
                 if (!isset($request->neq_return_unit_id)) {
                     $createNeqReturnUnit[] = NeqReturnUnit::create([
