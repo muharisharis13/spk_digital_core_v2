@@ -184,7 +184,7 @@ class NeqReturnController extends Controller
             foreach ($request->neq_return_unit as $item) {
                 if (isset($item["neq_return_unit_id"])) {
                     $getDetailNeqReturnUnit = NeqReturnUnit::where("neq_return_unit_id", $item["neq_return_unit_id"])
-                        ->where("neq_unit_id")->first();
+                        ->where("neq_unit_id", $item["neq_unit_id"])->first();
 
                     if (!isset($getDetailNeqReturnUnit->neq_return_unit_id)) {
                         DB::rollBack();
