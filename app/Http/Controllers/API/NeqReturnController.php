@@ -196,7 +196,7 @@ class NeqReturnController extends Controller
                 //     }
                 //     // continue; // Skip if neq_return_unit_id exists
                 // }
-                if (!isset($item->neq_return_unit_id)) {
+                if (!isset($item["neq_return_unit_id"])) {
                     $createNeqReturnUnit[] = NeqReturnUnit::create([
                         "neq_return_id" => $neq_return_id,
                         "neq_unit_id" => $item["neq_unit_id"]
