@@ -784,7 +784,7 @@ class SPKController extends Controller
 
                 $getDetailIndent = Indent::where("indent_id", $getSpk->spk_general->indent_id)->first();
 
-                if (isset($getDetailIndent)) {
+                if (isset($getDetailIndent->indent_id)) {
                     $getDetailIndent->update([
                         "indent_status" => "finance_check"
                     ]);
@@ -831,7 +831,7 @@ class SPKController extends Controller
             //buat spk log
             $createSPKLog =
                 SpkLog::create([
-                    "spk_log_action" => "update status SPK",
+                    "spk_log_action" => "update status SPK to . $request->spk_status",
                     "user_id" => $user->user_id,
                     "spk_id" => $spk_id
                 ]);
