@@ -54,8 +54,8 @@ class UnitContoller extends Controller
             //mendapatkan location awal pricelist
             $getPriceListBefore = PricelistMotor::latest()
                 ->when($location_before, function ($query) use ($location_before) {
-                    return $query->where("dealer_id", "LIKE", "%$location_before%")
-                        ->orWhere("dealer_neq_id", "LIKE", "%$location_before%");
+                    return $query->where("dealer_id", $location_before)
+                        ->orWhere("dealer_neq_id",  $location_before);
                 })
                 ->get();
 
@@ -63,6 +63,10 @@ class UnitContoller extends Controller
             //membuat location baru untuk pricelist di dealer atau di neq
 
             $createPriceListAfter = [];
+
+            // return $getPriceListBefore
+
+            $locationAfter = $request->location_after;
 
             foreach ($getPriceListBefore as $item) {
                 $pricelistData = [
@@ -76,31 +80,41 @@ class UnitContoller extends Controller
                 // Memasukkan dealer_id hanya jika pricelist_location_type adalah 'dealer'
                 if ($request->location_type_after === 'dealer') {
                     $pricelistData['dealer_id'] = $request->location_after;
+
+                    $getDetailPriceListMotor = PricelistMotor::where([
+                        "motor_id" => $item->motor_id,
+
+                    ])
+                        ->when($location_before, function ($query) use ($location_before) {
+                            return $query->where("dealer_id", $location_before);
+                        })
+                        ->first();
+
+                    if (!isset($getDetailPriceListMotor->pricelist_motor_id)) {
+                        $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
+                    } else {
+                        $getDetailPriceListMotor->update($pricelistData);
+                    }
                 }
 
                 // Memasukkan dealer_neq_id hanya jika pricelist_location_type adalah 'neq'
                 if ($request->location_type_after === 'neq') {
                     $pricelistData['dealer_neq_id'] = $request->location_after;
-                }
 
-                //melakukan pengecekan jika unit price nya sudah ada di dealer atau di neq yang sudah ada sebelumnya
+                    $getDetailPriceListMotor = PricelistMotor::where([
+                        "motor_id" => $item->motor_id,
 
-                $locationAfter = $request->location_after;
-                $getDetailPriceListMotor = PricelistMotor::where([
-                    "motor_id" => $item->motor_id,
+                    ])
+                        ->when($location_before, function ($query) use ($location_before) {
+                            return $query->where("dealer_neq_id", $location_before);
+                        })
+                        ->first();
 
-                ])
-                    ->when($locationAfter, function ($query) use ($locationAfter) {
-                        return $query->where("dealer_id", "LIKE", "%$locationAfter%")
-                            ->orWhere("dealer_neq_id", "LIKE", "%$locationAfter%");
-                    })
-                    ->first();
-
-                if (!isset($getDetailPriceListMotor->pricelist_motor_id)) {
-
-                    $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
-                } else {
-                    $getDetailPriceListMotor->update($pricelistData);
+                    if (!isset($getDetailPriceListMotor->pricelist_motor_id)) {
+                        $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
+                    } else {
+                        $getDetailPriceListMotor->update($pricelistData);
+                    }
                 }
             }
 
