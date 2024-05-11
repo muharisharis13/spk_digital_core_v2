@@ -85,8 +85,8 @@ class UnitContoller extends Controller
                         "motor_id" => $item->motor_id,
 
                     ])
-                        ->when($location_before, function ($query) use ($location_before) {
-                            return $query->where("dealer_id", $location_before);
+                        ->when($locationAfter, function ($query) use ($locationAfter) {
+                            return $query->where("dealer_id", $locationAfter);
                         })
                         ->first();
 
@@ -105,8 +105,8 @@ class UnitContoller extends Controller
                         "motor_id" => $item->motor_id,
 
                     ])
-                        ->when($location_before, function ($query) use ($location_before) {
-                            return $query->where("dealer_neq_id", $location_before);
+                        ->when($locationAfter, function ($query) use ($locationAfter) {
+                            return $query->where("dealer_neq_id", $locationAfter);
                         })
                         ->first();
 
