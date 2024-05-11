@@ -99,13 +99,20 @@ class UnitContoller extends Controller
                 if (!isset($getDetailPriceListMotor->pricelist_motor_id)) {
 
                     $createPriceListAfter[]  = PricelistMotor::create($pricelistData);
+                } else {
+                    $getDetailPriceListMotor->update($pricelistData);
                 }
             }
 
             DB::commit();
 
+            $getListPriceList = PricelistMotor::when($locationAfter, function ($query) use ($locationAfter) {
+                return $query->where("dealer_id", "LIKE", "%$locationAfter%")
+                    ->orWhere("dealer_neq_id", "LIKE", "%$locationAfter%");
+            })->get();
 
-            return ResponseFormatter::success($createPriceListAfter, "Successfully clone price list");
+
+            return ResponseFormatter::success($getListPriceList, "Successfully clone price list");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "internal server", 500);
