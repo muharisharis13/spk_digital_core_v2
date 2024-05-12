@@ -8,6 +8,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\PricelistMotor;
+use App\Models\PricelistMotorHistories;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -178,6 +179,17 @@ class UnitContoller extends Controller
                 "off_the_road" => $request->off_the_road,
                 "bbn" => $request->bbn,
                 "discount" => $request->discount,
+            ]);
+
+            $user = Auth::user();
+
+            PricelistMotorHistories::create([
+                "pricelist_motor_id" => $getDetailPrice->pricelist_motor_id,
+                "off_the_road" => $request->off_the_road,
+                "bbn" => $request->bbn,
+                "commission" => $getDetailPrice->commission,
+                "user_id" => $user->user_id,
+                "discount" => $request->discount
             ]);
 
             DB::commit();
