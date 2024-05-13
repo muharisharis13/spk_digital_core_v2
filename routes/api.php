@@ -8,6 +8,7 @@ use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
 use App\Http\Controllers\API\ExportPDFController;
 use App\Http\Controllers\API\IndentController;
+use App\Http\Controllers\API\IndentInstansiController;
 use App\Http\Controllers\API\Master;
 use App\Http\Controllers\API\NeqController;
 use App\Http\Controllers\API\NeqReturnController;
@@ -272,6 +273,10 @@ Route::prefix("v1")->group(function () {
                 Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"]);
             });
             Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"]);
+        });
+
+        Route::prefix("indent-instansi")->group(function () {
+            Route::post("/create", [IndentInstansiController::class, "createIndentInstansi"]);
         });
 
         Route::prefix("spk")->group(function () {
