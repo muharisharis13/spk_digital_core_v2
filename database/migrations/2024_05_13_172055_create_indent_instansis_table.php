@@ -16,6 +16,7 @@ return new class extends Migration
             $table->enum("indent_instansi_status", ["create", "finance_check", "cashier_check", "unpaid", "paid", "spk", "cancel"])->default("create");
             $table->uuid("sales_id")->nullable();
             $table->string("salesman_name")->nullable();
+            $table->integer("indent_instansi_nominal")->default(0);
             $table->date("indent_instansi_date");
             $table->string("indent_instansi_number_po");
             $table->date("indent_instansi_po_date");

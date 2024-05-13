@@ -276,7 +276,16 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("indent-instansi")->group(function () {
+            Route::get("/list", [IndentInstansiController::class, "getPaginate"]);
             Route::post("/create", [IndentInstansiController::class, "createIndentInstansi"]);
+            Route::put("/update/{id}", [IndentInstansiController::class, "updateIndentInstansi"]);
+            Route::put("/status/{id}", [IndentInstansiController::class, "updateStatus"]);
+            Route::get("/detail/{id}", [IndentInstansiController::class, "getDetail"]);
+
+            Route::post("/payment/{indent_instansi_id}", [IndentInstansiController::class, "addPayment"]);
+            // Route::prefix("payment")->group(function(){
+            //     Route::post("/create", [IndentInstansiController::class, "addPayment"]);
+            // });
         });
 
         Route::prefix("spk")->group(function () {

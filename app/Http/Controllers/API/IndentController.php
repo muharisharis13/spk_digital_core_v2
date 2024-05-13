@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Validator;
 class IndentController extends Controller
 {
 
+
+
     public function cancelIndent(Request $request, $indent_id)
     {
         try {
