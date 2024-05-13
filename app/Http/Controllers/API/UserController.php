@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\DealerByUser;
@@ -16,6 +17,19 @@ use Spatie\Permission\Models\Permission;
 class UserController extends Controller
 {
     //
+
+    public function getCurrentDealer(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            return ResponseFormatter::success($getDealerByUserSelected);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function getPermissionAttribute()
     {
