@@ -178,12 +178,14 @@ class IndentInstansiController extends Controller
             $getDetailIndentInstansi = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)->first();
 
 
-            if ($getDetailIndentInstansi->indent_intansi_status !== "unpaid") {
+            if ($getDetailIndentInstansi->indent_instansi_status !== "unpaid") {
                 return ResponseFormatter::error("status indent intansi harus ke posisi unpaid untuk bisa di lakukan penambahan payment", "bad request", 400);
             }
 
 
 
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
             $dataLocal = [
@@ -192,7 +194,8 @@ class IndentInstansiController extends Controller
                 "indent_instansi_payment_amount" => $request->indent_instansi_payment_amount,
                 "indent_instansi_payment_date" => $request->indent_instansi_payment_date,
                 "indent_instansi_payment_note" => $request->indent_instansi_payment_note,
-                "indent_instansi_id" => $indent_instansi_id
+                "indent_instansi_id" => $indent_instansi_id,
+                "indent_instansi_payment_number" => GenerateNumber::generate("PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_instansi_payments", "indent_instansi_payment_number")
             ];
 
             $createPayment = IndentInstansiPayment::create($dataLocal);
@@ -429,6 +432,7 @@ class IndentInstansiController extends Controller
                 "indent_instansi_no_hp" => "required",
                 "indent_instansi_email" => "nullable",
                 "motor_id" => "required",
+                "indent_instansi_nominal" => "required"
             ]);
 
 

@@ -12,11 +12,16 @@ class IndentInstansiPayment extends Model
     protected $guarded = [];
 
     protected $primaryKey = "indent_instansi_payment_id";
-    protected $with = ["indent_instansi_payment_images"];
+    protected $with = ["indent_instansi_payment_images", "bank"];
 
 
     public function indent_instansi_payment_images()
     {
         return $this->hasMany(IndentInstansiPaymentImage::class, "idnt_instansi_payment_id", "indent_instansi_payment_id");
+    }
+
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class, "bank_id");
     }
 }

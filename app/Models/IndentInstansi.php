@@ -12,7 +12,7 @@ class IndentInstansi extends Model
     protected $guarded = [];
 
     protected $primaryKey = "indent_instansi_id";
-    protected $with = ["indent_instansi_log", "indent_instansi_payments"];
+    protected $with = ["indent_instansi_log", "indent_instansi_payments", "indent_instansi_payment_refunds"];
 
 
     public function indent_instansi_log()
@@ -32,5 +32,10 @@ class IndentInstansi extends Model
     public function indent_instansi_payments()
     {
         return $this->hasMany(IndentInstansiPayment::class, "indent_instansi_id");
+    }
+
+    public function indent_instansi_payment_refunds()
+    {
+        return $this->hasMany(IndentInstansiPaymentRefund::class, "indent_instansi_id");
     }
 }

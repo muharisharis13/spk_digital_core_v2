@@ -12,4 +12,10 @@ class IndentInstansiLog extends Model
     protected $guarded = [];
 
     protected $primaryKey = "indent_instansi_log_id";
+    protected $with = ["user"];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
 }
