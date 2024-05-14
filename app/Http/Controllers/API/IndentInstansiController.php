@@ -433,7 +433,8 @@ class IndentInstansiController extends Controller
                 "indent_instansi_email" => "nullable",
                 "motor_id" => "required",
                 "indent_instansi_nominal" => "required",
-                "indent_instansi_note" => "nullable"
+                "indent_instansi_note" => "nullable",
+                "indent_instansi_date" => "nullable"
             ]);
 
 
@@ -447,7 +448,7 @@ class IndentInstansiController extends Controller
 
             $dataLocal = $request->all();
 
-            $dataLocal["indent_instansi_date"] = Carbon::now();
+            $dataLocal["indent_instansi_date"] = $request->indent_instansi_date;
             $dataLocal["indent_instansi_status"] = "unpaid";
             $dataLocal["dealer_id"] = $getDealerSelected->dealer_id;
             $dataLocal["indent_instansi_number"] = GenerateNumber::generate("INDENT-INSTANSI", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_instansis", "indent_instansi_number");
