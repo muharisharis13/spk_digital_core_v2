@@ -11,6 +11,7 @@ use App\Models\IndentInstansi;
 use App\Models\IndentInstansiLog;
 use App\Models\IndentInstansiPayment;
 use App\Models\IndentInstansiPaymentImage;
+use App\Models\IndentInstansiPaymentRefund;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,138 @@ use Illuminate\Support\Facades\Validator;
 class IndentInstansiController extends Controller
 {
     //
+
+    public function cancelIndentInstansi(Request $request, $indent_instansi_id)
+    {
+        try {
+            $getListPayment = IndentInstansiPayment::where("indent_instansi_id", $indent_instansi_id)->get();
+
+            if ($getListPayment->count() > 0) {
+                return ResponseFormatter::error("Tidak dapat melakukan pembatalan indent di karenakan payment masih ada. coba kembali !", "Bad request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailIndent = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)->first();
+
+            $getDetailIndent->update([
+                "indent_status" => "cancel"
+            ]);
+
+            $user = Auth::user();
+            //create instansi log
+            $createLog = IndentInstansiLog::create([
+                "indent_instansi_id" => $indent_instansi_id,
+                "user_id" => $user->user_id,
+                "indent_instansi_log_action" => "Refund all Payment"
+            ]);
+
+            // DB::commit();
+
+            $data = [
+                "indent_instansi" => $getDetailIndent,
+                "indent_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully canceled indent instansi");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function refundAllPayment(Request $request, $indent_instansi_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "indent_instansi_payment_refund_note" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            // mendapatkan total payment yang sudah terjadi
+            $totalIndentPayment = IndentInstansiPayment::where("indent_instansi_id", $indent_instansi_id)->sum('indent_instansi_payment_amount');
+
+            DB::beginTransaction();
+            $createIndentPaymentRefund = IndentInstansiPaymentRefund::create([
+                "indent_instansi_id" => $indent_instansi_id,
+                "indent_instansi_payment_refund_total" => intval($totalIndentPayment),
+                "indent_instansi_payment_refund_note" => $request->indent_instansi_payment_refund_note,
+                "refund_number" => GenerateNumber::generate("REFUND-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_instansi_payment_refunds", "refund_number")
+            ]);
+
+            // melakukan penghapusan indent payment secara keseluruhan
+            IndentInstansiPayment::where("indent_instansi_id", $indent_instansi_id)->delete();
+
+            // melakukan update ident status menjadi unpaid
+            IndentInstansi::where("indent_instansi_id", $indent_instansi_id)->update([
+                "indent_instansi_status" => "unpaid"
+            ]);
+
+            $user = Auth::user();
+            //create instansi log
+            IndentInstansiLog::create([
+                "indent_instansi_id" => $indent_instansi_id,
+                "user_id" => $user->user_id,
+                "indent_instansi_log_action" => "Refund all Payment"
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($createIndentPaymentRefund, "Successfully refund all indent payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function deletePayment(Request $request, $indent_instansi_payment_id)
+    {
+        try {
+            $getDetailIndentInstansiPayment = IndentInstansiPayment::where("indent_instansi_payment_id", $indent_instansi_payment_id)->first();
+
+            DB::beginTransaction();
+
+            $getDetailIndentInstansi = IndentInstansi::where("indent_instansi_id", $getDetailIndentInstansiPayment->indent_instansi_id)->first();
+
+
+            if ($getDetailIndentInstansi->indent_instansi_status !== "unpaid") {
+                return ResponseFormatter::error("Tidak dapat melakukan delete payment karena status tidak unpaid", "Bad Request", 400);
+            }
+
+            IndentInstansiPaymentImage::where("indent_instansi_payment_id", $indent_instansi_payment_id)->delete();
+
+            $getDetailIndentInstansiPayment->delete();
+
+            $user = Auth::user();
+            //create instansi log
+            $createIndentInstansiLog = IndentInstansiLog::create([
+                "indent_instansi_id" => $getDetailIndentInstansi->indent_instansi_id,
+                "user_id" => $user->user_id,
+                "indent_instansi_log_action" => "Delete Payment " . $getDetailIndentInstansiPayment->indent_instansi_payment_amount
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "indent_instansi" => $getDetailIndentInstansi,
+                "indent_refund" => $getDetailIndentInstansiPayment,
+                "indent_log" => $createIndentInstansiLog
+            ];
+
+
+            return ResponseFormatter::success($data, "successfully refund indent !");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function addPayment(Request $request, $indent_instansi_id)
     {
         try {
@@ -42,9 +175,15 @@ class IndentInstansiController extends Controller
             }
 
             DB::beginTransaction();
+            $getDetailIndentInstansi = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)->first();
 
 
-            $user = Auth::user();
+            if ($getDetailIndentInstansi->indent_intansi_status !== "unpaid") {
+                return ResponseFormatter::error("status indent intansi harus ke posisi unpaid untuk bisa di lakukan penambahan payment", "bad request", 400);
+            }
+
+
+
 
 
             $dataLocal = [
@@ -85,7 +224,7 @@ class IndentInstansiController extends Controller
                 return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
             }
 
-
+            $user = Auth::user();
             //create instansi log
             $createIndentInstansiLog = IndentInstansiLog::create([
                 "indent_instansi_id" => $indent_instansi_id,

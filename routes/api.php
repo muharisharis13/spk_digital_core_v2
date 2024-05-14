@@ -283,9 +283,13 @@ Route::prefix("v1")->group(function () {
             Route::get("/detail/{id}", [IndentInstansiController::class, "getDetail"]);
 
             Route::post("/payment/{indent_instansi_id}", [IndentInstansiController::class, "addPayment"]);
-            // Route::prefix("payment")->group(function(){
-            //     Route::post("/create", [IndentInstansiController::class, "addPayment"]);
-            // });
+            Route::put("/cancel/{id}", [IndentInstansiController::class, "cancelIndentInstansi"]);
+
+
+            Route::prefix("payment")->group(function () {
+                Route::delete("/delete/{id}", [IndentInstansiController::class, "deletePayment"]);
+                Route::put("/refund-all/{id}", [IndentInstansiController::class, "refundAllPayment"]);
+            });
         });
 
         Route::prefix("spk")->group(function () {
