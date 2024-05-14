@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string("indent_instansi_no_telp")->nullable();
             $table->string("indent_instansi_no_hp");
             $table->string("indent_instansi_email")->nullable();
+            $table->text("indent_instansi_note")->nullable();
             $table->uuid("motor_id")->nullable();
             $table->foreign("motor_id")->references("motor_id")->on("motor")->onDelete("set null");
             $table->uuid("dealer_id")->nullable();

@@ -432,7 +432,8 @@ class IndentInstansiController extends Controller
                 "indent_instansi_no_hp" => "required",
                 "indent_instansi_email" => "nullable",
                 "motor_id" => "required",
-                "indent_instansi_nominal" => "required"
+                "indent_instansi_nominal" => "required",
+                "indent_instansi_note" => "nullable"
             ]);
 
 
