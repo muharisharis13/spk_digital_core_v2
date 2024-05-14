@@ -26,7 +26,6 @@ return new class extends Migration
             $table->string("indent_type");
             $table->string("indent_status");
             $table->string("indent_note")->nullable();
-            $table->date("indent_date")->nullable();
             $table->integer("amount_total")->default(0);
             $table->uuid("sales_id")->nullable();
             $table->string("salesman_name")->nullable();
