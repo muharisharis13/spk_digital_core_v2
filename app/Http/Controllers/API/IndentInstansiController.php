@@ -385,7 +385,31 @@ class IndentInstansiController extends Controller
                 ->with(["dealer", "motor"])
                 ->first();
 
-            $dataLocal = $request->all();
+            $dataLocal =
+                [
+                    "sales_id" => $request->sales_id,
+                    "salesman_name" => $request->salesman_name,
+                    "indent_instansi_number_po" => $request->indent_instansi_number_po,
+                    "indent_instansi_po_date" => $request->indent_instansi_po_date,
+                    "indent_instansi_name" => $request->indent_instansi_name,
+                    "indent_instansi_address" => $request->indent_instansi_address,
+                    "province_id" => $request->province_id,
+                    "province_name" => $request->province_name,
+                    "city_id" => $request->city_id,
+                    "city_name" => $request->city_name,
+                    "district_id" => $request->district_id,
+                    "district_name" => $request->district_name,
+                    "sub_district_id" => $request->sub_district_id,
+                    "sub_district_name" => $request->sub_district_name,
+                    "indent_instansi_postal_code" => $request->indent_instansi_postal_code,
+                    "indent_instansi_no_telp" => $request->indent_instansi_no_telp,
+                    "indent_instansi_no_hp" => $request->indent_instansi_no_hp,
+                    "indent_instansi_email" => $request->indent_instansi_email,
+                    "motor_id" => $request->motor_id,
+                    "indent_instansi_nominal" => $request->indent_instansi_nominal,
+                    "indent_instansi_note" => $request->indent_instansi_note,
+                    "indent_instansi_date" => $request->indent_instansi_date
+                ];
 
             $getDetail->update($dataLocal);
             $user = Auth::user();
@@ -486,7 +510,7 @@ class IndentInstansiController extends Controller
                 "indent_instansi_log_action" => "Create Indent Instansi"
             ]);
 
-            // DB::commit();
+            DB::commit();
 
 
             $data = [
