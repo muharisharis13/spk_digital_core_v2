@@ -443,6 +443,7 @@ class IndentInstansiController extends Controller
             $dataLocal = $request->all();
 
             $dataLocal["indent_instansi_date"] = Carbon::now();
+            $dataLocal["indent_instansi_status"] = "unpaid";
             $dataLocal["dealer_id"] = $getDealerSelected->dealer_id;
             $dataLocal["indent_instansi_number"] = GenerateNumber::generate("INDENT-INSTANSI", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indent_instansis", "indent_instansi_number");
 
