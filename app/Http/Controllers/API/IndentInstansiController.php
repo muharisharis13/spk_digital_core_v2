@@ -125,7 +125,7 @@ class IndentInstansiController extends Controller
                 return ResponseFormatter::error("Tidak dapat melakukan delete payment karena status tidak unpaid", "Bad Request", 400);
             }
 
-            IndentInstansiPaymentImage::where("indent_instansi_payment_id", $indent_instansi_payment_id)->delete();
+            IndentInstansiPaymentImage::where("idnt_instansi_payment_id", $indent_instansi_payment_id)->delete();
 
             $getDetailIndentInstansiPayment->delete();
 
