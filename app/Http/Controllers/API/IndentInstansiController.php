@@ -47,7 +47,7 @@ class IndentInstansiController extends Controller
                 "indent_instansi_log_action" => "Refund all Payment"
             ]);
 
-            // DB::commit();
+            DB::commit();
 
             $data = [
                 "indent_instansi" => $getDetailIndent,
