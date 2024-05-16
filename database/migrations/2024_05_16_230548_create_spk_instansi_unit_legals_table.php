@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('spk_instansi_deliveries', function (Blueprint $table) {
-            $table->uuid("spk_instansi_delivery_id")->primary();
-            $table->uuid("spk_instansi_id")->nullable();
-            $table->foreign("spk_instansi_id")->references("spk_instansi_id")->on("spk_instansis")->onDelete("set null");
+        Schema::create('spk_instansi_unit_legals', function (Blueprint $table) {
+            $table->uuid("spk_instansi_unit_legal_id")->primary();
+            $table->uuid("spk_instansi_unit_id")->nullable();
+            $table->foreign("spk_instansi_unit_id")->references("spk_instansi_unit_id")->on("spk_instansi_units")->onDelete("set null");
             $table->enum("delivery_type", ["ktp", "dealer", "neq", "domicile"]);
             $table->string("name");
-            $table->string("address")->nullable();
+            $table->string("address");
             $table->string("city")->nullable();
             $table->string("no_telp")->nullable();
-            $table->string("no_hp")->nullable();
+            $table->string("no_hp");
             $table->uuid("dealer_neq_id")->nullable();
             $table->foreign("dealer_neq_id")->references("dealer_neq_id")->on("dealer_neq")->onDelete("set null");
             $table->boolean("is_domicile")->default(false);
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('spk_instansi_deliveries');
+        Schema::dropIfExists('spk_instansi_unit_legals');
     }
 };

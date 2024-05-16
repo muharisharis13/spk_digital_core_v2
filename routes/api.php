@@ -18,6 +18,7 @@ use App\Http\Controllers\API\ReturUnitController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\ShippingOrderController2;
 use App\Http\Controllers\API\SPKController;
+use App\Http\Controllers\API\SpkInstansiController;
 use App\Http\Controllers\API\UnitContoller;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -343,6 +344,11 @@ Route::prefix("v1")->group(function () {
             Route::prefix("unit-list")->group(function () {
                 Route::delete("/delete/{retur_unit_list_id}", [ReturUnitController::class, "deleteReturUnitList"]);
             });
+        });
+
+        Route::prefix("spk-instansi")->group(function () {
+            Route::post("/create", [SpkInstansiController::class, "create"]);
+            Route::get("/list", [SpkInstansiController::class, "getPaginate"]);
         });
     });
 });

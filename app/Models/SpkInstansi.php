@@ -12,4 +12,10 @@ class SpkInstansi extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_instansi_id";
+    protected $with = ["spk_instansi_delivery.spk_instansi_delivery_file"];
+
+    public function spk_instansi_delivery()
+    {
+        return $this->hasOne(SpkInstansiDelivery::class, "spk_instansi_id");
+    }
 }
