@@ -36,7 +36,7 @@ class IndentInstansiController extends Controller
             $getDetailIndent = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)->first();
 
             $getDetailIndent->update([
-                "indent_status" => "cancel"
+                "indent_instansi_status" => "cancel"
             ]);
 
             $user = Auth::user();
