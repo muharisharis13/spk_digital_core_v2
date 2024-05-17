@@ -346,10 +346,10 @@ Route::prefix("v1")->group(function () {
             });
         });
 
-        Route::prefix("spk-instansi")->group(function () {
-            Route::post("/create", [SpkInstansiController::class, "create"]);
+        Route::prefix("po-instansi")->group(function () {
             Route::get("/list", [SpkInstansiController::class, "getPaginate"]);
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"]);
+            Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/add-motor/{id}", [SpkInstansiController::class, "addMotor"]);
             Route::post("/add-additional/{id}", [SpkInstansiController::class, "addAdditionalNote"]);
         });
