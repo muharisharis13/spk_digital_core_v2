@@ -16,6 +16,9 @@ use App\Models\SpkInstansiGeneral;
 use App\Models\SpkInstansiLegal;
 use App\Models\SpkInstansiLog;
 use App\Models\SpkInstansiMotor;
+use App\Models\SpkInstansiUnit;
+use App\Models\Unit;
+use App\Models\UnitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +27,195 @@ use Illuminate\Support\Facades\Validator;
 class SpkInstansiController extends Controller
 {
     //
+
+    public function getDetailSpkInstansiUnit(Request $request, $spk_instansi_unit_id)
+    {
+        try {
+            $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)
+                ->with(["motor", "unit", "spk_instansi"])
+                ->first();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function getPaginateSpkInstansiUnit(Request $request)
+    {
+        try {
+            $limit = $request->input("limit", 5);
+
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+            $getPaginate = SpkInstansiUnit::latest()
+                ->with(["motor", "unit", "spk_instansi"])
+                ->whereHas("spk_instansi", function ($query) use ($getDealerByUserSelected) {
+                    return $query->where("dealer_id", $getDealerByUserSelected->dealer_id)
+                        ->where("spk_instansi_status", "publish");
+                })
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+
+    public function terbitSpk(Request $request, $spk_instansi_id)
+    {
+        try {
+
+            DB::beginTransaction();
+
+            $getDetailSpkInstansi = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+            $getDetailSpkInstansi->update([
+                "spk_instansi_status" => "publish"
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "update status to " . "publish"
+            ];
+
+            DB::commit();
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi" => $getDetailSpkInstansi,
+                "spk_instansi_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully update status");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+    public function updateStatus(Request $request, $spk_instansi_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "spk_instansi_status" => "required|in:finance_check,shipment"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetailSpkInstansi = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+            $getDetailSpkInstansi->update([
+                "spk_instansi_status" => $request->spk_instansi_status
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "update status to " . $request->spk_instansi_status
+            ];
+
+            DB::commit();
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi" => $getDetailSpkInstansi,
+                "spk_instansi_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully update status");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function addUnit(Request $request, $spk_instansi_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "unit_id" => "required",
+                "motor_id" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            //melakukan pengechekan apakah sudah shipment
+            $getDetailShipment = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+
+            if ($getDetailShipment->spk_instansi_status !== "shipment") {
+                return ResponseFormatter::error("Spk Harus Shipment untuk bisa nambah unit", "Bad Request", 400);
+            }
+
+            $getDetailUnit = Unit::where("unit_id", $request->unit_id)->first();
+
+            if ($getDetailUnit->unit_status === "hold") {
+                return ResponseFormatter::error("Unit status sudah hold", "bad request", 400);
+            }
+
+            $createUnitInstansi  = SpkInstansiUnit::firstOrCreate([
+                "unit_id" => $request->unit_id,
+                "spk_instansi_id" => $spk_instansi_id
+            ], [
+                "motor_id" => $request->motor_id,
+                "unit_id" => $request->unit_id,
+                "spk_instansi_id" => $spk_instansi_id
+            ]);
+
+            $user = Auth::user();
+
+            //melakukan update unit
+
+
+            $getDetailUnit->update([
+                "unit_status" => "hold"
+            ]);
+            UnitLog::create([
+                "unit_id" => $getDetailUnit->unit_id,
+                "user_id" => $user->user_id,
+                "unit_log_number" => "NULL",
+                "unit_log_action" => "hold",
+                "unit_log_status" => "hold"
+            ]);
+
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "Add unit "
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            DB::commit();
+
+            $data = [
+                "spk_instansi_unit" => $createUnitInstansi,
+                "spk_instansi_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully add unit");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function addAdditionalNote(Request $request, $spk_instansi_id)
     {

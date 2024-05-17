@@ -12,4 +12,17 @@ class SpkInstansiUnit extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_instansi_unit_id";
+
+    public function spk_instansi()
+    {
+        return $this->belongsTo(SpkInstansi::class, "spk_instansi_id");
+    }
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, "unit_id");
+    }
+    public function motor()
+    {
+        return $this->belongsTo(Motor::class, "motor_id");
+    }
 }

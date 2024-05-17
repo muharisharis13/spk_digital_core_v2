@@ -351,7 +351,15 @@ Route::prefix("v1")->group(function () {
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"]);
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/add-motor/{id}", [SpkInstansiController::class, "addMotor"]);
+            Route::post("/add-unit/{id}", [SpkInstansiController::class, "addUnit"]);
             Route::post("/add-additional/{id}", [SpkInstansiController::class, "addAdditionalNote"]);
+            Route::post("/status/{id}", [SpkInstansiController::class, "updateStatus"]);
+            Route::post("/publish/{id}", [SpkInstansiController::class, "terbitSpk"]);
+        });
+
+        Route::prefix("spk-instansi")->group(function () {
+            Route::get("/list", [SpkInstansiController::class, "getPaginateSpkInstansiUnit"]);
+            Route::get("/detail/{id}", [SpkInstansiController::class, "getDetailSpkInstansiUnit"]);
         });
     });
 });

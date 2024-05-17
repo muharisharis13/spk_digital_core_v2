@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string("spk_instansi_number")->unique();
             $table->uuid("dealer_id")->nullable();
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
-            $table->enum("spk_instansi_status", ["create", "finance_check", "shipment", "spk"]);
+            $table->enum("spk_instansi_status", ["create", "finance_check", "shipment", "spk", "publish"]);
             $table->boolean("is_cro_check")->default(false)->nullable();
             $table->text("spk_instansi_cro_check_note")->nullable();
             $table->timestamps();
