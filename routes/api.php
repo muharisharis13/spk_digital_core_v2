@@ -349,6 +349,9 @@ Route::prefix("v1")->group(function () {
         Route::prefix("spk-instansi")->group(function () {
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::get("/list", [SpkInstansiController::class, "getPaginate"]);
+            Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"]);
+            Route::post("/add-motor/{id}", [SpkInstansiController::class, "addMotor"]);
+            Route::post("/add-additional/{id}", [SpkInstansiController::class, "addAdditionalNote"]);
         });
     });
 });

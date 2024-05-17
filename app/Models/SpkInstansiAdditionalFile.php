@@ -12,4 +12,13 @@ class SpkInstansiAdditionalFile extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_instansi_additional_file_id";
+
+    protected function getFilesAttribute($value): string
+    {
+        if ($value) {
+            return asset('/storage/' . $value);
+        } else {
+            return "";
+        }
+    }
 }

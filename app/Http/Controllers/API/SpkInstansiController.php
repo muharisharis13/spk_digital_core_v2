@@ -8,10 +8,14 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\SpkInstansi;
+use App\Models\SpkInstansiAdditional;
+use App\Models\SpkInstansiAdditionalFile;
 use App\Models\SpkInstansiDelivery;
 use App\Models\SpkInstansiDeliveryFile;
 use App\Models\SpkInstansiGeneral;
 use App\Models\SpkInstansiLegal;
+use App\Models\SpkInstansiLog;
+use App\Models\SpkInstansiMotor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +25,133 @@ class SpkInstansiController extends Controller
 {
     //
 
+    public function addAdditionalNote(Request $request, $spk_instansi_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "additional_cost" => "required",
+                "additional_note" => "nullable"
+            ]);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $createAdditional = SpkInstansiAdditional::create([
+                "additional_cost" => $request->additional_cost,
+                "additional_note" => $request->additional_note,
+                "spk_instansi_id" => $spk_instansi_id
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "add new additional cost"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_additional" => $createAdditional,
+                "spk_instansi_log" => $createLog
+            ];
+
+            DB::commit();
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function addMotor(Request $request, $spk_instansi_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "motor_id" => "required",
+                "color_id" => "required",
+                "qty" => "required",
+                "off_the_road" => "required",
+                "bbn" => "required",
+                "on_the_road" => "required",
+                "discount" => "nullable",
+                "discount_over" => "nullable",
+                "commission" => "nullable",
+                "booster" => "nullable",
+                "additional_cost" => "nullable",
+                "additional_cost_note" => "nullable"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $dataRequest = [
+                "motor_id" => $request->motor_id,
+                "color_id" => $request->color_id,
+                "qty" => $request->qty,
+                "off_the_road" => $request->off_the_road,
+                "bbn" => $request->bbn,
+                "on_the_road" => $request->on_the_road,
+                "discount" => $request->discount,
+                "discount_over" => $request->discount_over,
+                "commission" => $request->commission,
+                "booster" => $request->booster,
+                "additional_cost" => $request->additional_cost,
+                "additional_cost_note" => $request->additional_cost_note,
+                "spk_instansi_id" => $spk_instansi_id
+            ];
+            $user = Auth::user();
+
+            $createSpkInstansiMotor = SpkInstansiMotor::create($dataRequest);
+
+
+            //menghitung nilai kontrak untuk di update ke database
+            $total = (intval($request->off_the_road) + intval($request->bbn)) * intval($request->qty);
+
+            $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $spk_instansi_id)->first();
+            $totalBaru = intval($getDetailGeneral->po_values) + $total;
+            $getDetailGeneral->update([
+                "po_values" => $totalBaru
+            ]);
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "add new motor"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_motor" => $createSpkInstansiMotor,
+                "spk_instansi_log" => $createLog
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully add new motor into spk instansi");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function getDetail(Request $request, $spk_instansi_id)
+    {
+        try {
+            $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
     public function getPaginate(Request $request)
     {
         try {
@@ -59,6 +190,7 @@ class SpkInstansiController extends Controller
         "no_telp_legal" => "nullable",
         "no_hp_legal" => "required",
         "delivery_type" => "required|in:ktp,dealer,neq,domicile",
+        "file_additional.*" => "array|nullable|mimes:pdf,jpg,png,pdf|max:5120"
 
     ];
 
@@ -130,6 +262,20 @@ class SpkInstansiController extends Controller
             "dealer_id" => $dealerSelected->dealer_id,
             "spk_instansi_status" => "create",
         ]);
+
+        return $result;
+    }
+
+    protected function createSpkInstansiLog($createSpk, $user, $action)
+    {
+        $data = [
+            "spk_instansi_id" => $createSpk->spk_instansi_id,
+            "user_id" => $user->user_id,
+            "spk_instansi_log_action" => $action
+        ];
+
+        $result = SpkInstansiLog::create($data);
+
 
         return $result;
     }
@@ -237,6 +383,23 @@ class SpkInstansiController extends Controller
         return $createSpkDeliveryFile;
     }
 
+    protected function createSpkAdditionalFIle($createSpk, $request)
+    {
+        $createSpkDeliveryFile = [];
+        if ($request->file_additional) {
+            foreach ($request->file("file_additional") as $item) {
+                $imagePath = $item->store("spk_instansi", "public");
+
+                $createSpkDeliveryFile[] = SpkInstansiAdditionalFile::create([
+                    "spk_instansi_id" => $createSpk->spk_instansi_id,
+                    "files" => $imagePath
+                ]);
+            }
+        }
+
+        return $createSpkDeliveryFile;
+    }
+
 
     public function create(Request $request)
     {
@@ -247,6 +410,11 @@ class SpkInstansiController extends Controller
             self::isSelectedDeliveryTypeDealer($validator);
             self::isSelectedDeliveryTypeNeq($validator);
             self::isSelectedDeliveryTypeDomicile($validator);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
 
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
@@ -261,6 +429,10 @@ class SpkInstansiController extends Controller
             if ($request->delivery_type === "domicile") {
                 $createSpkDeliveryFile = self::createSpkDeliveryFile($createSpkDelivery, $request);
             }
+            $createSpkAdditionalFile = null;
+            $createSpkAdditionalFile = self::createSpkAdditionalFIle($createSpk, $request);
+
+            $createSpkInstansiLog =  self::createSpkInstansiLog($createSpk, $user, "Create Spk Instansi");
 
             $data = [
                 "spk_instansi" => $createSpk,
@@ -268,6 +440,8 @@ class SpkInstansiController extends Controller
                 "spk_instansi_legal" => $createSpkLegal,
                 "spk_instansi_delivery" => $createSpkDelivery,
                 "spk_instansi_delivery_file" => $createSpkDeliveryFile,
+                "spk_instansi_additional_file" => $createSpkAdditionalFile,
+                "spk_instansi_log" => $createSpkInstansiLog
             ];
 
             DB::commit();

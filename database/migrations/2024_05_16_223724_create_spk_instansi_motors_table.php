@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign("color_id")->references("color_id")->on("colors")->onDelete("set null");
             $table->integer("qty");
             $table->bigInteger("off_the_road");
+            $table->bigInteger("on_the_road");
             $table->bigInteger("bbn");
             $table->integer("discount");
             $table->integer("discount_over");
