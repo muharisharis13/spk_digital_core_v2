@@ -382,7 +382,7 @@ class SpkInstansiController extends Controller
         "no_telp_legal" => "nullable",
         "no_hp_legal" => "required",
         "delivery_type" => "required|in:ktp,dealer,neq,domicile",
-        "file_additional.*" => "array|nullable|mimes:pdf,jpg,png,pdf|max:5120"
+        "file_additional.*" => "nullable|mimes:pdf,jpg,png,pdf|max:5120"
 
     ];
 
@@ -437,7 +437,7 @@ class SpkInstansiController extends Controller
             }
         )->sometimes(
             ["file_sk.*"],
-            "array|nullable|mimes:pdf,jpg,png,pdf|max:5120",
+            "nullable|mimes:pdf,jpg,png,pdf|max:5120",
             function ($input) {
                 return $input->delivery_type === 'domicile';
             }
