@@ -560,7 +560,13 @@ class SpkInstansiController extends Controller
     protected function createSpkDeliveryFile($createSpkDelivery, $request)
     {
         $createSpkDeliveryFile = [];
-
+        $validator = Validator::make($request->file("file_sk"), [
+            'file_sk' => 'array',
+            'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+        ]);
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+        }
         if ($request->file_sk) {
             foreach ($request->file("file_sk") as $item) {
                 $imagePath = $item->store("spk_instansi", "public");
@@ -572,12 +578,20 @@ class SpkInstansiController extends Controller
             }
         }
 
+
         return $createSpkDeliveryFile;
     }
 
     protected function createSpkAdditionalFIle($createSpk, $request)
     {
         $createSpkDeliveryFile = [];
+        $validator = Validator::make($request->file("file_sk"), [
+            'file_additional' => 'array',
+            'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+        ]);
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+        }
         if ($request->file_additional) {
             foreach ($request->file("file_additional") as $item) {
                 $imagePath = $item->store("spk_instansi", "public");
