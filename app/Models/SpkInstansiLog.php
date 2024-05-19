@@ -12,4 +12,10 @@ class SpkInstansiLog extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_instansi_log_id";
+
+    protected $with = ['users'];
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
 }

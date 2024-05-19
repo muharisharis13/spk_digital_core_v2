@@ -13,6 +13,8 @@ class SpkInstansiUnit extends Model
 
     protected $primaryKey = "spk_instansi_unit_id";
 
+    protected $with = ['unit', 'motor'];
+
     public function spk_instansi()
     {
         return $this->belongsTo(SpkInstansi::class, "spk_instansi_id");
