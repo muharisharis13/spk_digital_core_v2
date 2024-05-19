@@ -77,6 +77,12 @@ class SpkInstansiController extends Controller
                 "spk_instansi_status" => "publish"
             ]);
 
+            foreach ($getDetailSpkInstansi->spk_instansi_unit as $item) {
+                Unit::where("unit_id", $item->unit_id)->update([
+                    "unit_status" => "spk"
+                ]);
+            }
+
             $user = Auth::user();
 
             $dataRequestLog = [
@@ -330,7 +336,7 @@ class SpkInstansiController extends Controller
             return ResponseFormatter::success($data, "Successfully add new motor into spk instansi");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
 
