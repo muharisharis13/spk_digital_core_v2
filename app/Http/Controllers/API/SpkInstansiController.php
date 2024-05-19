@@ -91,7 +91,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_log_action" => "update status to " . "publish"
             ];
 
-            // DB::commit();
+            DB::commit();
 
             $createLog = SpkInstansiLog::create($dataRequestLog);
 
