@@ -7,6 +7,9 @@ use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\delivery;
+use App\Models\deliveryLog;
+use App\Models\DeliverySpkInstansi;
 use App\Models\SpkInstansi;
 use App\Models\SpkInstansiAdditional;
 use App\Models\SpkInstansiAdditionalFile;
@@ -19,6 +22,8 @@ use App\Models\SpkInstansiMotor;
 use App\Models\SpkInstansiPayment;
 use App\Models\SpkInstansiPaymentLog;
 use App\Models\SpkInstansiUnit;
+use App\Models\SpkInstansiUnitDelivery;
+use App\Models\SpkInstansiUnitDeliveryFile;
 use App\Models\SpkInstansiUnitLegal;
 use App\Models\Unit;
 use App\Models\UnitLog;
@@ -30,6 +35,129 @@ use Illuminate\Support\Facades\Validator;
 class SpkInstansiController extends Controller
 {
     //
+
+    public function addUnitDelivery(Request $request, $spk_instansi_unit_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "delivery_driver_name" => "required",
+                "delivery_vehicle" => "required",
+                "delivery_note" => "nullable",
+                "delivery_completeness" => "nullable",
+                "delivery_type" => "required|in:ktp,dealer,neq,domicile"
+            ]);
+
+            self::isSelectedDeliveryTypeKTP($validator);
+            self::isSelectedDeliveryTypeDealer($validator);
+            self::isSelectedDeliveryTypeNeq($validator);
+            self::isSelectedDeliveryTypeDomicile($validator);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+
+
+            $dataDelivery = [
+                "spk_instansi_unit_id" => $spk_instansi_unit_id,
+                "delivery_type" => $request->delivery_type,
+            ];
+
+            if ($request->delivery_type === "ktp") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["address"] = $request->delivery_address;
+                $dataDelivery["city"] = $request->city;
+                $dataDelivery["no_telp"] = $request->delivery_no_telp;
+                $dataDelivery["no_hp"] = $request->delivery_no_hp;
+            }
+            if ($request->delivery_type === "dealer") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["no_hp"] = $request->delivery_no_hp;
+            }
+            if ($request->delivery_type === "neq") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["no_hp"] = $request->delivery_no_hp;
+                $dataDelivery["dealer_neq_id"] = $request->dealer_neq_id;
+            }
+
+            if ($request->delivery_type === "domicile") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["address"] = $request->delivery_address;
+                $dataDelivery["city"] = $request->city;
+                $dataDelivery["is_domicile"] = true;
+            }
+
+            $createSpkUnitDelivery = SpkInstansiUnitDelivery::create($dataDelivery);
+            $createSpkDeliveryFile = [];
+
+            if ($request->delivery_type === "domicile") {
+                $validator = Validator::make($request->file("file_sk"), [
+                    'file_sk' => 'array',
+                    'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+                ]);
+                if ($validator->fails()) {
+                    return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                }
+                if ($request->file_sk) {
+                    foreach ($request->file("file_sk") as $item) {
+                        $imagePath = $item->store("spk_instansi", "public");
+
+                        $createSpkDeliveryFile[] = SpkInstansiUnitDeliveryFile::create([
+                            "spk_instansi_unit_deliv_id" => $createSpkUnitDelivery->spk_instansi_unit_delivery_id,
+                            "file" => $imagePath
+                        ]);
+                    }
+                }
+            }
+
+
+            $createDelivery = delivery::create([
+                "delivery_driver_name" => $request->delivery_driver_name,
+                "delivery_vehicle" => $request->delivery_vehicle,
+                "delivery_note" => $request->delivery_note,
+                "delivery_completeness" => $request->delivery_completeness,
+                "delivery_number" => GenerateNumber::generate("TEMP-DELIVERY", GenerateAlias::generate($getDealer->dealer->dealer_name), "deliveries", "delivery_number"),
+                "dealer_id" => $getDealer->dealer_id,
+                "delivery_status" => "create",
+                "delivery_type" => "spk_instansi"
+            ]);
+
+            $createDeliveryLog = deliveryLog::create([
+                "user_id" => $user->user_id,
+                "delivery_log_action" => "create",
+                "delivery_note" => "Create Delivery",
+                "delivery_id" => $createDelivery->delivery_id
+            ]);
+
+            $createDeliveryUnit = DeliverySpkInstansi::create([
+                "spk_instansi_unit_delivery_id" => $createSpkUnitDelivery->spk_instansi_unit_delivery_id,
+                "type" => "partial",
+                "delivery_id" => $createDelivery->delivery_id
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "spk_instansi_unit_delivery" => $createSpkUnitDelivery,
+                "spk_instansi_spk_delivery_file" => $createSpkDeliveryFile,
+                "delivery" => $createDelivery,
+                "delivery_log" => $createDeliveryLog,
+                "delivery_spk_instansi" => $createDeliveryUnit
+            ];
+
+            return ResponseFormatter::success($data, "Successfully add delivery unit");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function addUnitLegal(Request $request, $spk_instansi_unit_id)
     {

@@ -10,10 +10,11 @@ class SpkInstansiUnitDeliveryFile extends Model
 {
     use HasFactory, HasUuids;
     protected $guarded = [];
+    protected $table = 'spk_instansi_unit_deliv_files';
 
     protected $primaryKey = "spk_instansi_unit_deliv_file_id";
 
-    protected function getFilesAttribute($value): string
+    protected function getFileAttribute($value): string
     {
         if ($value) {
             return asset('/storage/' . $value);

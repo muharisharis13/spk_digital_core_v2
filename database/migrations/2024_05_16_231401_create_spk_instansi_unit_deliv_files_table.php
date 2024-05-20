@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('spk_instansi_unit_delivery_files');
+        Schema::dropIfExists('spk_instansi_unit_deliv_files');
     }
 };

@@ -11,12 +11,17 @@ class SpkInstansiUnitDelivery extends Model
     use HasFactory, HasUuids;
     protected $guarded = [];
 
-    protected $with = ['dealer_neq'];
+    protected $with = ['dealer_neq', 'spk_instansi_unit_deliv_file'];
 
     protected $primaryKey = "spk_instansi_unit_delivery_id";
 
     public function dealer_neq()
     {
         return $this->belongsTo(DealerNeq::class, 'dealer_neq_id', 'dealer_neq_id');
+    }
+
+    public function spk_instansi_unit_deliv_file()
+    {
+        return $this->hasMany(SpkInstansiUnitDeliveryFile::class, "spk_instansi_unit_deliv_id", "spk_instansi_unit_delivery_id",);
     }
 }

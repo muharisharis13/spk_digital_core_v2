@@ -19,6 +19,7 @@ use App\Models\DeliveryNeqReturn;
 use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
 use App\Models\DeliverySpk;
+use App\Models\DeliverySpkInstansi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -230,6 +231,8 @@ class DeliveryController extends Controller
                 $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_neq_return.neq_return.neq_return_unit"]);
             } else if ($delivery_type === 'spk') {
                 $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_spk.spk.spk_unit"]);
+            } else if ($delivery_type === 'spk_instansi') {
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);
@@ -326,6 +329,8 @@ class DeliveryController extends Controller
                 $deliveryType = DeliveryTypeEnum::neq_return;
             } elseif ($request->spk_id) {
                 $deliveryType = DeliveryTypeEnum::spk;
+            } elseif ($request->spk_instansi_id) {
+                $deliveryType = "spk_instansi";
             }
 
             DB::beginTransaction();
@@ -396,6 +401,13 @@ class DeliveryController extends Controller
                 $createDeliverySpk = DeliverySpk::create([
                     "spk_id" => $request->spk_id,
                     "delivery_id" => $createDelivery->delivery_id
+                ]);
+                $data["deliver_spk"] = $createDeliverySpk;
+            } else if (isset($request->spk_instansi_id)) {
+                $createDeliverySpk = DeliverySpkInstansi::create([
+                    "spk_instansi_id" => $request->spk_instansi_id,
+                    "delivery_id" => $createDelivery->delivery_id,
+                    "type" => "dc"
                 ]);
                 $data["deliver_spk"] = $createDeliverySpk;
             }

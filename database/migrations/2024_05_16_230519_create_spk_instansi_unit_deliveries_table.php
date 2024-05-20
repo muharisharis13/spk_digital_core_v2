@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string("address");
             $table->string("city")->nullable();
             $table->string("no_telp")->nullable();
-            $table->string("no_hp");
+            $table->string("no_hp")->nullable();
             $table->uuid("dealer_neq_id")->nullable();
             $table->foreign("dealer_neq_id")->references("dealer_neq_id")->on("dealer_neq")->onDelete("set null");
             $table->boolean("is_domicile")->default(false);
