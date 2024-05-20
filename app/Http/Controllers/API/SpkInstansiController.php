@@ -148,6 +148,92 @@ class SpkInstansiController extends Controller
         }
     }
 
+    public function deleteUnit(Request $request, $spk_instansi_unit_id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)->first();
+
+            if (!isset($getDetail->spk_instansi_unit_id)) {
+                return ResponseFormatter::error("unit not found", "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail->delete();
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "delete unit"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_unit" => $getDetail,
+                "spk_instansi_log" => $createLog
+            ];
+            // DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully deleted po instansi unit");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function updateUnit(Request $request, $spk_instansi_unit_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "unit_id" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)->first();
+
+            if (!isset($getDetail->spk_instansi_unit_id)) {
+                return ResponseFormatter::error("unit not found", "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail->update([
+                "unit_id" => $request->unit_id,
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "update unit"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_unit" => $getDetail,
+                "spk_instansi_log" => $createLog
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully updated po instansi unit");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
     public function addUnit(Request $request, $spk_instansi_id)
     {
         try {
@@ -223,6 +309,97 @@ class SpkInstansiController extends Controller
         }
     }
 
+    public function deleteAdditional(Request $request, $spk_instansi_additional_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "additional_cost" => "required",
+                "additional_note" => "nullable"
+            ]);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail = SpkInstansiAdditional::where("spk_instansi_additional_id", $spk_instansi_additional_id)->first();
+
+            if (!isset($getDetail->spk_instansi_additional_id)) {
+                return ResponseFormatter::error("additional po not found", "Bad Request", 400);
+            }
+
+            $getDetail->delete();
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "delete additional cost"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_additional" => $getDetail,
+                "spk_instansi_log" => $createLog
+            ];
+
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+    public function updateAdditional(Request $request, $spk_instansi_additional_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "additional_cost" => "required",
+                "additional_note" => "nullable"
+            ]);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail = SpkInstansiAdditional::where("spk_instansi_additional_id", $spk_instansi_additional_id)->first();
+
+            if (!isset($getDetail->spk_instansi_additional_id)) {
+                return ResponseFormatter::error("additional po not found", "Bad Request", 400);
+            }
+
+            $getDetail->update([
+                "additional_cost" => $request->additional_cost,
+                "additional_note" => $request->additional_note,
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "update additional cost"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+            DB::commit();
+
+            $data = [
+                "spk_instansi_additional" => $getDetail,
+                "spk_instansi_log" => $createLog
+            ];
+
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
     public function addAdditionalNote(Request $request, $spk_instansi_id)
     {
         try {
@@ -265,6 +442,93 @@ class SpkInstansiController extends Controller
             return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
         }
     }
+
+    public function deleteMotor(Request $request, $spk_instansi_motor_id)
+    {
+        try {
+            $getDetail = SpkInstansiMotor::where("spk_instansi_motor_id", $spk_instansi_motor_id)
+                ->first();
+
+            if (!isset($getDetail->spk_instansi_motor_id)) {
+                return ResponseFormatter::error("motor not found", "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail->delete();
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "delete motor"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_motor" => $getDetail,
+                "spk_instansi_log" => $createLog
+            ];
+
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully delete po instansi motor");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function updateMotor(Request $request, $spk_instansi_motor_id)
+    {
+        try {
+            $getDetail = SpkInstansiMotor::where("spk_instansi_motor_id", $spk_instansi_motor_id)
+                ->first();
+
+            if (!isset($getDetail->spk_instansi_motor_id)) {
+                return ResponseFormatter::error("motor not found", "Bad Request", 400);
+            }
+
+            $validator = Validator::make($request->all(), [
+                "motor_id" => "required",
+                "qty" => "required"
+            ]);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail->update([
+                "motor_id" => $request->motor_id,
+                "qty" => $request->qty
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "update motor"
+            ];
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_motor" => $getDetail,
+                "spk_instansi_log" => $createLog
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully updated po instansi motor");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
 
     public function addMotor(Request $request, $spk_instansi_id)
     {

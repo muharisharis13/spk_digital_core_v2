@@ -23,4 +23,9 @@ class SpkInstansiMotor extends Model
     {
         return $this->belongsTo(Motor::class, 'motor_id', 'motor_id');
     }
+
+    public function spk_instansi()
+    {
+        return $this->belongsTo(SpkInstansi::class, "spk_instansi_id");
+    }
 }

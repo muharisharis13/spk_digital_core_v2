@@ -351,8 +351,14 @@ Route::prefix("v1")->group(function () {
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"]);
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/add-motor/{id}", [SpkInstansiController::class, "addMotor"]);
+            Route::put("/update-motor/{id}", [SpkInstansiController::class, "updateMotor"]);
+            Route::delete("/delete-motor/{id}", [SpkInstansiController::class, "deleteMotor"]);
             Route::post("/add-unit/{id}", [SpkInstansiController::class, "addUnit"]);
+            Route::put("/update-unit/{id}", [SpkInstansiController::class, "updateUnit"]);
+            Route::delete("/delete-unit/{id}", [SpkInstansiController::class, "deleteUnit"]);
             Route::post("/add-additional/{id}", [SpkInstansiController::class, "addAdditionalNote"]);
+            Route::put("/update-additional/{id}", [SpkInstansiController::class, "updateAdditional"]);
+            Route::delete("/delete-additional/{id}", [SpkInstansiController::class, "deleteAdditional"]);
             Route::post("/status/{id}", [SpkInstansiController::class, "updateStatus"]);
             Route::post("/publish/{id}", [SpkInstansiController::class, "terbitSpk"]);
         });

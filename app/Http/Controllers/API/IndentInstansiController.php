@@ -421,6 +421,7 @@ class IndentInstansiController extends Controller
                 "user_id" => $user->user_id,
                 "indent_instansi_log_action" => "Update Indent Instansi"
             ]);
+            DB::commit();
 
 
             $data = [
