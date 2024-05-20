@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign("spk_instansi_id")->references("spk_instansi_id")->on("spk_instansis")->onDelete("set null");
             $table->string("sales_name");
             $table->string("sales_id");
+            $table->string("po_no");
             $table->string("po_number");
             $table->date("po_date");
             $table->string("instansi_name");
