@@ -361,6 +361,11 @@ Route::prefix("v1")->group(function () {
             Route::delete("/delete-additional/{id}", [SpkInstansiController::class, "deleteAdditional"]);
             Route::post("/status/{id}", [SpkInstansiController::class, "updateStatus"]);
             Route::post("/publish/{id}", [SpkInstansiController::class, "terbitSpk"]);
+            Route::post("/cancel/{id}", [SpkInstansiController::class, "updateStatusToCancel"]);
+
+            Route::prefix("unit")->group(function () {
+                Route::post("/add-legal/{id}", [SpkInstansiController::class, "addUnitLegal"]);
+            });
         });
 
         Route::prefix("spk-instansi")->group(function () {

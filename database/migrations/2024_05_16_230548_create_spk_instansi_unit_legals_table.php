@@ -15,15 +15,17 @@ return new class extends Migration
             $table->uuid("spk_instansi_unit_legal_id")->primary();
             $table->uuid("spk_instansi_unit_id")->nullable();
             $table->foreign("spk_instansi_unit_id")->references("spk_instansi_unit_id")->on("spk_instansi_units")->onDelete("set null");
-            $table->enum("delivery_type", ["ktp", "dealer", "neq", "domicile"]);
-            $table->string("name");
-            $table->string("address");
-            $table->string("city")->nullable();
+
+
+            $table->string("instansi_name");
+            $table->string("instansi_address");
+            $table->string("province");
+            $table->string("city");
+            $table->string("district");
+            $table->string("sub_district");
+            $table->string("postal_code");
             $table->string("no_telp")->nullable();
             $table->string("no_hp");
-            $table->uuid("dealer_neq_id")->nullable();
-            $table->foreign("dealer_neq_id")->references("dealer_neq_id")->on("dealer_neq")->onDelete("set null");
-            $table->boolean("is_domicile")->default(false);
             $table->timestamps();
         });
     }

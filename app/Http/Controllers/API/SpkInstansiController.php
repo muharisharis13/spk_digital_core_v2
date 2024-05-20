@@ -16,7 +16,10 @@ use App\Models\SpkInstansiGeneral;
 use App\Models\SpkInstansiLegal;
 use App\Models\SpkInstansiLog;
 use App\Models\SpkInstansiMotor;
+use App\Models\SpkInstansiPayment;
+use App\Models\SpkInstansiPaymentLog;
 use App\Models\SpkInstansiUnit;
+use App\Models\SpkInstansiUnitLegal;
 use App\Models\Unit;
 use App\Models\UnitLog;
 use Illuminate\Http\Request;
@@ -27,6 +30,111 @@ use Illuminate\Support\Facades\Validator;
 class SpkInstansiController extends Controller
 {
     //
+
+    public function addUnitLegal(Request $request, $spk_instansi_unit_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "instansi_name" => "required",
+                "instansi_address" => "required",
+                "province" => "required",
+                "city" => "required",
+                "district" => "required",
+                "sub_district" => "required",
+                "postal_code" => "required",
+                "no_telp" => "nullable",
+                "no_hp" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)->first();
+            $getDetail->update([
+                "is_have_legal" => true
+            ]);
+
+            //buat legal unit
+            $createUnitLegal = SpkInstansiUnitLegal::create([
+                "spk_instansi_unit_id" => $spk_instansi_unit_id,
+                "instansi_name" => $request->instansi_name,
+                "instansi_address" => $request->instansi_address,
+                "province" => $request->province,
+                // "province_id" => $request->province_id,
+                "city" => $request->city,
+                // "city_id" => $request->city_id,
+                "district" => $request->district,
+                // "district_id" => $request->district_id,
+                "sub_district" => $request->sub_district,
+                // "sub_district_id" => $request->sub_district_id,
+                "postal_code" => $request->postal_code,
+                "no_telp" => $request->no_telp,
+                "no_hp" => $request->no_hp,
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $getDetail->spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "add legal unit"
+            ];
+
+            DB::commit();
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi_unit_legal" => $createUnitLegal,
+                "spk_instansi_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully add new legal unit");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function updateStatusToCancel(Request $request, $spk_instansi_id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $getDetailSpkInstansi = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+            $getDetailSpkInstansi->update([
+                "spk_instansi_status" => "cancel"
+            ]);
+
+            $user = Auth::user();
+
+            $dataRequestLog = [
+                "spk_instansi_id" => $spk_instansi_id,
+                "user_id" => $user->user_id,
+                "spk_instansi_log_action" => "update status to " . "cancel"
+            ];
+
+            DB::commit();
+
+            $createLog = SpkInstansiLog::create($dataRequestLog);
+
+            $data = [
+                "spk_instansi" => $getDetailSpkInstansi,
+                "spk_instansi_log" => $createLog
+            ];
+
+            return ResponseFormatter::success($data, "Successfully update status");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+
 
     public function getDetailSpkInstansiUnit(Request $request, $spk_instansi_unit_id)
     {
@@ -84,6 +192,25 @@ class SpkInstansiController extends Controller
             }
 
             $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            //generate payment
+            $createPayment = SpkInstansiPayment::create([
+                "spk_instansi_id" => $spk_instansi_id,
+                "spk_instansi_payment_number" =>
+                GenerateNumber::generate("SPK-INSTANSI-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_instansi_payments", "spk_instansi_payment_number"),
+                "spk_instansi_payment_for" => "company",
+                "spk_instansi_payment_type" => "cash",
+                "spk_instansi_payment_status" => "unpaid",
+            ]);
+
+            SpkInstansiPaymentLog::createt([
+                "user_id" => $user->user_id,
+                "spk_instansi_payment_id" =>  $createPayment->spk_instansi_payment_id,
+                "spk_instansi_payment_log_note" => "create payment"
+            ]);
+
+
 
             $dataRequestLog = [
                 "spk_instansi_id" => $spk_instansi_id,
@@ -97,6 +224,7 @@ class SpkInstansiController extends Controller
 
             $data = [
                 "spk_instansi" => $getDetailSpkInstansi,
+                "spk_instansi_payment" => $createPayment,
                 "spk_instansi_log" => $createLog
             ];
 
