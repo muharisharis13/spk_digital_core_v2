@@ -11,7 +11,7 @@ class SpkInstansiUnitDelivery extends Model
     use HasFactory, HasUuids;
     protected $guarded = [];
 
-    protected $with = ['dealer_neq', 'spk_instansi_unit_deliv_file', 'spk_instansi_unit'];
+    protected $with = ["delivery_spk_instansi_partial", 'dealer_neq', 'spk_instansi_unit_deliv_file', 'spk_instansi_unit'];
 
     protected $primaryKey = "spk_instansi_unit_delivery_id";
 
@@ -27,5 +27,10 @@ class SpkInstansiUnitDelivery extends Model
     public function spk_instansi_unit_deliv_file()
     {
         return $this->hasMany(SpkInstansiUnitDeliveryFile::class, "spk_instansi_unit_deliv_id", "spk_instansi_unit_delivery_id",);
+    }
+
+    public function delivery_spk_instansi_partial()
+    {
+        return $this->hasOne(DeliverySpkInstansi::class, "spk_instansi_unit_deliv_id", "spk_instansi_unit_delivery_id",);
     }
 }

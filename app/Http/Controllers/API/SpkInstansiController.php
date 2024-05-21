@@ -119,9 +119,11 @@ class SpkInstansiController extends Controller
                 $createSpkUnitDelivery[] = $createSpkUnitDelivery2;
 
                 //update spk unit  is_delivery_partial true
-                SpkInstansiUnit::where("spk_instansi_unit_id", $item)->update([
-                    "is_delivery_partial" => true
-                ]);
+                SpkInstansiUnit::where("spk_instansi_unit_id", $item)
+                    ->first()
+                    ->update([
+                        "is_delivery_partial" => true
+                    ]);
 
 
 
