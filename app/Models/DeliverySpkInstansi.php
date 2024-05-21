@@ -10,7 +10,7 @@ class DeliverySpkInstansi extends Model
 {
     use HasFactory, HasUuids;
     protected $guarded = [];
-    protected $with = ["delivery"];
+    protected $with = ["delivery", "spk_instansi_unit_delivery"];
 
     protected $primaryKey = "delivery_spk_instansi_id";
 
@@ -20,7 +20,7 @@ class DeliverySpkInstansi extends Model
     }
     public function spk_instansi_unit_delivery()
     {
-        return $this->belongsTo(SpkInstansiUnitDelivery::class, "spk_instansi_unit_deliv_id", "spk_instansi_unit_delivery_id");
+        return $this->belongsTo(SpkInstansiUnitDelivery::class, "spk_instansi_unit_delivery_id", "spk_instansi_unit_delivery_id");
     }
 
     public function delivery()
