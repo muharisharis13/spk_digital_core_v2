@@ -12,7 +12,7 @@ class SpkInstansi extends Model
     protected $guarded = [];
 
     protected $primaryKey = "spk_instansi_id";
-    protected $with = ["delivery_spk_instansi", "indent_instansi", "spk_instansi_unit", "spk_instansi_additional", "spk_instansi_additional_file", "spk_instansi_legal", "spk_instansi_motor", "spk_instansi_general", "spk_instansi_delivery.spk_instansi_delivery_file", "spk_instansi_log"];
+    protected $with = ["indent_instansi", "spk_instansi_unit", "spk_instansi_additional", "spk_instansi_additional_file", "spk_instansi_legal", "spk_instansi_motor", "spk_instansi_general", "spk_instansi_delivery.spk_instansi_delivery_file", "spk_instansi_log"];
 
     public function spk_instansi_delivery()
     {

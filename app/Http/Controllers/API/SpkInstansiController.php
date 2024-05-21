@@ -895,7 +895,9 @@ class SpkInstansiController extends Controller
     public function getDetail(Request $request, $spk_instansi_id)
     {
         try {
-            $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+            $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)
+                ->with(["delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery", "spk_instansi_unit.spk_instansi_unit_delivery"])
+                ->first();
 
             return ResponseFormatter::success($getDetail);
         } catch (\Throwable $e) {
