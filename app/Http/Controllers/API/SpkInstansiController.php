@@ -128,14 +128,15 @@ class SpkInstansiController extends Controller
 
 
                 if ($request->delivery_type === "domicile") {
-                    $validator = Validator::make($request->file("file_sk"), [
-                        'file_sk' => 'array',
+                    $validator = Validator::make($request->all(), [
+                        'file_sk' => 'nullable|array',
                         'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
                     ]);
                     if ($validator->fails()) {
+                        DB::rollBack();
                         return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
                     }
-                    if ($request->file_sk) {
+                    if (isset($request->file_sk)) {
                         foreach ($request->file("file_sk") as $itemFile) {
                             $imagePath = $itemFile->store("spk_instansi", "public");
 
