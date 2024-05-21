@@ -20,7 +20,7 @@ class DeliverySpkInstansi extends Model
     }
     public function spk_instansi_unit_delivery()
     {
-        return $this->belongsTo(SpkInstansiUnitDelivery::class, "spk_instansi_unit_delivery_id");
+        return $this->belongsTo(SpkInstansiUnitDelivery::class, "spk_instansi_unit_deliv_id", "spk_instansi_unit_delivery_id");
     }
 
     public function delivery()
