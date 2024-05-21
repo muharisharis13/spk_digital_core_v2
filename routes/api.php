@@ -365,7 +365,7 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("unit")->group(function () {
                 Route::post("/add-legal/{id}", [SpkInstansiController::class, "addUnitLegal"]);
-                Route::post("/delivery/{id}", [SpkInstansiController::class, "addUnitDelivery"]);
+                Route::post("/delivery", [SpkInstansiController::class, "addUnitDelivery"]);
             });
         });
 

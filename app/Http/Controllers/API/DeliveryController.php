@@ -232,7 +232,11 @@ class DeliveryController extends Controller
             } else if ($delivery_type === 'spk') {
                 $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_spk.spk.spk_unit"]);
             } else if ($delivery_type === 'spk_instansi') {
-                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery"]);
+                $getPaginateDelivery =   $getPaginateDelivery->with(["delivery_spk_instansi" => function ($query) {
+                    return $query->where("type", "dc");
+                }, "delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery", "delivery_spk_instansi_partial" => function ($query) {
+                    return $query->where("type", "partial");
+                }, "delivery_spk_instansi_partial.spk_instansi", "delivery_spk_instansi_partial.spk_instansi_unit_delivery"]);
             }
 
             $getPaginateDelivery = $getPaginateDelivery->paginate($limit);

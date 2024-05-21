@@ -36,7 +36,7 @@ class SpkInstansiController extends Controller
 {
     //
 
-    public function addUnitDelivery(Request $request, $spk_instansi_unit_id)
+    public function addUnitDelivery(Request $request)
     {
         try {
 
@@ -45,7 +45,8 @@ class SpkInstansiController extends Controller
                 "delivery_vehicle" => "required",
                 "delivery_note" => "nullable",
                 "delivery_completeness" => "nullable",
-                "delivery_type" => "required|in:ktp,dealer,neq,domicile"
+                "delivery_type" => "required|in:ktp,dealer,neq,domicile",
+                "instansi_unit" => "array|required",
             ]);
 
             self::isSelectedDeliveryTypeKTP($validator);
@@ -62,61 +63,9 @@ class SpkInstansiController extends Controller
             $user = Auth::user();
             $getDealer = GetDealerByUserSelected::GetUser($user->user_id);
 
-
-
-
-            $dataDelivery = [
-                "spk_instansi_unit_id" => $spk_instansi_unit_id,
-                "delivery_type" => $request->delivery_type,
-            ];
-
-            if ($request->delivery_type === "ktp") {
-                $dataDelivery["name"] = $request->delivery_name;
-                $dataDelivery["address"] = $request->delivery_address;
-                $dataDelivery["city"] = $request->city;
-                $dataDelivery["no_telp"] = $request->delivery_no_telp;
-                $dataDelivery["no_hp"] = $request->delivery_no_hp;
-            }
-            if ($request->delivery_type === "dealer") {
-                $dataDelivery["name"] = $request->delivery_name;
-                $dataDelivery["no_hp"] = $request->delivery_no_hp;
-            }
-            if ($request->delivery_type === "neq") {
-                $dataDelivery["name"] = $request->delivery_name;
-                $dataDelivery["no_hp"] = $request->delivery_no_hp;
-                $dataDelivery["dealer_neq_id"] = $request->dealer_neq_id;
-            }
-
-            if ($request->delivery_type === "domicile") {
-                $dataDelivery["name"] = $request->delivery_name;
-                $dataDelivery["address"] = $request->delivery_address;
-                $dataDelivery["city"] = $request->city;
-                $dataDelivery["is_domicile"] = true;
-            }
-
-            $createSpkUnitDelivery = SpkInstansiUnitDelivery::create($dataDelivery);
+            $createSpkUnitDelivery = [];
             $createSpkDeliveryFile = [];
-
-            if ($request->delivery_type === "domicile") {
-                $validator = Validator::make($request->file("file_sk"), [
-                    'file_sk' => 'array',
-                    'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
-                ]);
-                if ($validator->fails()) {
-                    return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-                }
-                if ($request->file_sk) {
-                    foreach ($request->file("file_sk") as $item) {
-                        $imagePath = $item->store("spk_instansi", "public");
-
-                        $createSpkDeliveryFile[] = SpkInstansiUnitDeliveryFile::create([
-                            "spk_instansi_unit_deliv_id" => $createSpkUnitDelivery->spk_instansi_unit_delivery_id,
-                            "file" => $imagePath
-                        ]);
-                    }
-                }
-            }
-
+            $createDeliveryUnit = [];
 
             $createDelivery = delivery::create([
                 "delivery_driver_name" => $request->delivery_driver_name,
@@ -136,13 +85,74 @@ class SpkInstansiController extends Controller
                 "delivery_id" => $createDelivery->delivery_id
             ]);
 
-            $createDeliveryUnit = DeliverySpkInstansi::create([
-                "spk_instansi_unit_delivery_id" => $createSpkUnitDelivery->spk_instansi_unit_delivery_id,
-                "type" => "partial",
-                "delivery_id" => $createDelivery->delivery_id
-            ]);
+            foreach ($request->instansi_unit as $item) {
+                $dataDelivery = [
+                    "spk_instansi_unit_id" => $item,
+                    "delivery_type" => $request->delivery_type,
+                ];
 
-            DB::commit();
+                if ($request->delivery_type === "ktp") {
+                    $dataDelivery["name"] = $request->delivery_name;
+                    $dataDelivery["address"] = $request->delivery_address;
+                    $dataDelivery["city"] = $request->city;
+                    $dataDelivery["no_telp"] = $request->delivery_no_telp;
+                    $dataDelivery["no_hp"] = $request->delivery_no_hp;
+                }
+                if ($request->delivery_type === "dealer") {
+                    $dataDelivery["name"] = $request->delivery_name;
+                    $dataDelivery["no_hp"] = $request->delivery_no_hp;
+                }
+                if ($request->delivery_type === "neq") {
+                    $dataDelivery["name"] = $request->delivery_name;
+                    $dataDelivery["no_hp"] = $request->delivery_no_hp;
+                    $dataDelivery["dealer_neq_id"] = $request->dealer_neq_id;
+                }
+
+                if ($request->delivery_type === "domicile") {
+                    $dataDelivery["name"] = $request->delivery_name;
+                    $dataDelivery["address"] = $request->delivery_address;
+                    $dataDelivery["city"] = $request->city;
+                    $dataDelivery["is_domicile"] = true;
+                }
+
+                $createSpkUnitDelivery2 = SpkInstansiUnitDelivery::create($dataDelivery);
+                $createSpkUnitDelivery[] = $createSpkUnitDelivery2;
+
+                //update spk unit  is_delivery_partial true
+                SpkInstansiUnit::where("spk_instansi_unit_id", $item)->update([
+                    "is_delivery_partial" => true
+                ]);
+
+
+
+                if ($request->delivery_type === "domicile") {
+                    $validator = Validator::make($request->file("file_sk"), [
+                        'file_sk' => 'array',
+                        'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+                    ]);
+                    if ($validator->fails()) {
+                        return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                    }
+                    if ($request->file_sk) {
+                        foreach ($request->file("file_sk") as $itemFile) {
+                            $imagePath = $itemFile->store("spk_instansi", "public");
+
+                            $createSpkDeliveryFile[] = SpkInstansiUnitDeliveryFile::create([
+                                "spk_instansi_unit_deliv_id" => $createSpkUnitDelivery2->spk_instansi_unit_delivery_id,
+                                "file" => $imagePath
+                            ]);
+                        }
+                    }
+                }
+
+
+                $createDeliveryUnit[] = DeliverySpkInstansi::create([
+                    "spk_instansi_unit_delivery_id" => $createSpkUnitDelivery2->spk_instansi_unit_delivery_id,
+                    "type" => "partial",
+                    "delivery_id" => $createDelivery->delivery_id
+                ]);
+            }
+
 
             $data = [
                 "spk_instansi_unit_delivery" => $createSpkUnitDelivery,
@@ -151,6 +161,9 @@ class SpkInstansiController extends Controller
                 "delivery_log" => $createDeliveryLog,
                 "delivery_spk_instansi" => $createDeliveryUnit
             ];
+
+
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully add delivery unit");
         } catch (\Throwable $e) {

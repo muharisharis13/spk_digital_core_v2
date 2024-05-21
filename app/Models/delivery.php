@@ -55,6 +55,10 @@ class delivery extends Model
     {
         return $this->hasOne(DeliverySpk::class, "delivery_id", "delivery_id");
     }
+    public function delivery_spk_instansi_partial()
+    {
+        return $this->hasMany(DeliverySpkInstansi::class, "delivery_id", "delivery_id");
+    }
     public function delivery_spk_instansi()
     {
         return $this->hasOne(DeliverySpkInstansi::class, "delivery_id", "delivery_id");
