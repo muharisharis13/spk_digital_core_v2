@@ -345,7 +345,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_payment_status" => "unpaid",
             ]);
 
-            SpkInstansiPaymentLog::createt([
+            SpkInstansiPaymentLog::create([
                 "user_id" => $user->user_id,
                 "spk_instansi_payment_id" =>  $createPayment->spk_instansi_payment_id,
                 "spk_instansi_payment_log_note" => "create payment"
@@ -372,7 +372,7 @@ class SpkInstansiController extends Controller
             return ResponseFormatter::success($data, "Successfully update status");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
     public function updateStatus(Request $request, $spk_instansi_id)
@@ -428,7 +428,13 @@ class SpkInstansiController extends Controller
                 return ResponseFormatter::error("unit not found", "Bad Request", 400);
             }
 
-            DB::beginTransaction();
+            //update unit_status by doni
+            $getUnit = Unit::where('unit_id', $getDetail->unit_id)->first();
+
+            $getUnit->update([
+                'unit_status' => 'on_hand'
+            ]);
+            // end updated
 
             $getDetail->delete();
 
@@ -446,7 +452,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_unit" => $getDetail,
                 "spk_instansi_log" => $createLog
             ];
-            // DB::commit();
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully deleted po instansi unit");
         } catch (\Throwable $e) {
@@ -473,11 +479,21 @@ class SpkInstansiController extends Controller
             if (!isset($getDetail->spk_instansi_unit_id)) {
                 return ResponseFormatter::error("unit not found", "Bad Request", 400);
             }
+            //update unit_status by doni
+            $getUnit = Unit::where('unit_id', $getDetail->unit_id)->first();
 
-            DB::beginTransaction();
+            $getUnit->update([
+                'unit_status' => 'on_hand'
+            ]);
+            // end updated
 
             $getDetail->update([
                 "unit_id" => $request->unit_id,
+            ]);
+
+            $updateUnitStatus = Unit::where('unit_id', $request->unit_id);
+            $updateUnitStatus->update([
+                'unit_status' => 'hold'
             ]);
 
             $user = Auth::user();
