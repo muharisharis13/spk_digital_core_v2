@@ -10,7 +10,7 @@ class DeliverySpkInstansi extends Model
 {
     use HasFactory, HasUuids;
     protected $guarded = [];
-    protected $with = ["delivery", "spk_instansi_unit_delivery"];
+    protected $with = ["delivery"];
 
     protected $primaryKey = "delivery_spk_instansi_id";
 
