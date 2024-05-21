@@ -1037,7 +1037,7 @@ class SpkInstansiController extends Controller
             "spk_instansi_id" => $createSpk->spk_instansi_id,
             "sales_name" => $request->sales_name,
             "sales_id" => $request->sales_id,
-            "po_no" => GenerateNumber::generate("PO-INST", GenerateAlias::generate($dealerSelected->dealer->dealer_name), "spk_instansis", "po_no"),
+            "po_no" => GenerateNumber::generate("PO-INST", GenerateAlias::generate($dealerSelected->dealer->dealer_name), "spk_instansi_generals", "po_no"),
             "po_number" => $request->po_number,
             "po_date" => $request->po_date,
             "instansi_name" => $request->instansi_name,
