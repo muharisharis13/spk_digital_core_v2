@@ -1675,12 +1675,12 @@ class SpkInstansiController extends Controller
                 "spk_instansi_log" => $createSpkInstansiLog
             ];
 
-            DB::commit();
+            // DB::commit();
 
             return ResponseFormatter::success($data, "Successfully created SPK !");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
 }
