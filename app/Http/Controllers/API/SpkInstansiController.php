@@ -38,6 +38,53 @@ class SpkInstansiController extends Controller
 {
     //
 
+    public function deleteDeliveryUnitFile(Request $request, $spk_instansi_unit_deliv_file_id)
+    {
+        try {
+            DB::beginTransaction();
+            $getDetail = SpkInstansiUnitDeliveryFile::where("spk_instansi_unit_deliv_file_id", $spk_instansi_unit_deliv_file_id)->first();
+            $getDetail->delete();
+
+            DB::commit();
+
+            return ResponseFormatter::success("Successfully deleted");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+    public function deleteDeliveryFile(Request $request, $spk_instansi_delivery_file_id)
+    {
+        try {
+            DB::beginTransaction();
+            $getDetail = SpkInstansiDeliveryFile::where("spk_instansi_delivery_file_id", $spk_instansi_delivery_file_id)->first();
+            $getDetail->delete();
+
+            DB::commit();
+
+            return ResponseFormatter::success("Successfully deleted");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function deleteAdditionalFile(Request $request, $spk_instansi_additional_file_id)
+    {
+        try {
+            DB::beginTransaction();
+            $getDetail = SpkInstansiAdditionalFile::where("spk_instansi_additional_file_id", $spk_instansi_additional_file_id)->first();
+            $getDetail->delete();
+
+            DB::commit();
+
+            return ResponseFormatter::success("Successfully deleted");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
     public function addUnitDelivery(Request $request)
     {
         try {
@@ -1130,6 +1177,8 @@ class SpkInstansiController extends Controller
                     ]);
                 }
             }
+
+            DB::commit();
 
             return ResponseFormatter::success("Successfully updated");
         } catch (\Throwable $e) {

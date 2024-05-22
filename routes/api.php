@@ -360,10 +360,13 @@ Route::prefix("v1")->group(function () {
             Route::post("/add-additional/{id}", [SpkInstansiController::class, "addAdditionalNote"]);
             Route::put("/update-additional/{id}", [SpkInstansiController::class, "updateAdditional"]);
             Route::delete("/delete-additional/{id}", [SpkInstansiController::class, "deleteAdditional"]);
+            Route::delete("/delete-additional-file/{id}", [SpkInstansiController::class, "deleteAdditionalFile"]);
             Route::post("/status/{id}", [SpkInstansiController::class, "updateStatus"]);
             Route::post("/publish/{id}", [SpkInstansiController::class, "terbitSpk"]);
             Route::post("/cancel/{id}", [SpkInstansiController::class, "updateStatusToCancel"]);
             Route::delete("/delete/{id}", [SpkInstansiController::class, "deleteSpkInstansi"]);
+            Route::delete("/delete-delivery/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
+            Route::delete("/delete-delivery-unit/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
 
             Route::prefix("unit")->group(function () {
                 Route::post("/add-legal/{id}", [SpkInstansiController::class, "addUnitLegal"]);
