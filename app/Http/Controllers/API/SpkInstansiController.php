@@ -568,13 +568,13 @@ class SpkInstansiController extends Controller
     public function deleteAdditional(Request $request, $spk_instansi_additional_id)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                "additional_cost" => "required",
-                "additional_note" => "nullable"
-            ]);
-            if ($validator->fails()) {
-                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-            }
+            // $validator = Validator::make($request->all(), [
+            //     "additional_cost" => "required",
+            //     "additional_note" => "nullable"
+            // ]);
+            // if ($validator->fails()) {
+            //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            // }
 
             DB::beginTransaction();
 
