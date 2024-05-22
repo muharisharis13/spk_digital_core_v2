@@ -326,7 +326,8 @@ class SpkInstansiController extends Controller
                 ->with(["motor", "unit", "spk_instansi"])
                 ->whereHas("spk_instansi", function ($query) use ($getDealerByUserSelected) {
                     return $query->where("dealer_id", $getDealerByUserSelected->dealer_id)
-                        ->where("spk_instansi_status", "publish");
+                        ->where("spk_instansi_status", "publish")
+                        ->orWhere("spk_instansi_status", "cancel");
                 })
                 ->paginate($limit);
 
@@ -882,7 +883,7 @@ class SpkInstansiController extends Controller
 
 
             //menghitung nilai kontrak untuk di update ke database
-            $total = (intval($request->off_the_road) + intval($request->bbn)) * intval($request->qty);
+            $total = ((intval($request->off_the_road) + intval($request->bbn)) * intval($request->qty) + (intval($request->qty) * intval($request->additional_cost))) - intval($request->discount) - intval($request->discount_over);
 
             $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $spk_instansi_id)->first();
             $totalBaru = intval($getDetailGeneral->po_values) + $total;
