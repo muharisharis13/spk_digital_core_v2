@@ -1241,8 +1241,16 @@ class SpkInstansiController extends Controller
             DB::beginTransaction();
 
             $updateSpk = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+            //update indent menjadi ke fincane_check
+            IndentInstansi::where("indent_instansi_id", $updateSpk->indent_instansi_id)->update([
+                "indent_instansi_status" => "finance_check"
+            ]);
             $updateSpk->update([
                 "indent_instansi_id" => $request->indent_instansi_id
+            ]);
+            //update indent baru menjadi hold
+            IndentInstansi::where("indent_instansi_id", $request->indent_instansi_id)->update([
+                "indent_instansi_status" => "hold"
             ]);
 
             //general
