@@ -365,8 +365,8 @@ Route::prefix("v1")->group(function () {
             Route::post("/publish/{id}", [SpkInstansiController::class, "terbitSpk"]);
             Route::post("/cancel/{id}", [SpkInstansiController::class, "updateStatusToCancel"]);
             Route::delete("/delete/{id}", [SpkInstansiController::class, "deleteSpkInstansi"]);
-            Route::delete("/delete-delivery/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
-            Route::delete("/delete-delivery-unit/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
+            Route::delete("/delete-delivery-file/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
+            Route::delete("/delete-delivery-unit-file/{id}", [SpkInstansiController::class, "deleteDeliveryUnitFile"]);
 
             Route::prefix("payment")->group(function () {
                 Route::post("/add/{id}", [SpkInstansiController::class, "addSpkInstansiPayment"]);
