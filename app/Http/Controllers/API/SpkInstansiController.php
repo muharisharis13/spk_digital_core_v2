@@ -359,7 +359,7 @@ class SpkInstansiController extends Controller
             return ResponseFormatter::success($data, "Successfully update status");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
     public function updateStatus(Request $request, $spk_instansi_id)
