@@ -415,7 +415,6 @@ class SpkInstansiController extends Controller
                 return ResponseFormatter::error("unit not found", "Bad Request", 400);
             }
 
-            DB::beginTransaction();
 
             $getDetail->delete();
 
