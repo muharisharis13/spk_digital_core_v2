@@ -433,7 +433,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_unit" => $getDetail,
                 "spk_instansi_log" => $createLog
             ];
-            // DB::commit();
+            DB::commit();
 
             return ResponseFormatter::success($data, "Successfully deleted po instansi unit");
         } catch (\Throwable $e) {
