@@ -1315,13 +1315,13 @@ class SpkInstansiController extends Controller
                 $dataDelivery["is_domicile"] = true;
 
 
-                $validator = Validator::make($request->file("file_sk"), [
-                    'file_sk' => 'nullable',
-                    'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
-                ]);
-                if ($validator->fails()) {
-                    return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-                }
+                // $validator = Validator::make($request->file("file_sk"), [
+                //     'file_sk' => 'nullable',
+                //     'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+                // ]);
+                // if ($validator->fails()) {
+                //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                // }
                 if ($request->file_sk) {
                     foreach ($request->file("file_sk") as $item) {
                         $imagePath = $item->store("spk_instansi", "public");
@@ -1336,13 +1336,13 @@ class SpkInstansiController extends Controller
             $updateSpkDelivery->update($dataDelivery);
 
             $createSpkDeliveryFile = [];
-            $validator = Validator::make($request->file("file_sk"), [
-                'file_additional' => 'nullable',
-                'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
-            ]);
-            if ($validator->fails()) {
-                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-            }
+            // $validator = Validator::make($request->file("file_sk"), [
+            //     'file_additional' => 'nullable',
+            //     'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+            // ]);
+            // if ($validator->fails()) {
+            //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            // }
             if ($request->file_additional) {
                 foreach ($request->file("file_additional") as $item) {
                     $imagePath = $item->store("spk_instansi", "public");
@@ -1585,13 +1585,13 @@ class SpkInstansiController extends Controller
     protected function createSpkDeliveryFile($createSpkDelivery, $request)
     {
         $createSpkDeliveryFile = [];
-        $validator = Validator::make($request->file("file_sk"), [
-            'file_sk' => 'nullable',
-            'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-        }
+        // $validator = Validator::make($request->file("file_sk"), [
+        //     'file_sk' => 'nullable',
+        //     'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+        // ]);
+        // if ($validator->fails()) {
+        //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+        // }
         if ($request->file_sk) {
             foreach ($request->file("file_sk") as $item) {
                 $imagePath = $item->store("spk_instansi", "public");
@@ -1610,13 +1610,13 @@ class SpkInstansiController extends Controller
     protected function createSpkAdditionalFIle($createSpk, $request)
     {
         $createSpkDeliveryFile = [];
-        $validator = Validator::make($request->file("file_sk"), [
-            'file_additional' => 'nullable',
-            'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
-        }
+        // $validator = Validator::make($request->file("file_sk"), [
+        //     'file_additional' => 'nullable',
+        //     'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+        // ]);
+        // if ($validator->fails()) {
+        //     return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+        // }
         if ($request->file_additional) {
             foreach ($request->file("file_additional") as $item) {
                 $imagePath = $item->store("spk_instansi", "public");
