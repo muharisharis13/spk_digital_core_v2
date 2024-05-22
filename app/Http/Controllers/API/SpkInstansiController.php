@@ -987,7 +987,7 @@ class SpkInstansiController extends Controller
 
             return ResponseFormatter::success($getDetail);
         } catch (\Throwable $e) {
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
     public function getPaginate(Request $request)
@@ -998,7 +998,122 @@ class SpkInstansiController extends Controller
 
             return ResponseFormatter::success($getPaginate);
         } catch (\Throwable $e) {
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function update(Request $request, $spk_instansi_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), self::validator);
+
+            self::isSelectedDeliveryTypeKTP($validator);
+            self::isSelectedDeliveryTypeDealer($validator);
+            self::isSelectedDeliveryTypeNeq($validator);
+            self::isSelectedDeliveryTypeDomicile($validator);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+            DB::beginTransaction();
+
+            $updateSpk = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+            $updateSpk->update([
+                "indent_instansi_id" => $request->indent_instansi_id
+            ]);
+
+            //general
+            $updateSpkGeneral = SpkInstansiGeneral::where("spk_instansi_id", $spk_instansi_id)->first();
+            $updateSpkGeneral->update([
+                "sales_name" => $request->sales_name,
+                "sales_id" => $request->sales_id,
+                "po_number" => $request->po_number,
+                "po_date" => $request->po_date,
+                "instansi_name" => $request->instansi_name,
+                "instansi_address" => $request->instansi_address,
+                "province" => $request->province,
+                "province_id" => $request->province_id,
+                "city" => $request->city,
+                "city_id" => $request->city_id,
+                "district" => $request->district,
+                "district_id" => $request->district_id,
+                "sub_district" => $request->sub_district,
+                "sub_district_id" => $request->sub_district_id,
+                "postal_code" => $request->postal_code,
+                "no_telp" => $request->no_telp,
+                "no_hp" => $request->no_hp,
+                "email" => $request->email,
+            ]);
+            $updateSpkLegal = SpkInstansiLegal::where("spk_instansi_id", $spk_instansi_id)->first();
+            $updateSpkLegal->update([
+                "instansi_name" => $request->instansi_name_legal,
+                "instansi_address" => $request->instansi_address_legal,
+                "province" => $request->province_legal,
+                "province_id" => $request->province_id_legal,
+                "city" => $request->city_legal,
+                "city_id" => $request->city_id_legal,
+                "district" => $request->district_legal,
+                "district_id" => $request->district_id_legal,
+                "sub_district" => $request->sub_district_legal,
+                "sub_district_id" => $request->sub_district_id_legal,
+                "postal_code" => $request->postal_code_legal,
+                "no_telp" => $request->no_telp_legal,
+                "no_hp" => $request->no_hp_legal,
+            ]);
+            $updateSpkDelivery = SpkInstansiDelivery::where("spk_instansi_id", $spk_instansi_id)->first();
+            $dataDelivery = [
+                "spk_instansi_id" => $createSpk->spk_instansi_id,
+                "delivery_type" => $request->delivery_type,
+            ];
+
+            if ($request->delivery_type === "ktp") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["address"] = $request->delivery_address;
+                $dataDelivery["city"] = $request->delivery_city;
+                $dataDelivery["no_telp"] = $request->delivery_no_telp;
+                $dataDelivery["no_hp"] = $request->delivery_no_hp;
+            }
+            if ($request->delivery_type === "dealer") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["no_hp"] = $request->delivery_no_hp;
+            }
+            if ($request->delivery_type === "neq") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["no_hp"] = $request->delivery_no_hp;
+                $dataDelivery["dealer_neq_id"] = $request->dealer_neq_id;
+            }
+
+            $createSpkDeliveryFile = [];
+
+            if ($request->delivery_type === "domicile") {
+                $dataDelivery["name"] = $request->delivery_name;
+                $dataDelivery["address"] = $request->delivery_address;
+                $dataDelivery["city"] = $request->delivery_city;
+                $dataDelivery["is_domicile"] = true;
+
+
+                $validator = Validator::make($request->file("file_sk"), [
+                    'file_sk' => 'array',
+                    'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+                ]);
+                if ($validator->fails()) {
+                    return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+                }
+                if ($request->file_sk) {
+                    foreach ($request->file("file_sk") as $item) {
+                        $imagePath = $item->store("spk_instansi", "public");
+
+                        $createSpkDeliveryFile[] = SpkInstansiDeliveryFile::create([
+                            "spk_instansi_delivery_id" => $updateSpkDelivery->spk_instansi_delivery_id,
+                            "files" => $imagePath
+                        ]);
+                    }
+                }
+            }
+            $updateSpkDelivery->update($dataDelivery);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
 
