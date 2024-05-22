@@ -332,7 +332,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_payment_status" => "unpaid",
             ]);
 
-            SpkInstansiPaymentLog::createt([
+            SpkInstansiPaymentLog::create([
                 "user_id" => $user->user_id,
                 "spk_instansi_payment_id" =>  $createPayment->spk_instansi_payment_id,
                 "spk_instansi_payment_log_note" => "create payment"
