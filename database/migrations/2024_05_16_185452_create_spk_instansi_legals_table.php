@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string("city");
             $table->string("district");
             $table->string("sub_district");
-            $table->string("postal_code");
+            $table->string("postal_code")->nullable();
             $table->string("no_telp")->nullable();
             $table->string("no_hp");
             $table->timestamps();
