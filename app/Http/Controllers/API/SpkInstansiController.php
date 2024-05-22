@@ -1316,7 +1316,7 @@ class SpkInstansiController extends Controller
 
 
                 $validator = Validator::make($request->file("file_sk"), [
-                    'file_sk' => 'nullable|array',
+                    'file_sk' => 'nullable',
                     'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
                 ]);
                 if ($validator->fails()) {
@@ -1337,7 +1337,7 @@ class SpkInstansiController extends Controller
 
             $createSpkDeliveryFile = [];
             $validator = Validator::make($request->file("file_sk"), [
-                'file_additional' => 'nullable|array',
+                'file_additional' => 'nullable',
                 'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
             ]);
             if ($validator->fails()) {
@@ -1586,7 +1586,7 @@ class SpkInstansiController extends Controller
     {
         $createSpkDeliveryFile = [];
         $validator = Validator::make($request->file("file_sk"), [
-            'file_sk' => 'nullable|array',
+            'file_sk' => 'nullable',
             'file_sk.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
         if ($validator->fails()) {
@@ -1611,7 +1611,7 @@ class SpkInstansiController extends Controller
     {
         $createSpkDeliveryFile = [];
         $validator = Validator::make($request->file("file_sk"), [
-            'file_additional' => 'nullable|array',
+            'file_additional' => 'nullable',
             'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
         if ($validator->fails()) {
