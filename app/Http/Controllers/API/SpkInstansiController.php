@@ -246,6 +246,61 @@ class SpkInstansiController extends Controller
         }
     }
 
+    public function deleteSpkInstansi(Request $request, $spk_instansi_id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $getDetailSpkInstansi = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+
+            //update unit menjadi on_hand
+            $getUnitSpk = SpkInstansiUnit::where("spk_instansi_id", $spk_instansi_id)->get();
+
+            if ($getUnitSpk->count() > 0) {
+                foreach ($getUnitSpk as $item) {
+                    Unit::where("unit_id", $item->unit_id)->update([
+                        "unit_status" => "on_hand"
+                    ]);
+                }
+            }
+
+            $user = Auth::user();
+
+
+
+            //update indent status jadi hold
+
+            if (isset($getDetailSpkInstansi->indent_instansi_id)) {
+                IndentInstansi::where("indent_instansi_id", $getDetailSpkInstansi->indent_instansi_id)->update([
+                    "indent_instansi_status" => "finance_check"
+                ]);
+
+
+                IndentInstansiLog::create([
+                    "indent_instansi_id" => $request->indent_instansi_id,
+                    "user_id" => $user->user_id,
+                    "indent_instansi_log_action" => "update status to finance check"
+                ]);
+            }
+
+
+
+            $getDetailSpkInstansi->delete();
+
+
+
+
+            $data = [
+                "spk_instansi" => $getDetailSpkInstansi,
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data, "Successfully deleted status");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
     public function updateStatusToCancel(Request $request, $spk_instansi_id)
     {
         try {
@@ -255,6 +310,17 @@ class SpkInstansiController extends Controller
             $getDetailSpkInstansi->update([
                 "spk_instansi_status" => "cancel"
             ]);
+
+            //update unit menjadi on_hand
+            $getUnitSpk = SpkInstansiUnit::where("spk_instansi_id", $spk_instansi_id)->get();
+
+            if ($getUnitSpk->count() > 0) {
+                foreach ($getUnitSpk as $item) {
+                    Unit::where("unit_id", $item->unit_id)->update([
+                        "unit_status" => "on_hand"
+                    ]);
+                }
+            }
 
             $user = Auth::user();
 
@@ -293,7 +359,7 @@ class SpkInstansiController extends Controller
             return ResponseFormatter::success($data, "Successfully update status");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ResponseFormatter::success($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
 
