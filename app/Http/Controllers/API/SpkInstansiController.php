@@ -1205,7 +1205,7 @@ class SpkInstansiController extends Controller
     {
         try {
             $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)
-                ->with(["delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery", "spk_instansi_unit.spk_instansi_unit_delivery"])
+                ->with(["spk_instansi_delivery.dealer_neq", "delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery", "spk_instansi_unit.spk_instansi_unit_delivery"])
                 ->first();
 
             return ResponseFormatter::success($getDetail);

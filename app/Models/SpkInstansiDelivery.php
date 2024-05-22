@@ -19,4 +19,9 @@ class SpkInstansiDelivery extends Model
     {
         return $this->hasMany(SpkInstansiDeliveryFile::class, "spk_instansi_delivery_id");
     }
+
+    public function dealer_neq()
+    {
+        return $this->belongsTo(DealerNeq::class, "dealer_neq_id");
+    }
 }
