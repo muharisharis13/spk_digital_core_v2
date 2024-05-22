@@ -415,6 +415,12 @@ class SpkInstansiController extends Controller
                 return ResponseFormatter::error("unit not found", "Bad Request", 400);
             }
 
+            //update unit_status
+            $getUnit = Unit::where('unit_id', $getDetail->unit_id)->first();
+
+            $getUnit->update([
+                'unit_status' => 'on_hand'
+            ]);
 
             $getDetail->delete();
 
