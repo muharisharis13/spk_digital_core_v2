@@ -466,9 +466,21 @@ class SpkInstansiController extends Controller
             if (!isset($getDetail->spk_instansi_unit_id)) {
                 return ResponseFormatter::error("unit not found", "Bad Request", 400);
             }
+            //update unit_status by doni
+            $getUnit = Unit::where('unit_id', $getDetail->unit_id)->first();
+
+            $getUnit->update([
+                'unit_status' => 'on_hand'
+            ]);
+            // end updated
 
             $getDetail->update([
                 "unit_id" => $request->unit_id,
+            ]);
+
+            $updateUnitStatus = Unit::where('unit_id', $request->unit_id);
+            $updateUnitStatus->update([
+                'unit_status' => 'hold'
             ]);
 
             $user = Auth::user();
