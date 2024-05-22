@@ -350,6 +350,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/list", [SpkInstansiController::class, "getPaginate"]);
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"]);
             Route::post("/create", [SpkInstansiController::class, "create"]);
+            Route::post("/update/{id}", [SpkInstansiController::class, "update"]);
             Route::post("/add-motor/{id}", [SpkInstansiController::class, "addMotor"]);
             Route::put("/update-motor/{id}", [SpkInstansiController::class, "updateMotor"]);
             Route::delete("/delete-motor/{id}", [SpkInstansiController::class, "deleteMotor"]);

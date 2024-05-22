@@ -1062,7 +1062,7 @@ class SpkInstansiController extends Controller
             ]);
             $updateSpkDelivery = SpkInstansiDelivery::where("spk_instansi_id", $spk_instansi_id)->first();
             $dataDelivery = [
-                "spk_instansi_id" => $createSpk->spk_instansi_id,
+                "spk_instansi_id" => $spk_instansi_id,
                 "delivery_type" => $request->delivery_type,
             ];
 
@@ -1111,6 +1111,27 @@ class SpkInstansiController extends Controller
                 }
             }
             $updateSpkDelivery->update($dataDelivery);
+
+            $createSpkDeliveryFile = [];
+            $validator = Validator::make($request->file("file_sk"), [
+                'file_additional' => 'array',
+                'file_additional.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+            ]);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+            if ($request->file_additional) {
+                foreach ($request->file("file_additional") as $item) {
+                    $imagePath = $item->store("spk_instansi", "public");
+
+                    $createSpkDeliveryFile[] = SpkInstansiAdditionalFile::create([
+                        "spk_instansi_id" => $spk_instansi_id,
+                        "files" => $imagePath
+                    ]);
+                }
+            }
+
+            return ResponseFormatter::success("Successfully updated");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
