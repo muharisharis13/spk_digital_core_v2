@@ -600,7 +600,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_additional" => $getDetail,
                 "spk_instansi_log" => $createLog
             ];
-
+            DB::commit();
 
             return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
