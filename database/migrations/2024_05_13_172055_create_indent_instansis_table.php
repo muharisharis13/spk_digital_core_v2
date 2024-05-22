@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('indent_instansis', function (Blueprint $table) {
             $table->uuid("indent_instansi_id")->primary();
-            $table->enum("indent_instansi_status", ["create", "finance_check", "cashier_check", "unpaid", "paid", "spk", "cancel"])->default("create");
+            $table->enum("indent_instansi_status", ["create", "finance_check", "cashier_check", "unpaid", "paid", "spk", "cancel", "hold"])->default("create");
             $table->uuid("sales_id")->nullable();
             $table->string("salesman_name")->nullable();
             $table->integer("indent_instansi_nominal")->default(0);

@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use App\Models\delivery;
 use App\Models\deliveryLog;
 use App\Models\DeliverySpkInstansi;
+use App\Models\IndentInstansi;
+use App\Models\IndentInstansiLog;
 use App\Models\SpkInstansi;
 use App\Models\SpkInstansiAdditional;
 use App\Models\SpkInstansiAdditionalFile;
@@ -255,6 +257,23 @@ class SpkInstansiController extends Controller
             ]);
 
             $user = Auth::user();
+
+
+
+            //update indent status jadi hold
+
+            if (isset($getDetailSpkInstansi->indent_instansi_id)) {
+                IndentInstansi::where("indent_instansi_id", $getDetailSpkInstansi->indent_instansi_id)->update([
+                    "indent_instansi_status" => "finance_check"
+                ]);
+
+
+                IndentInstansiLog::create([
+                    "indent_instansi_id" => $request->indent_instansi_id,
+                    "user_id" => $user->user_id,
+                    "indent_instansi_log_action" => "update status to finance check"
+                ]);
+            }
 
             $dataRequestLog = [
                 "spk_instansi_id" => $spk_instansi_id,
@@ -1005,7 +1024,7 @@ class SpkInstansiController extends Controller
     }
 
 
-    protected function createSpkMaster($dealerSelected)
+    protected function createSpkMaster($dealerSelected, $request)
     {
 
 
@@ -1013,7 +1032,24 @@ class SpkInstansiController extends Controller
             "spk_instansi_number" => GenerateNumber::generate("SPK-INSTANSI", GenerateAlias::generate($dealerSelected->dealer->dealer_name), "spk_instansis", "spk_instansi_number"),
             "dealer_id" => $dealerSelected->dealer_id,
             "spk_instansi_status" => "create",
+            "indent_instansi_id" => $request->indent_instansi_id
         ]);
+
+        //update indent status jadi hold
+
+        if (isset($request->indent_instansi_id)) {
+            IndentInstansi::where("indent_instansi_id", $request->indent_instansi_id)->update([
+                "indent_instansi_status" => "hold"
+            ]);
+
+            $user = Auth::user();
+
+            IndentInstansiLog::create([
+                "indent_instansi_id" => $request->indent_instansi_id,
+                "user_id" => $user->user_id,
+                "indent_instansi_log_action" => "update status to hold"
+            ]);
+        }
 
         return $result;
     }
@@ -1188,7 +1224,7 @@ class SpkInstansiController extends Controller
 
             DB::beginTransaction();
 
-            $createSpk = self::createSpkMaster($getDealerSelected);
+            $createSpk = self::createSpkMaster($getDealerSelected, $request);
             $createSpkGeneral = self::createSpkGeneral($createSpk, $request, $getDealerSelected);
             $createSpkLegal = self::createSpkLegal($createSpk, $request);
             $createSpkDelivery = self::createSpkDelivery($createSpk, $request);
