@@ -368,6 +368,12 @@ Route::prefix("v1")->group(function () {
             Route::delete("/delete-delivery/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
             Route::delete("/delete-delivery-unit/{id}", [SpkInstansiController::class, "deleteDeliveryFile"]);
 
+            Route::prefix("payment")->group(function () {
+                Route::post("/add/{id}", [SpkInstansiController::class, "addSpkInstansiPayment"]);
+                Route::delete("/delete/{id}", [SpkInstansiController::class, "deletePayment"]);
+                Route::post("/refund/{id}", [SpkInstansiController::class, "refundAllPayment"]);
+            });
+
             Route::prefix("unit")->group(function () {
                 Route::post("/add-legal/{id}", [SpkInstansiController::class, "addUnitLegal"]);
                 Route::post("/delivery", [SpkInstansiController::class, "addUnitDelivery"]);

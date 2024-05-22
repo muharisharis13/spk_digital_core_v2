@@ -22,7 +22,10 @@ use App\Models\SpkInstansiLegal;
 use App\Models\SpkInstansiLog;
 use App\Models\SpkInstansiMotor;
 use App\Models\SpkInstansiPayment;
+use App\Models\SpkInstansiPaymentList;
+use App\Models\SpkInstansiPaymentListFile;
 use App\Models\SpkInstansiPaymentLog;
+use App\Models\SpkInstansiRefundPayment;
 use App\Models\SpkInstansiUnit;
 use App\Models\SpkInstansiUnitDelivery;
 use App\Models\SpkInstansiUnitDeliveryFile;
@@ -37,6 +40,179 @@ use Illuminate\Support\Facades\Validator;
 class SpkInstansiController extends Controller
 {
     //
+
+    public function refundAllPayment(Request $request, $spk_instansi_payment_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "note" => "required"
+            ]);
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            // mendapatkan total payment yang sudah terjadi
+            $totalSpkPaymentList = SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->sum('payment_list_amount');
+
+            DB::beginTransaction();
+
+
+            $createtPaymentListRefund = SpkInstansiRefundPayment::create([
+                "spk_instansi_payment_id" => $spk_instansi_payment_id,
+                "amount_total" => intval($totalSpkPaymentList),
+                "number" => GenerateNumber::generate("REFUND-PAYMENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "spk_instansi_refund_payments", "number"),
+                "note" => $request->note
+            ]);
+
+            //melakukan penghapusan spk payment list secara keseluruhan
+            SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->delete();
+
+            //melakukan update spk payment status menjadi unpaid
+            SpkInstansiPayment::where("spk_instansi_payment_id", $spk_instansi_payment_id)->update([
+                "spk_instansi_payment_status" => "unpaid"
+            ]);
+
+            $user = Auth::user();
+
+            //create log
+            SpkInstansiPaymentLog::create([
+                "user_id" => $user->user_id,
+                "spk_instansi_payment_id" => $spk_instansi_payment_id,
+                "spk_instansi_payment_log_note" => "delete payment list"
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success("Successfully refund payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function deletePayment(Request $request, $spk_instansi_payment_list_id)
+    {
+        try {
+            $getDetailPaymentList = SpkInstansiPaymentList::where("spk_instansi_payment_list_id", $spk_instansi_payment_list_id)->first();
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+
+            //create log
+            SpkInstansiPaymentLog::create([
+                "user_id" => $user->user_id,
+                "spk_instansi_payment_id" => $getDetailPaymentList->spk_instansi_payment_id,
+                "spk_instansi_payment_log_note" => "delete payment list"
+            ]);
+
+            //delete image file
+            SpkInstansiPaymentListFile::where("payment_list_id", $getDetailPaymentList->spk_instansi_payment_id)->delete();
+
+            $getDetailPaymentList->delete();
+
+            DB::commit();
+
+
+            return ResponseFormatter::success("Successfully deleted payment");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function addSpkInstansiPayment(Request $request, $spk_instansi_payment_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "payment_list_file" => "nullable|array",
+                "payment_list_file.*" => "required|mimes:png,jpg,pdf|max:5120",
+                "payment_list_method" => "required|in:cash,bank_transfer",
+                "payment_list_amount" => "integer|required|min:1",
+                "payment_list_note" => "nullable",
+                "payment_list_date" => "required"
+            ]);
+
+            $validator->sometimes(["bank_id",], 'required', function ($input) {
+                return $input->payment_list_method == 'bank_transfer';
+            });
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $payment_list_method = strtoupper($request->payment_list_method);
+            $alias = GenerateAlias::generate($getDealerSelected->dealer->dealer_name);
+            $number = "SPK-INSTANSI-$payment_list_method-PAYMENT";
+
+            $data = [
+                "spk_instansi_payment_id" => $spk_instansi_payment_id,
+                "payment_list_method" => $request->payment_list_method,
+                "payment_list_amount" => $request->payment_list_amount,
+                "payment_list_date" => $request->payment_list_date,
+                "payment_list_note" => $request->payment_list_note,
+                "payment_list_number" => GenerateNumber::generate($number, $alias, "spk_instansi_payment_lists", "payment_list_number")
+            ];
+
+            if ($request->payment_list_method === "bank_transfer") {
+                $data["bank_id"] = $request->bank_id;
+            }
+
+            $createPayment = SpkInstansiPaymentList::create($data);
+
+            $createPaymentImg = [];
+
+            if ($request->payment_list_file) {
+                foreach ($request->file("payment_list_file") as $item) {
+                    $imagePath = $item->store("spk_instansi", "public");
+
+                    $createPaymentImg[] = SpkInstansiPaymentListFile::create([
+                        "payment_list_id" => $createPayment->spk_instansi_payment_list_id,
+                        "file" => $imagePath
+                    ]);
+                }
+            }
+
+            //create log
+            $log = SpkInstansiPaymentLog::create([
+                "user_id" => $user->user_id,
+                "spk_instansi_payment_id" => $spk_instansi_payment_id,
+                "spk_instansi_payment_log_note" => "add payment list"
+            ]);
+
+            $data = [
+                "spk_instansi_payment_list" => $createPayment,
+                "spk_instansi_payment_file" => $createPaymentImg,
+                "spk_instansi_payment_log" => $log
+            ];
+
+            // $totalSpkInstansiPayment = SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->sum("payment_list_amount");
+
+            // melakukan penjumlahan data lama dengan data baru
+            // $totalSpkInstansiPayment = $totalSpkInstansiPayment + $request->payment_list_amount;
+
+            // if (intval($totalSpkInstansiPayment) >  $spk_payment_amount_total) {
+            //     DB::rollBack();
+            //     return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
+            // }
+
+            DB::commit();
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
 
     public function deleteDeliveryUnitFile(Request $request, $spk_instansi_unit_deliv_file_id)
     {
