@@ -649,6 +649,10 @@ class SpkInstansiController extends Controller
             $user = Auth::user();
 
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $q = $request->input('q');
+            $status = $request->input("spk_instansi_status");
 
 
             $getPaginate = SpkInstansiUnit::latest()
@@ -657,6 +661,24 @@ class SpkInstansiController extends Controller
                     return $query->where("dealer_id", $getDealerByUserSelected->dealer_id)
                         ->where("spk_instansi_status", "publish")
                         ->orWhere("spk_instansi_status", "cancel");
+                })
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($q, function ($query) use ($q) {
+                    return $query->whereHas("spk_instansi", function ($query) use ($q) {
+                        return $query->where("spk_instansi_number", "LIKE", "%$q%")
+                            ->orWhere("spk_instansi_number", "LIKE", "%$q%");
+                    })
+                        ->orWhereHas("motor", function ($query) use ($q) {
+                            return $query->where("motor_name", "LIKE", "%$q%");
+                        });
+                })
+                ->whereHas("spk_instansi", function ($query) use ($status) {
+                    return $query->where("spk_instansi_status", $status);
                 })
                 ->paginate($limit);
 
@@ -1256,8 +1278,33 @@ class SpkInstansiController extends Controller
     public function getPaginate(Request $request)
     {
         try {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $q = $request->input('q');
+            $limit = $request->input("limit", 5);
+            $status = $request->input("spk_instansi_status");
+
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
             $getPaginate = SpkInstansi::latest()
-                ->paginate(5);
+                ->where("dealer_id", $getDealerByUserSelected->dealer_id)
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($q, function ($query) use ($q) {
+                    return $query->where("spk_instansi_number", "LIKE", "%$q%")
+                        ->orWhere("spk_instansi_status", "LIKe", "%$q%");
+                })
+                ->when($status, function ($query) use ($status) {
+                    return $query->where("spk_instansi_status", $status);
+                })
+                ->paginate($limit);
 
             return ResponseFormatter::success($getPaginate);
         } catch (\Throwable $e) {

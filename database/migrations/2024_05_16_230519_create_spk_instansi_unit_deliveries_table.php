@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign("spk_instansi_unit_id")->references("spk_instansi_unit_id")->on("spk_instansi_units")->onDelete("set null");
             $table->enum("delivery_type", ["ktp", "dealer", "neq", "domicile"]);
             $table->string("name");
-            $table->string("address");
+            $table->string("address")->nullable();
             $table->string("city")->nullable();
             $table->string("no_telp")->nullable();
             $table->string("no_hp")->nullable();
