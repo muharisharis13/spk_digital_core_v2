@@ -163,7 +163,14 @@ class DeliveryController extends Controller
                     $getDetailDelivery->load("delivery_spk.spk.spk_unit.unit.motor");
                     break;
                 case "spk_instansi":
-                    $getDetailDelivery->load("delivery_spk_instansi.spk_instansi_unit_delivery.spk_instansi_unit.spk_instansi", "delivery_spk_instansi.spk_instansi");
+                    $getDetailDelivery->load([
+                        "delivery_spk_instansi" => function ($query) {
+                            return $query->where("type", "dc");
+                        }, "delivery_spk_instansi.spk_instansi_unit_delivery.spk_instansi_unit.spk_instansi", "delivery_spk_instansi.spk_instansi",
+                        "delivery_spk_instansi_partial" => function ($query) {
+                            return $query->where("type", "partial");
+                        }, "delivery_spk_instansi_partial.spk_instansi_unit_delivery.spk_instansi_unit.spk_instansi", "delivery_spk_instansi_partial.spk_instansi"
+                    ]);
                     break;
             }
 
