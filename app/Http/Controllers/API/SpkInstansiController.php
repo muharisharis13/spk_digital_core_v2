@@ -41,6 +41,15 @@ class SpkInstansiController extends Controller
 {
     //
 
+    public function getPaginatePayment(Request $request)
+    {
+        try {
+            # code...
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
     public function refundAllPayment(Request $request, $spk_instansi_payment_id)
     {
         try {
@@ -592,7 +601,7 @@ class SpkInstansiController extends Controller
     {
         try {
             $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)
-                ->with(["motor", "unit", "spk_instansi"])
+                ->with(["motor", "unit", "spk_instansi", "spk_instansi_unit_legal", "spk_instansi_unit_delivery"])
                 ->first();
 
             return ResponseFormatter::success($getDetail);

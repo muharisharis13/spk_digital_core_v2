@@ -32,4 +32,9 @@ class SpkInstansiUnit extends Model
     {
         return $this->hasOne(SpkInstansiUnitDelivery::class, "spk_instansi_unit_id");
     }
+
+    public function spk_instansi_unit_legal()
+    {
+        return $this->hasOne(SpkInstansiUnitLegal::class, "spk_instansi_unit_id");
+    }
 }
