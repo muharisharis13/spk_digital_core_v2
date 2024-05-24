@@ -44,7 +44,38 @@ class SpkInstansiController extends Controller
     public function getPaginatePayment(Request $request)
     {
         try {
-            # code...
+
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+
+            $limit = $request->input("limit", 5);
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $q = $request->input('q');
+
+            $getPaginate = SpkInstansiPayment::latest()
+                ->with(["spk_instansi"])
+                ->whereHas("spk_instansi", function ($query) use ($getDealerByUserSelected) {
+                    return $query->where("dealer_id", $getDealerByUserSelected->dealer_id);
+                })
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($q, function ($query) use ($q) {
+                    return $query->where("spk_instansi_payment_number", "LIKE", "%$q%")
+                        ->whereHas("spk_instansi", function ($query) use ($q) {
+                            return $query->where("spk_instansi_number", "LIKE", "%$q%");
+                        });
+                })
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
@@ -601,7 +632,7 @@ class SpkInstansiController extends Controller
     {
         try {
             $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)
-                ->with(["motor", "unit", "spk_instansi", "spk_instansi_unit_legal", "spk_instansi_unit_delivery"])
+                ->with(["motor", "unit", "spk_instansi.spk_instansi_delivery.dealer_neq", "spk_instansi_unit_legal", "spk_instansi_unit_delivery"])
                 ->first();
 
             return ResponseFormatter::success($getDetail);

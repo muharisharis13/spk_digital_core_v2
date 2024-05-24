@@ -372,6 +372,7 @@ Route::prefix("v1")->group(function () {
                 Route::post("/add/{id}", [SpkInstansiController::class, "addSpkInstansiPayment"]);
                 Route::delete("/delete/{id}", [SpkInstansiController::class, "deletePayment"]);
                 Route::post("/refund/{id}", [SpkInstansiController::class, "refundAllPayment"]);
+                Route::get("/list", [SpkInstansiController::class, "getPaginatePayment"]);
             });
 
             Route::prefix("unit")->group(function () {

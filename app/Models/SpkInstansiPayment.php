@@ -24,4 +24,9 @@ class SpkInstansiPayment extends Model
     {
         return $this->hasMany(SpkInstansiPaymentList::class, "spk_instansi_payment_id");
     }
+
+    public function spk_instansi()
+    {
+        return $this->belongsTo(SpkInstansi::class, "spk_instansi_id");
+    }
 }
