@@ -676,9 +676,10 @@ class SpkInstansiController extends Controller
                         ->orWhereHas("motor", function ($query) use ($q) {
                             return $query->where("motor_name", "LIKE", "%$q%");
                         });
-                })
-                ->whereHas("spk_instansi", function ($query) use ($status) {
-                    return $query->where("spk_instansi_status", $status);
+                })->when($status, function ($query) use ($status) {
+                    return $query->whereHas("spk_instansi", function ($query) use ($status) {
+                        return $query->where("spk_instansi_status", $status);
+                    });
                 })
                 ->paginate($limit);
 
