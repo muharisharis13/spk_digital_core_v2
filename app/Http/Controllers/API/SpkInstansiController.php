@@ -41,6 +41,19 @@ class SpkInstansiController extends Controller
 {
     //
 
+    public function detailPayment(Request $request, $spk_instansi_payment_id)
+    {
+        try {
+            $getDetail = SpkInstansiPayment::with(["spk_instansi"])
+                ->where("spk_instansi_payment_id", $spk_instansi_payment_id)->first();
+
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
     public function getPaginatePayment(Request $request)
     {
         try {
