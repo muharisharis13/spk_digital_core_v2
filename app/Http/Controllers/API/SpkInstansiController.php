@@ -177,6 +177,19 @@ class SpkInstansiController extends Controller
         }
     }
 
+
+    function sumAmountTotalCash($getDetail)
+    {
+        $result = null;
+        $spk = $getDetail->spk_instansi;
+
+        $result =
+            ($spk->spk_instansi_general->po_values ?? 0) -
+            ($spk->indent_instansi->indent_instansi_nominal ?? 0);
+
+        return $result;
+    }
+
     public function addSpkInstansiPayment(Request $request, $spk_instansi_payment_id)
     {
         try {
@@ -248,15 +261,24 @@ class SpkInstansiController extends Controller
                 "spk_instansi_payment_log" => $log
             ];
 
-            // $totalSpkInstansiPayment = SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->sum("payment_list_amount");
+            $totalSpkInstansiPayment = SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->sum("payment_list_amount");
+
+
+            $getDetail = SpkInstansiPayment::latest()
+                ->with(["spk_instansi"])
+                ->where("spk_instansi_payment_id", $spk_instansi_payment_id)
+                ->first();
+
+
 
             // melakukan penjumlahan data lama dengan data baru
-            // $totalSpkInstansiPayment = $totalSpkInstansiPayment + $request->payment_list_amount;
+            $totalSpkInstansiPayment = $totalSpkInstansiPayment + $request->payment_list_amount;
+            $spk_payment_amount_total = self::sumAmountTotalCash($getDetail);
 
-            // if (intval($totalSpkInstansiPayment) >  $spk_payment_amount_total) {
-            //     DB::rollBack();
-            //     return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
-            // }
+            if (intval($totalSpkInstansiPayment) >  $spk_payment_amount_total) {
+                DB::rollBack();
+                return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
+            }
 
             DB::commit();
 
