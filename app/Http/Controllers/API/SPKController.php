@@ -391,6 +391,10 @@ class SPKController extends Controller
                 ->where("spk_payment_id", $spk_payment_id)
                 ->first();
 
+            if (!isset($getDetail->spk_payment_type)) {
+                return ResponseFormatter::error("payment not found", "Bad Request", 400);
+            }
+
             if ($getDetail->spk_payment_type === "dp") {
 
                 $getDetail["spk_payment_amount_total"] = self::sumAmountTotalDp($getDetail);
