@@ -196,7 +196,7 @@ class SpkInstansiController extends Controller
             $validator = Validator::make($request->all(), [
                 "payment_list_file" => "nullable|array",
                 "payment_list_file.*" => "required|mimes:png,jpg,pdf|max:5120",
-                "payment_list_method" => "required|in:cash,bank_transfer",
+                "payment_list_method" => "required|in:cash,bank_transfer,giro",
                 "payment_list_amount" => "integer|required|min:1",
                 "payment_list_note" => "nullable",
                 "payment_list_date" => "required"
@@ -204,6 +204,9 @@ class SpkInstansiController extends Controller
 
             $validator->sometimes(["bank_id",], 'required', function ($input) {
                 return $input->payment_list_method == 'bank_transfer';
+            });
+            $validator->sometimes(["bank_id",], 'required', function ($input) {
+                return $input->payment_list_method == 'giro';
             });
 
 

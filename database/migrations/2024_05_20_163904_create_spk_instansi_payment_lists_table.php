@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string("payment_list_number")->unique();
             $table->uuid("spk_instansi_payment_id")->nullable();
             $table->foreign("spk_instansi_payment_id")->references("spk_instansi_payment_id")->on("spk_instansi_payments")->onDelete("set null");
-            $table->enum("payment_list_method", ["cash", "bank_transfer"]);
+            $table->enum("payment_list_method", ["cash", "bank_transfer", "giro"]);
             $table->uuid("bank_id")->nullable();
             $table->foreign("bank_id")->references("bank_id")->on("banks")->onDelete("set null");
             $table->bigInteger("payment_list_amount");
