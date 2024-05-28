@@ -29,4 +29,9 @@ class SpkInstansiPayment extends Model
     {
         return $this->belongsTo(SpkInstansi::class, "spk_instansi_id");
     }
+
+    public function spk_instansi_payment_refund()
+    {
+        return $this->hasMany(SpkInstansiRefundPayment::class, "spk_instansi_payment_id");
+    }
 }
