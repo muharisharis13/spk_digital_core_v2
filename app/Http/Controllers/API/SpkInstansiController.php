@@ -216,9 +216,31 @@ class SpkInstansiController extends Controller
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
+            $totalSpkInstansiPayment = SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->sum("payment_list_amount");
+
+
+            $getDetail = SpkInstansiPayment::latest()
+                ->with(["spk_instansi"])
+                ->where("spk_instansi_payment_id", $spk_instansi_payment_id)
+                ->first();
+
+
+
+            // melakukan penjumlahan data lama dengan data baru
+            $totalSpkInstansiPayment = $totalSpkInstansiPayment + intval($request->payment_list_amount);
+            $spk_payment_amount_total = self::sumAmountTotalCash($getDetail);
+
+
+            if (intval($totalSpkInstansiPayment) >  $spk_payment_amount_total) {
+                DB::rollBack();
+                return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
+            }
+
+
+
             $payment_list_method = strtoupper($request->payment_list_method);
             $alias = GenerateAlias::generate($getDealerSelected->dealer->dealer_name);
-            $number = "SPK-INSTANSI-$payment_list_method-PAYMENT";
+            $number = "SPK-INST/$payment_list_method";
 
             $data = [
                 "spk_instansi_payment_id" => $spk_instansi_payment_id,
@@ -261,26 +283,9 @@ class SpkInstansiController extends Controller
                 "spk_instansi_payment_log" => $log
             ];
 
-            $totalSpkInstansiPayment = SpkInstansiPaymentList::where("spk_instansi_payment_id", $spk_instansi_payment_id)->sum("payment_list_amount");
 
 
-            $getDetail = SpkInstansiPayment::latest()
-                ->with(["spk_instansi"])
-                ->where("spk_instansi_payment_id", $spk_instansi_payment_id)
-                ->first();
-
-
-
-            // melakukan penjumlahan data lama dengan data baru
-            $totalSpkInstansiPayment = $totalSpkInstansiPayment + $request->payment_list_amount;
-            $spk_payment_amount_total = self::sumAmountTotalCash($getDetail);
-
-            if (intval($totalSpkInstansiPayment) >  $spk_payment_amount_total) {
-                DB::rollBack();
-                return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
-            }
-
-            DB::commit();
+            // DB::commit();
 
             return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
