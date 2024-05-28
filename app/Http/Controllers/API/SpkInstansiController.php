@@ -44,7 +44,7 @@ class SpkInstansiController extends Controller
     public function detailPayment(Request $request, $spk_instansi_payment_id)
     {
         try {
-            $getDetail = SpkInstansiPayment::with(["spk_instansi", "spk_instansi_payment_list.bank"])
+            $getDetail = SpkInstansiPayment::with(["spk_instansi", "spk_instansi_payment_list.bank", "spk_instansi_payment_list.spk_instansi_payment_list_file"])
                 ->where("spk_instansi_payment_id", $spk_instansi_payment_id)->first();
 
 
