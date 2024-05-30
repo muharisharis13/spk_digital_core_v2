@@ -85,16 +85,19 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("shipping-order")->group(function () {
             // Route::post("/sync-data/{city}", [ShippingOrderController::class, "sycnShippingOrder"]);
-            Route::post("/sync-data2", [ShippingOrderController2::class, "syncShippingOrderMD"]);
-            Route::get("/list", [ShippingOrderController::class, "getListShippingOrder"]);
-            Route::get("/detail/{shipping_order_id}", [ShippingOrderController::class, "getDetailShippingOrder"]);
+            Route::post("/sync-data2", [ShippingOrderController2::class, "syncShippingOrderMD"])
+                ->middleware('permission:post_sync_data');
+            Route::get("/list", [ShippingOrderController::class, "getListShippingOrder"])
+                ->middleware('permission:read_shipping_order');
+            Route::get("/detail/{shipping_order_id}", [ShippingOrderController::class, "getDetailShippingOrder"])->middleware('permission:read_shipping_order_detail');
         });
 
         Route::prefix("unit")->group(function () {
-            Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"]);
-            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"]);
-            // ->middleware('permission:read_unit');
-            Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"]);
+            Route::put("/status/{unit_id}", [ShippingOrderController::class, "updateTerimaUnitShippingOrder"])
+                ->middleware('permission:read_unit_detail');
+            Route::get("/list", [UnitContoller::class, "getListPaginateUnit"])
+                ->middleware('permission:read_unit');
+            Route::get("/detail/{unit_id}", [UnitContoller::class, "getDetailUnit"])->middleware('permission:read_unit_detail');
 
             Route::prefix("pricelist")->group(function () {
                 Route::post("/create", [UnitContoller::class, "addPrice"]);
@@ -106,19 +109,29 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("master")->group(function () {
-            Route::get("/motor", [Master::class, "getListPaginateMotor"]);
-            Route::get("/dealer-neq", [Master::class, "getListDealerNeq"]);
-            Route::get("/mds", [Master::class, "getListDealerMDS"]);
+            Route::get("/motor", [Master::class, "getListPaginateMotor"])
+                ->middleware('permission:read_master_motor');
+            Route::get("/dealer-neq", [Master::class, "getListDealerNeq"])
+                ->middleware('permission:read_dealer_neq_master');
+            Route::get("/mds", [Master::class, "getListDealerMDS"])
+                ->middleware('permission:read_mds_master');
             Route::get("/dealer-selected", [Master::class, "getListDealerSelected"]);
-            Route::get("/location-current", [Master::class, "getListLocationByUserLogin"]);
-            Route::get("/main-dealer", [Master::class, "GelistPaginateMainDealer"]);
+            Route::get("/location-current", [Master::class, "getListLocationByUserLogin"])
+                ->middleware('permission:read_location_current_master');
+            Route::get("/main-dealer", [Master::class, "GelistPaginateMainDealer"])
+                ->middleware('permission:read_main_dealer_master');
 
             Route::prefix("event")->group(function () {
-                Route::post("/create", [Master::class, "createEvent"]);
-                Route::get("/detail/{master_event_id}", [Master::class, "getDetailMasterEvent"]);
-                Route::put("/update/{master_event_id}", [Master::class, "updateEvent"]);
-                Route::put("/status/{master_event_id}", [Master::class, "updateStatusEvent"]);
-                Route::get("/list", [Master::class, "getEventPaginate"]);
+                Route::post("/create", [Master::class, "createEvent"])
+                    ->middleware('permission:post_event_create_master');
+                Route::get("/detail/{master_event_id}", [Master::class, "getDetailMasterEvent"])
+                    ->middleware('permission:read_event_detail_master');
+                Route::put("/update/{master_event_id}", [Master::class, "updateEvent"])
+                    ->middleware('permission:update_event_master');
+                Route::put("/status/{master_event_id}", [Master::class, "updateStatusEvent"])
+                    ->middleware('permission:update_event_status_master');
+                Route::get("/list", [Master::class, "getEventPaginate"])
+                    ->middleware('permission:read_event_master');
             });
 
             Route::prefix("sales")->group(function () {
@@ -182,24 +195,26 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("repair")->group(function () {
-            Route::post("/create", [RepairController::class, "createRepair"]);
-            Route::put("/update/{repair_id}", [RepairController::class, "updateRepair"]);
-            Route::put("/update/status/{repair_id}", [RepairController::class, "updateStatusRepair"]);
-            Route::delete("/delete/{repair_id}", [RepairController::class, "deleteRepair"]);
-            Route::delete("/unit/delete/{repair_unit_id}", [RepairController::class, "deleteRepairUnit"]);
-            Route::get("/detail/{repair_id}", [RepairController::class, "getDetailRepair"]);
-            Route::get("/list", [RepairController::class, "getPaginateRepairUnit"]);
+            Route::post("/create", [RepairController::class, "createRepair"])
+                ->middleware('permission:post_repair_create');
+            Route::put("/update/{repair_id}", [RepairController::class, "updateRepair"])->middleware('permission:update_repair');
+            Route::put("/update/status/{repair_id}", [RepairController::class, "updateStatusRepair"])->middleware('permission:update_repair_status');
+            Route::delete("/delete/{repair_id}", [RepairController::class, "deleteRepair"])->middleware('permission:delete_reapair');
+            Route::delete("/unit/delete/{repair_unit_id}", [RepairController::class, "deleteRepairUnit"])->middleware('permission:delete_repair_unit');
+            Route::get("/detail/{repair_id}", [RepairController::class, "getDetailRepair"])->middleware('permission:read_repair_detail');
+            Route::get("/list", [RepairController::class, "getPaginateRepairUnit"])->middleware('permission:read_repair');
 
             Route::prefix("return")->group(function () {
-                Route::get("/list", [RepairReturnController::class, "getPaginateRepairReturn"]);
-                Route::post("/create", [RepairReturnController::class, "createRepairReturn"]);
-                Route::put("/update/{repair_return_id}", [RepairReturnController::class, "updateRepairReturn"]);
-                Route::put("/status/{repair_return_id}", [RepairReturnController::class, "updateStatusRepairReturn"]);
-                Route::get("/detail/{repair_return_id}", [RepairReturnController::class, "getDetailRepairReturn"]);
-                Route::delete("/delete/unit/{repair_return_unit_id}", [RepairReturnController::class, "deleteRepairReturnUnit"]);
-                Route::delete("/delete/{repair_return_id}", [RepairReturnController::class, "deleteRepairReturn"]);
+                Route::get("/list", [RepairReturnController::class, "getPaginateRepairReturn"])->middleware('permission:read_repair');
+                Route::post("/create", [RepairReturnController::class, "createRepairReturn"])->middleware('permission:post_repai_return_create');
+                Route::put("/update/{repair_return_id}", [RepairReturnController::class, "updateRepairReturn"])->middleware('permission:update_repair_return');
+                Route::put("/status/{repair_return_id}", [RepairReturnController::class, "updateStatusRepairReturn"])->middleware('permission:update_repair_return_status');
+                Route::get("/detail/{repair_return_id}", [RepairReturnController::class, "getDetailRepairReturn"])->middleware('permission:read_repair_return_detail');
+                Route::delete("/delete/unit/{repair_return_unit_id}", [RepairReturnController::class, "deleteRepairReturnUnit"])
+                    ->middleware("permission:delete_repair_return_unit");
+                Route::delete("/delete/{repair_return_id}", [RepairReturnController::class, "deleteRepairReturn"])->middleware('permission:delete_repair_return');
                 Route::prefix("repair-unit")->group(function () {
-                    Route::get("/list", [RepairReturnController::class, "getRepairUnit"]);
+                    Route::get("/list", [RepairReturnController::class, "getRepairUnit"])->middleware('permission:read_retur_unit');
                 });
             });
         });
