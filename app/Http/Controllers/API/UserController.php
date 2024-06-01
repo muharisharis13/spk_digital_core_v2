@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\UsersStatusEnum;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
+use App\Helpers\ValidatorFailed;
 use App\Http\Controllers\Controller;
 use App\Models\DealerByUser;
 use App\Models\ModelHasPermission;
@@ -11,12 +13,111 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     //
+
+    public function createuser(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "username" => "required|regex:/^(?!_)(?!.*?_$)[a-zA-Z0-9_]{3,20}$/",
+                "password" => "required"
+            ]);
+
+            ValidatorFailed::validatorFailed($validator);
+            DB::beginTransaction();
+
+            $createUser = User::create([
+                "username" => $request->username,
+                "password" => Hash::make($request->password),
+                "user_status" => UsersStatusEnum::ACTIVE
+            ]);
+
+
+            $data = [
+                "user" => $createUser
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function getUserDetail(Request $request, $user_id)
+    {
+        try {
+
+            $getDetail = User::where("user_id", $user_id)
+                ->first();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+    public function getUserList(Request $request)
+    {
+        try {
+
+            $limit = $request->input("limit", 5);
+            $getPaginate = User::latest()
+                ->paginate($limit);
+
+            return ResponseFormatter::success($getPaginate);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function updateStatus(Request $request, $user_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "status" => "in:active,unactive",
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail = User::where("user_id", $user_id)->first();
+
+            $getDetail->update([
+                "status" => $request->status
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function getRoles(Request $request)
+    {
+        try {
+
+            $getRoles = Role::all();
+
+            return ResponseFormatter::success($getRoles);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function getCurrentDealer(Request $request)
     {

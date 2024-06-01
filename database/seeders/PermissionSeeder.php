@@ -20,7 +20,7 @@ class PermissionSeeder extends Seeder
 
         // Looping untuk membuat permission
         foreach ($permissions as $permissionName) {
-            Permission::create(['name' => $permissionName, 'guard_name' => 'api']);
+            Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'api']);
         }
     }
 }

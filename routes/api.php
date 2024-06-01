@@ -77,10 +77,15 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("user")->group(function () {
             Route::post("/assign-permission", [UserController::class, "assignPermission"]);
-            Route::get("/user-permission", [UserController::class, "getPermissionUser"]);
-            Route::get("/current-dealer", [UserController::class, "getCurrentDealer"]);
+            Route::get("/user-permission", [UserController::class, "getPermissionUser"])->middleware('permission:get_permission_user');
+            Route::get("/current-dealer", [UserController::class, "getCurrentDealer"])->middleware('permission:get_current_dealer_user');
             Route::post("/logout", [UserController::class, "logout"]);
             Route::put("/select-dealer/{dealer_by_user_id}", [UserController::class, "selectDealerByUser"]);
+            Route::get("/role", [UserController::class, "getRoles"])->middleware("permission:get_role_user");
+            Route::put("/status/{id}", [UserController::class, "updateStatus"])->middleware("permission:put_status_user");
+            Route::get("/list", [UserController::class, "getUserList"])->middleware("permission:get_user");
+            Route::get("/detail/{id}", [UserController::class, "getUserDetail"])->middleware("permission:get_detail_user");
+            Route::post("/create", [UserController::class, "createuser"])->middleware("permission:post_user");
         });
 
         Route::prefix("shipping-order")->group(function () {
@@ -101,8 +106,8 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("pricelist")->group(function () {
                 Route::post("/create", [UnitContoller::class, "addPrice"]);
-                Route::get("/list", [UnitContoller::class, "getListPriceList"]);
-                Route::get("/detail/{id}", [UnitContoller::class, "getDetailPriceList"]);
+                Route::get("/list", [UnitContoller::class, "getListPriceList"])->middleware('permission:get_pricelist');
+                Route::get("/detail/{id}", [UnitContoller::class, "getDetailPriceList"])->middleware('permission:get_detail_pricelist');
                 Route::post("/clone", [UnitContoller::class, "clonePriceList"]);
                 Route::put("/update/{id}", [UnitContoller::class, "updatePrice"]);
             });
@@ -135,28 +140,28 @@ Route::prefix("v1")->group(function () {
             });
 
             Route::prefix("sales")->group(function () {
-                Route::get("/list", [Master::class, "getSales"]);
+                Route::get("/list", [Master::class, "getSales"])->middleware('permission:get_sales_master');
             });
             Route::prefix("microfinance")->group(function () {
-                Route::get("/list", [Master::class, "getMicrofinance"]);
+                Route::get("/list", [Master::class, "getMicrofinance"])->middleware('permission:get_miscrofinance_master');
             });
             Route::prefix("leasing")->group(function () {
-                Route::get("/list", [Master::class, "getLeasing"]);
+                Route::get("/list", [Master::class, "getLeasing"])->middleware('permission:get_leasing_master');
             });
             Route::prefix("color")->group(function () {
-                Route::get("/list", [Master::class, "getColor"]);
+                Route::get("/list", [Master::class, "getColor"])->middleware('permission:get_color_master');
             });
             Route::prefix("bank")->group(function () {
-                Route::get("/list", [Master::class, "getBank"]);
+                Route::get("/list", [Master::class, "getBank"])->middleware('permission:get_bank_master');
             });
             Route::prefix("marital")->group(function () {
-                Route::get("/list", [Master::class, "getListMaritalStatus"]);
+                Route::get("/list", [Master::class, "getListMaritalStatus"])->middleware('permission:get_marital_master');
             });
             Route::prefix("hobby")->group(function () {
-                Route::get("/list", [Master::class, "getListHobby"]);
+                Route::get("/list", [Master::class, "getListHobby"])->middleware('permission:get_hobby_master');
             });
             Route::prefix("tenor")->group(function () {
-                Route::get("/list", [Master::class, "getListTenor"]);
+                Route::get("/list", [Master::class, "getListTenor"])->middleware('permission:get_tenor_master');
             });
 
             Route::prefix("province")->group(function () {
@@ -187,10 +192,10 @@ Route::prefix("v1")->group(function () {
             });
 
             Route::prefix("motor-brand")->group(function () {
-                Route::get("/list", [Master::class, "getListMotorBrand"]);
+                Route::get("/list", [Master::class, "getListMotorBrand"])->middleware('permission:get_motor_brand_master');
             });
             Route::prefix("motor")->group(function () {
-                Route::get("/detail/{id}", [Master::class, "getDetailMotor"]);
+                Route::get("/detail/{id}", [Master::class, "getDetailMotor"])->middleware('permission:get_motor_detail_master');
             });
         });
 
@@ -220,83 +225,83 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("delivery")->group(function () {
-            Route::post("/create", [DeliveryController::class, "CreateDelivery"]);
-            Route::get("/list", [DeliveryController::class, "GetListPagianteDelivery"]);
-            Route::get("/detail/{delivery_id}", [DeliveryController::class, "DetailDelivery"]);
-            Route::put("/status/{delivery_id}", [DeliveryController::class, "changeStatusDelivery"]);
-            Route::put("/update/{delivery_id}", [DeliveryController::class, "updateDelivery"]);
-            Route::delete("/delete/{delivery_id}", [DeliveryController::class, "deleteDelivery"]);
+            Route::post("/create", [DeliveryController::class, "CreateDelivery"])->middleware('permission:post_delivery');
+            Route::get("/list", [DeliveryController::class, "GetListPagianteDelivery"])->middleware('permission:get_delivery');
+            Route::get("/detail/{delivery_id}", [DeliveryController::class, "DetailDelivery"])->middleware('permission:get_detail_delivery');
+            Route::put("/status/{delivery_id}", [DeliveryController::class, "changeStatusDelivery"])->middleware('permission:put_status_delivery');
+            Route::put("/update/{delivery_id}", [DeliveryController::class, "updateDelivery"])->middleware('permission:put_delivery');
+            Route::delete("/delete/{delivery_id}", [DeliveryController::class, "deleteDelivery"])->middleware('permission:delete_delivery');
         });
 
         Route::prefix("event")->group(function () {
-            Route::post("/create", [EventController::class, "createEvent"]);
-            Route::put("/update/{event_id}", [EventController::class, "updateEvent"]);
-            Route::get("/list", [EventController::class, "getPaginateEvent"]);
-            Route::get("/detail/{event_id}", [EventController::class, "getDetailEvent"]);
-            Route::put("/status/{event_id}", [EventController::class, "updateStatusEvent"]);
-            Route::delete("/unit/delete/{event_list_unit_id}", [EventController::class, "deleteUnitEvent"]);
-            Route::delete("/delete/{event_id}", [EventController::class, "deleteEvent"]);
+            Route::post("/create", [EventController::class, "createEvent"])->middleware('permission:post_event');
+            Route::put("/update/{event_id}", [EventController::class, "updateEvent"])->middleware('permission:put_event');
+            Route::get("/list", [EventController::class, "getPaginateEvent"])->middleware('permission:read_event');
+            Route::get("/detail/{event_id}", [EventController::class, "getDetailEvent"])->middleware('permission:read_event_detail');
+            Route::put("/status/{event_id}", [EventController::class, "updateStatusEvent"])->middleware('permission:put_status_event');
+            Route::delete("/unit/delete/{event_list_unit_id}", [EventController::class, "deleteUnitEvent"])->middleware('permission:delete_unit_event');
+            Route::delete("/delete/{event_id}", [EventController::class, "deleteEvent"])->middleware('permission:delete_event');
 
 
             Route::prefix("return")->group(function () {
-                Route::post("/create", [EventReturnController::class, "createEventReturn"]);
-                Route::get("/list", [EventReturnController::class, "getPaginateEventReturn"]);
-                Route::get("/detail/{event_return_id}", [EventReturnController::class, "getDetailEventReturn"]);
-                Route::put("/status/{event_return_id}", [EventReturnController::class, "updateStatusEventReturn"]);
-                Route::put("/update/{event_return_id}", [EventReturnController::class, "updateEventReturn"]);
-                Route::delete("/delete/{event_return_id}", [EventReturnController::class, "deleteEventReturn"]);
-                Route::delete("/unit/delete/{event_return_list_unit_id}", [EventReturnController::class, "deleteEventReturnUnit"]);
+                Route::post("/create", [EventReturnController::class, "createEventReturn"])->middleware('permission:post_return_event');
+                Route::get("/list", [EventReturnController::class, "getPaginateEventReturn"])->middleware('permission:get_return_event');
+                Route::get("/detail/{event_return_id}", [EventReturnController::class, "getDetailEventReturn"])->middleware('permission:get_detail_return_event');
+                Route::put("/status/{event_return_id}", [EventReturnController::class, "updateStatusEventReturn"])->middleware('permission:put_status_return_event');
+                Route::put("/update/{event_return_id}", [EventReturnController::class, "updateEventReturn"])->middleware('permission:put_return_event');
+                Route::delete("/delete/{event_return_id}", [EventReturnController::class, "deleteEventReturn"])->middleware('permission:delete_return_event');
+                Route::delete("/unit/delete/{event_return_list_unit_id}", [EventReturnController::class, "deleteEventReturnUnit"])->middleware('permission:delete_unit_return_event');
                 Route::prefix("event-unit")->group(function () {
-                    Route::get("/list/{master_event_id}", [EventReturnController::class, "getAllUnitEvent"]);
+                    Route::get("/list/{master_event_id}", [EventReturnController::class, "getAllUnitEvent"])->middleware('permission:get_unit_return_event');
                 });
             });
         });
 
         Route::prefix("neq")->group(function () {
-            Route::post("/create", [NeqController::class, "createNeq"]);
-            Route::get("/list", [NeqController::class, "getPaginateNeq"]);
-            Route::get("/detail/{neq_id}", [NeqController::class, "getDetailNeq"]);
-            Route::put("/status/{neq_id}", [NeqController::class, "updateStatusNeq"]);
-            Route::put("/update/{neq_id}", [NeqController::class, "updateNeq"]);
-            Route::delete("/delete/{neq_id}", [NeqController::class, "deleteNeq"]);
+            Route::post("/create", [NeqController::class, "createNeq"])->middleware('permission:post_new');
+            Route::get("/list", [NeqController::class, "getPaginateNeq"])->middleware('permission:read_neq');
+            Route::get("/detail/{neq_id}", [NeqController::class, "getDetailNeq"])->middleware('permission:read_neq_detail');
+            Route::put("/status/{neq_id}", [NeqController::class, "updateStatusNeq"])->middleware('permission:put_status_neq');
+            Route::put("/update/{neq_id}", [NeqController::class, "updateNeq"])->middleware('permission:put_neq');
+            Route::delete("/delete/{neq_id}", [NeqController::class, "deleteNeq"])->middleware('permission:delete_neq');
             Route::prefix("unit")->group(function () {
-                Route::delete("/delete/{neq_unit_id}", [NeqController::class, "deleteUnitNeq"]);
+                Route::delete("/delete/{neq_unit_id}", [NeqController::class, "deleteUnitNeq"])->middleware('permission:delete_unit_neq');
             });
 
             Route::prefix("return")->group(function () {
-                Route::post("/create", [NeqReturnController::class, "createNeqReturn"]);
-                Route::put("/update/{neq_return_id}", [NeqReturnController::class, "updateNeqReturn"]);
-                Route::get("/list", [NeqReturnController::class, "getPaginateNeqReturn"]);
-                Route::get("/detail/{neq_return_id}", [NeqReturnController::class, "getDetailNeqReturn"]);
-                Route::delete("/delete/{neq_return_id}", [NeqReturnController::class, "deleteNeqReturn"]);
-                Route::put("/status/{neq_return_id}", [NeqReturnController::class, "updateStatusNeqReturn"]);
+                Route::post("/create", [NeqReturnController::class, "createNeqReturn"])->middleware('permission:post_neq_return');
+                Route::put("/update/{neq_return_id}", [NeqReturnController::class, "updateNeqReturn"])->middleware('permission:put_neq_return');
+                Route::get("/list", [NeqReturnController::class, "getPaginateNeqReturn"])->middleware('permission:get_neq_return');
+                Route::get("/detail/{neq_return_id}", [NeqReturnController::class, "getDetailNeqReturn"])->middleware('permission:get_neq_detail_return');
+                Route::delete("/delete/{neq_return_id}", [NeqReturnController::class, "deleteNeqReturn"])->middleware('permission:delete_neq_return');
+                Route::put("/status/{neq_return_id}", [NeqReturnController::class, "updateStatusNeqReturn"])->middleware('permission:put_status_neq_return');
                 Route::prefix("neq-unit")->group(function () {
-                    Route::delete("/delete/{neq_return_unit_id}", [NeqReturnController::class, "deleteNeqReturnUnit"]);
-                    Route::get("/list/{neq_id}", [NeqReturnController::class, "getAllUnitNeq"]);
+                    Route::delete("/delete/{neq_return_unit_id}", [NeqReturnController::class, "deleteNeqReturnUnit"])->middleware('permission:delete_unit_neq_return');
+                    Route::get("/list/{neq_id}", [NeqReturnController::class, "getAllUnitNeq"])->middleware('permission:get_unit_neq_return');
                 });
             });
         });
 
         Route::prefix("indent")->group(function () {
-            Route::post("/create", [IndentController::class, "createIndent"]);
-            Route::get("/list", [IndentController::class, "getPaginate"]);
-            Route::put("/update/{indent_id}", [IndentController::class, "updateIndent"]);
-            Route::get("/detail/{indent_id}", [IndentController::class, "getDetailInden"]);
-            Route::post("/payment/{indent_id}", [IndentController::class, "addPayment"]);
-            Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"]);
+            Route::post("/create", [IndentController::class, "createIndent"])->middleware('permission:post_indent');
+            Route::get("/list", [IndentController::class, "getPaginate"])->middleware('permission:read_indent');
+            Route::put("/update/{indent_id}", [IndentController::class, "updateIndent"])->middleware('permission:put_indent');
+            Route::get("/detail/{indent_id}", [IndentController::class, "getDetailInden"])->middleware('permission:read_indent_detail');
+            Route::post("/payment/{indent_id}", [IndentController::class, "addPayment"])->middleware('permission:post_payment_indent');
+            Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"])->middleware('permission:put_status_indent');
             Route::prefix("payment")->group(function () {
-                Route::put("/delete/{indent_payment_id}", [IndentController::class, "refundPayment"]);
-                Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"]);
+                Route::put("/delete/{indent_payment_id}", [IndentController::class, "refundPayment"])->middleware('permission:delete_payment_indent');
+                Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"])->middleware('permission:put_refund_all_payment_indent');
             });
-            Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"]);
+            Route::put("/cancel/{indent_id}", [IndentController::class, "cancelIndent"])->middleware('permission:put_cancel_payment_indent');
         });
 
         Route::prefix("indent-instansi")->group(function () {
-            Route::get("/list", [IndentInstansiController::class, "getPaginate"]);
-            Route::post("/create", [IndentInstansiController::class, "createIndentInstansi"]);
+            Route::get("/list", [IndentInstansiController::class, "getPaginate"])->middleware('permission:get_indent_inst');
+            Route::post("/create", [IndentInstansiController::class, "createIndentInstansi"])->middleware('permission:post_indent_inst');
             Route::put("/update/{id}", [IndentInstansiController::class, "updateIndentInstansi"]);
             Route::put("/status/{id}", [IndentInstansiController::class, "updateStatus"]);
-            Route::get("/detail/{id}", [IndentInstansiController::class, "getDetail"]);
+            Route::get("/detail/{id}", [IndentInstansiController::class, "getDetail"])->middleware('permission:get_detail_indent_inst');
 
             Route::post("/payment/{indent_instansi_id}", [IndentInstansiController::class, "addPayment"]);
             Route::put("/cancel/{id}", [IndentInstansiController::class, "cancelIndentInstansi"]);
@@ -313,8 +318,8 @@ Route::prefix("v1")->group(function () {
             Route::post("/create", [SPKController::class, "createSPK"]);
             Route::post("/update/{spk_id}", [SPKController::class, "updateSpk"]);
             Route::delete("/delete/{spk_id}", [SPKController::class, "deleteSPK"]);
-            Route::get("/list", [SPKController::class, "getPaginateSpk"]);
-            Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"]);
+            Route::get("/list", [SPKController::class, "getPaginateSpk"])->middleware('permission:read_spk');
+            Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"])->middleware('permission:read_spk_detail');
             Route::put("/status/{spk_id}", [SPKController::class, "updateStatusSpk"]);
             Route::post("/shipment/{spk_id}", [SPKController::class, "addShipment"]);
             Route::post("/cro/{spk_id}", [SPKController::class, "addCRO"]);
@@ -334,13 +339,13 @@ Route::prefix("v1")->group(function () {
             });
 
             Route::prefix("excess-payment")->group(function () {
-                Route::get("/list", [SPKController::class, "getpaginateExcessPayment"]);
-                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"]);
+                Route::get("/list", [SPKController::class, "getpaginateExcessPayment"])->middleware('permission:get_excess_payment');
+                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"])->middleware('permission:get_detail_excess_paymnent');
             });
 
             Route::prefix("payment")->group(function () {
-                Route::get("/list", [SPKController::class, "getPaginateSpkPayment"]);
-                Route::get("/detail/{spk_payment_id}", [SPKController::class, "getDetailSpkPayment"]);
+                Route::get("/list", [SPKController::class, "getPaginateSpkPayment"])->middleware('permission:get_payment_spk');
+                Route::get("/detail/{spk_payment_id}", [SPKController::class, "getDetailSpkPayment"])->middleware('permission:get_detail_payment_spk');
                 Route::post("/create/{spk_payment_id}", [SPKController::class, "addSpkPayment"]);
                 Route::delete("/delete/{spk_payment_list_id}", [SPKController::class, "deletePayment"]);
                 Route::put("/refund/{spk_payment_id}", [SPKController::class, "refundAllPaymentt"]);
@@ -350,8 +355,8 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("retur-unit")->group(function () {
             Route::post("/create", [ReturUnitController::class, "createReturUnit"]);
-            Route::get("/list", [ReturUnitController::class, "getPaginateReturUnit"]);
-            Route::get("/detail/{retur_unit_id}", [ReturUnitController::class, "getDetailReturUnit"]);
+            Route::get("/list", [ReturUnitController::class, "getPaginateReturUnit"])->middleware('permission:read_retur_unit');
+            Route::get("/detail/{retur_unit_id}", [ReturUnitController::class, "getDetailReturUnit"])->middleware('permission:read_retur_unit_detail');
             Route::put("/update/{retur_unit_id}", [ReturUnitController::class, "editReturUNit"]);
             Route::delete("/delete/{retur_unit_id}", [ReturUnitController::class, "deleteRetur"]);
             Route::put("/confirm/{retur_unit_id}", [ReturUnitController::class, "confirmStatusReturUnit"]);
@@ -362,8 +367,8 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("po-instansi")->group(function () {
-            Route::get("/list", [SpkInstansiController::class, "getPaginate"]);
-            Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"]);
+            Route::get("/list", [SpkInstansiController::class, "getPaginate"])->middleware('permission:get_po_inst');
+            Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"])->middleware('permission:get_detail_po_inst');
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/update/{id}", [SpkInstansiController::class, "update"]);
             Route::post("/add-motor/{id}", [SpkInstansiController::class, "addMotor"]);
@@ -386,9 +391,9 @@ Route::prefix("v1")->group(function () {
             Route::prefix("payment")->group(function () {
                 Route::post("/add/{id}", [SpkInstansiController::class, "addSpkInstansiPayment"]);
                 Route::delete("/delete/{id}", [SpkInstansiController::class, "deletePayment"]);
-                Route::get("/detail/{id}", [SpkInstansiController::class, "detailPayment"]);
+                Route::get("/detail/{id}", [SpkInstansiController::class, "detailPayment"])->middleware('permission:get_detail_payment_po_inst');
                 Route::post("/refund/{id}", [SpkInstansiController::class, "refundAllPayment"]);
-                Route::get("/list", [SpkInstansiController::class, "getPaginatePayment"]);
+                Route::get("/list", [SpkInstansiController::class, "getPaginatePayment"])->middleware('permission:get_payment_po_inst');
             });
 
             Route::prefix("unit")->group(function () {
@@ -398,8 +403,8 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("spk-instansi")->group(function () {
-            Route::get("/list", [SpkInstansiController::class, "getPaginateSpkInstansiUnit"]);
-            Route::get("/detail/{id}", [SpkInstansiController::class, "getDetailSpkInstansiUnit"]);
+            Route::get("/list", [SpkInstansiController::class, "getPaginateSpkInstansiUnit"])->middleware('permission:get_spk_inst');
+            Route::get("/detail/{id}", [SpkInstansiController::class, "getDetailSpkInstansiUnit"])->middleware('permission:get_detail_spk_inst');
         });
     });
 });
