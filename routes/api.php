@@ -77,6 +77,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("user")->group(function () {
             Route::post("/assign-permission", [UserController::class, "assignPermission"]);
+            Route::post("/remove-permission", [UserController::class, "removePermission"]);
             Route::get("/user-permission", [UserController::class, "getPermissionUser"])->middleware('permission:get_permission_user');
             Route::get("/current-dealer", [UserController::class, "getCurrentDealer"])->middleware('permission:get_current_dealer_user');
             Route::post("/logout", [UserController::class, "logout"]);
@@ -86,6 +87,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/list", [UserController::class, "getUserList"])->middleware("permission:get_user");
             Route::get("/detail/{id}", [UserController::class, "getUserDetail"])->middleware("permission:get_detail_user");
             Route::post("/create", [UserController::class, "createuser"])->middleware("permission:post_user");
+            Route::put("update/{id}", [UserController::class, "updateUser"])->middleware("permission:put_user");
         });
 
         Route::prefix("shipping-order")->group(function () {

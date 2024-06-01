@@ -236,7 +236,9 @@ class PermmissionList
         "put_status_user",
         "get_user",
         "get_detail_user",
-        "post_user"
+        "post_user",
+        "put_user",
+        "remove_permission_user"
     ];
 
     const permissionPricelist = [

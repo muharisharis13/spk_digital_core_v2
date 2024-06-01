@@ -22,12 +22,66 @@ class UserController extends Controller
 {
     //
 
+    public function removePermission(Request $request, $user_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "permission_name" => "required",
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+            $getDetail = User::where("user_id", $user_id)
+                ->first();
+
+            $getDetail->removePermission($request->permission_name);
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function updateUser(Request $request, $user_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "roles" => "required"
+            ]);
+
+            ValidatorFailed::validatorFailed($validator);
+            DB::beginTransaction();
+
+            $updateUser = User::where("user_id", $user_id)->first();
+
+            $updateUser->update([
+                "roles" => $request->roles
+            ]);
+
+
+            $data = [
+                "user" => $updateUser
+            ];
+            DB::commit();
+
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
     public function createuser(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 "username" => "required|regex:/^(?!_)(?!.*?_$)[a-zA-Z0-9_]{3,20}$/",
-                "password" => "required"
+                "password" => "required",
+                "roles" => "required",
+                "permission" => "array",
+                "permission.*" => "required"
             ]);
 
             ValidatorFailed::validatorFailed($validator);
@@ -36,8 +90,13 @@ class UserController extends Controller
             $createUser = User::create([
                 "username" => $request->username,
                 "password" => Hash::make($request->password),
-                "user_status" => UsersStatusEnum::ACTIVE
+                "user_status" => UsersStatusEnum::ACTIVE,
+                "roles" => $request->roles
             ]);
+
+            foreach ($request->permission as $item) {
+                $createUser->givePermissionTo($item);
+            }
 
 
             $data = [
