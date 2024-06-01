@@ -255,6 +255,6 @@ class PermmissionList
 
     public static function AllPermission()
     {
-        return array_merge(self::permissionUnit, self::permissionShippingOrder, self::permissionMaster, self::permissionRepair, self::permissionReturUnit, self::permissionRepairReturn, self::permissionEvent, self::permissionTfEvent, self::permissionTfEventReturn, self::permissionNeq, self::permissionNeqReturn, self::permissionIndent, self::permissionSPK, self::permissionSPKPayment, self::permissionExcessSPK, self::permissionDelivery, self::permissionEventReturn, self::permissionIndentInstansi, self::permissionPoInstansi, self::permissionIndentInstansi, self::permissionPricelist);
+        return array_merge(self::permissionUnit, self::permissionShippingOrder, self::permissionMaster, self::permissionRepair, self::permissionReturUnit, self::permissionRepairReturn, self::permissionEvent, self::permissionTfEvent, self::permissionTfEventReturn, self::permissionNeq, self::permissionNeqReturn, self::permissionIndent, self::permissionSPK, self::permissionSPKPayment, self::permissionExcessSPK, self::permissionDelivery, self::permissionEventReturn, self::permissionIndentInstansi, self::permissionPoInstansi, self::permissionIndentInstansi, self::permissionPricelist, self::permissionUser);
     }
 }
