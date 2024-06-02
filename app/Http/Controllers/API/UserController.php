@@ -38,7 +38,8 @@ class UserController extends Controller
             $getDetail = User::where("user_id", $user->user_id)
                 ->first();
 
-            $getDetail->removePermission($request->permission_name);
+            // $getDetail->removePermission($request->permission_name);
+            $getDetail->revokePermissionTo($request->permission_name);
 
             return ResponseFormatter::success($getDetail);
         } catch (\Throwable $e) {
