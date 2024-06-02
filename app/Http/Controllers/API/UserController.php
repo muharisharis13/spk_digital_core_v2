@@ -22,7 +22,7 @@ class UserController extends Controller
 {
     //
 
-    public function removePermission(Request $request, $user_id)
+    public function removePermission(Request $request)
     {
         try {
 
@@ -30,11 +30,12 @@ class UserController extends Controller
                 "permission_name" => "required",
             ]);
 
+            $user = Auth::user();
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
             }
-            $getDetail = User::where("user_id", $user_id)
+            $getDetail = User::where("user_id", $user->user_id)
                 ->first();
 
             $getDetail->removePermission($request->permission_name);
