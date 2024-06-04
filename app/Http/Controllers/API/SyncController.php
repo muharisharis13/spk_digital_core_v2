@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\UsersStatusEnum;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\ApiSecret;
 use App\Models\Dealer;
 use App\Models\DealerNeq;
 use App\Models\Sales;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +54,7 @@ class SyncController extends Controller
                 "colors.*.color_name" => "required",
                 "motors" => "required|array",
                 "motors.*.motor_name" => "required",
+                "user" => "required"
                 // tambahkan list color, type motor
 
             ]);
@@ -65,6 +68,13 @@ class SyncController extends Controller
 
             $createApiSecret = ApiSecret::create([
                 "api_secret_key" => $request->api_secret_key
+            ]);
+
+
+            $createUser = User::create([
+                "username" => $request->user->username,
+                "password" => $request->user->password,
+                "user_status" => UsersStatusEnum::ACTIVE
             ]);
 
 
