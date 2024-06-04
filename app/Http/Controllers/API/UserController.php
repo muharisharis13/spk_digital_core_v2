@@ -516,10 +516,11 @@ class UserController extends Controller
 
 
 
-    public function getPermissionUser(Request $request)
+    public function getPermissionUser(Request $request, $user_id)
     {
         try {
-            $getPermissionUser = User::with("permissions")->latest()->get();
+
+            $getPermissionUser = User::findOrFail($user_id)->with("permissions")->first();
 
 
             return ResponseFormatter::success($getPermissionUser);
