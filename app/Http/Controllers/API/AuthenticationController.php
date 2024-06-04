@@ -68,14 +68,21 @@ class AuthenticationController extends Controller
 
 
 
+
+
             $user = User::where("username", $request->get("username"))
                 ->with(["dealer_by_user.dealer", "dealer_by_user" => function ($query) {
                     $query->where("isSelected", true);
                 }])
                 ->first();
 
+
+
             if (!Hash::check($request->get("password"), $user->password, [])) {
                 return ResponseFormatter::error("Invalid Password", "Authentication Failed", 401);
+            }
+            if ($user->status === 'unactive') {
+                return ResponseFormatter::error("User status Inactive", "Authentication Failed", 401);
             }
             // if (!Hash::check($request->get("password"), $user->password, [])) {
             //     throw new \Exception("Invalid Password");
