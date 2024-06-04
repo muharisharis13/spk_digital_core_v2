@@ -76,7 +76,7 @@ class SyncController extends Controller
                     Sales::create(
                         [
                             "sales_name" => $neqData["sales_name"],
-                            "sales_nip" => $neqData["sales_nip"],
+                            "sales_nip" => $neqData["nip"],
                             "dealer_id" => $dealer->dealer_id
                         ]
                     );
