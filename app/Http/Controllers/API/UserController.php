@@ -543,7 +543,8 @@ class UserController extends Controller
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "permission_name" => "required"
+                "permission_name" => "required",
+                "user_id" => "required"
             ]);
 
             if ($validator->fails()) {
