@@ -19,6 +19,7 @@ use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\ShippingOrderController2;
 use App\Http\Controllers\API\SPKController;
 use App\Http\Controllers\API\SpkInstansiController;
+use App\Http\Controllers\API\SyncController;
 use App\Http\Controllers\API\UnitContoller;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -44,6 +45,10 @@ Route::prefix("v1")->group(function () {
         Route::post("/login", [AuthenticationController::class, "login"]);
         Route::post("/register", [AuthenticationController::class, "register"]);
         // Route::post("/logout", [AuthenticationController::class, "logout"]);
+    });
+
+    Route::prefix("sync-data")->group(function () {
+        Route::post("/sync", [SyncController::class, "syncData"]);
     });
 
     Route::prefix("export")->group(function () {
