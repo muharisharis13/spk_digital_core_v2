@@ -253,7 +253,7 @@ class UserController extends Controller
             DB::beginTransaction();
 
             $getDetail = User::where("user_id", $user_id)->first();
-            $status = $getDetail->status ? "active" : "unactive";
+            $status = $getDetail->status === 'unactive' ? "active" : "unactive";
 
             $getDetail->update([
                 "status" => $status
