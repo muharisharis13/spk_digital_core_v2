@@ -16,7 +16,6 @@ return new class extends Migration
             $table->uuid("motor_id")->nullable();
             $table->foreign("motor_id")->references("motor_id")->on("motor")->onDelete("set null");
             $table->integer("off_the_road");
-            $table->integer("bbn");
             $table->integer("commission")->default(0);
             $table->enum("pricelist_location_type", ["dealer", "neq"]);
             $table->uuid("dealer_id")->nullable();
