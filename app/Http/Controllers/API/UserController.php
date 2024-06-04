@@ -224,7 +224,7 @@ class UserController extends Controller
     {
         try {
 
-            $getDetail = User::with(['dealer_by_user_many.dealer'])->where("user_id", $user_id)
+            $getDetail = User::with(['dealer_by_user_many.dealer', 'permissions'])->where("user_id", $user_id)
                 ->first();
 
             return ResponseFormatter::success($getDetail);
@@ -516,11 +516,12 @@ class UserController extends Controller
 
 
 
-    public function getPermissionUser(Request $request, $user_id)
+    public function getPermissionUser(Request $request)
     {
         try {
+            $user = Auth::user();
 
-            $getPermissionUser = User::findOrFail($user_id)->with("permissions")->first();
+            $getPermissionUser = User::findOrFail($user->user_id)->with("permissions")->first();
 
 
             return ResponseFormatter::success($getPermissionUser);
