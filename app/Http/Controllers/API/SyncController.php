@@ -75,14 +75,16 @@ class SyncController extends Controller
                 foreach ($dealerData['salesman'] as $salesmanData) {
                     Sales::create(
                         [
-                            "sales_name" => $neqData["sales_name"],
-                            "sales_nip" => $neqData["nip"],
+                            "sales_name" => $salesmanData["sales_name"],
+                            "sales_nip" => $salesmanData["sales_nip"],
                             "dealer_id" => $dealer->dealer_id
                         ]
                     );
                     // $dealer->salesmen()->create($salesmanData);
                 }
             }
+
+            DB::commit();
 
             return ResponseFormatter::success("success sync data");
         } catch (\Throwable $e) {
