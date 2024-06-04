@@ -16,6 +16,19 @@ class SyncController extends Controller
 {
     //
 
+    public function checkDealer(Request $request)
+    {
+        try {
+            $getDealer = Dealer::get();
+
+
+            return ResponseFormatter::success($getDealer);
+        } catch (\Throwable $e) {
+
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function syncData(Request $request)
     {
 
@@ -35,8 +48,11 @@ class SyncController extends Controller
                 "dealers.*.dealer_neq.*.dealer_neq_code" => "required",
                 "dealers.*.dealer_neq.*.dealer_neq_city" => "nullable",
                 "dealers.*.salesman" => "required|array",
-                "dealers.*.salesman.*.sales_name" => "required",
-                "dealers.*.salesman.*.sales_nip" => "nullable",
+                "colors" => "required|array",
+                "colors.*.color_name" => "required",
+                "motors" => "required|array",
+                "motors.*.motor_name" => "required",
+                // tambahkan list color, type motor
 
             ]);
 
@@ -72,15 +88,29 @@ class SyncController extends Controller
                     ]);
                 }
 
-                foreach ($dealerData['salesman'] as $salesmanData) {
+                // foreach ($dealerData['salesman'] as $salesmanData) {
+                //     Sales::create(
+                //         [
+                //             "sales_name" => $salesmanData["sales_name"],
+                //             "sales_nip" => $salesmanData["sales_nip"],
+                //             "dealer_id" => $dealer->dealer_id
+                //         ]
+                //     );
+                // }
+                foreach ($dealerData['motors'] as $motorData) {
                     Sales::create(
                         [
-                            "sales_name" => $salesmanData["sales_name"],
-                            "sales_nip" => $salesmanData["sales_nip"],
-                            "dealer_id" => $dealer->dealer_id
+                            "motor_name" => $motorData["motor_name"],
+                            "motor_status" => "active"
                         ]
                     );
-                    // $dealer->salesmen()->create($salesmanData);
+                }
+                foreach ($dealerData['colors'] as $colorData) {
+                    Sales::create(
+                        [
+                            "color_name" => $colorData["color_name"],
+                        ]
+                    );
                 }
             }
 
