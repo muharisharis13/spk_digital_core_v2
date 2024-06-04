@@ -258,6 +258,8 @@ class UserController extends Controller
             $getDetail->update([
                 "status" => $status
             ]);
+            $getDetail->tokens()->delete();
+
 
             DB::commit();
 
