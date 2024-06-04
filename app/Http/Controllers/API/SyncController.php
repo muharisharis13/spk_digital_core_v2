@@ -7,12 +7,14 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\ApiSecret;
 use App\Models\Dealer;
+use App\Models\DealerByUser;
 use App\Models\DealerNeq;
 use App\Models\Sales;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Permission;
 
 class SyncController extends Controller
 {
@@ -77,6 +79,14 @@ class SyncController extends Controller
                 "user_status" => UsersStatusEnum::ACTIVE
             ]);
 
+            $getAllPermission = Permission::latest()->get();
+
+            foreach ($getAllPermission as $item) {
+                $createUser->givePermissionTo($item->name);
+            }
+
+
+
 
             foreach ($request->dealers as $dealerData) {
                 $dealer = Dealer::create([
@@ -85,6 +95,13 @@ class SyncController extends Controller
                     'dealer_phone_number' => $dealerData['dealer_phone_number'],
                     'dealer_type' => $dealerData['dealer_type'],
                     'dealer_address' => $dealerData['dealer_address'],
+                ]);
+
+                // add semua dealer ke dealer by user
+
+                DealerByUser::create([
+                    "dealer_id" => $dealer->dealer_id,
+                    "user_id" => $createUser->user_id,
                 ]);
 
                 foreach ($dealerData['dealer_neq'] as $neqData) {
@@ -98,15 +115,6 @@ class SyncController extends Controller
                     ]);
                 }
 
-                // foreach ($dealerData['salesman'] as $salesmanData) {
-                //     Sales::create(
-                //         [
-                //             "sales_name" => $salesmanData["sales_name"],
-                //             "sales_nip" => $salesmanData["sales_nip"],
-                //             "dealer_id" => $dealer->dealer_id
-                //         ]
-                //     );
-                // }
                 foreach ($dealerData['motors'] as $motorData) {
                     Sales::create(
                         [
@@ -123,6 +131,10 @@ class SyncController extends Controller
                     );
                 }
             }
+
+            DealerByUser::first()->update([
+                "isSelected" => 1
+            ]);
 
             DB::commit();
 
