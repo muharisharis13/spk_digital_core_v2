@@ -24,12 +24,8 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        "user_id",
-        'name',
-        'username',
-        'password',
-        "user_status"
+    protected $guarded = [
+        ""
     ];
 
     protected $primaryKey = "user_id";
@@ -38,6 +34,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(DealerByUser::class, "user_id", "user_id");
     }
+
+    public function dealer_by_user_many()
+    {
+        return $this->hasMany(DealerByUser::class, "user_id", "user_id");
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

@@ -92,7 +92,9 @@ Route::prefix("v1")->group(function () {
             Route::get("/list", [UserController::class, "getUserList"])->middleware("permission:get_user");
             Route::get("/detail/{id}", [UserController::class, "getUserDetail"])->middleware("permission:get_detail_user");
             Route::post("/create", [UserController::class, "createuser"])->middleware("permission:post_user");
-            Route::put("update/{id}", [UserController::class, "updateUser"])->middleware("permission:put_user");
+            Route::put("/update/{id}", [UserController::class, "updateUser"])->middleware("permission:put_user");
+            Route::put("/update-password/{id}", [UserController::class, "updatePassword"]);
+            Route::put("/reset-password/{id}", [UserController::class, "resetPassword"]);
         });
 
         Route::prefix("shipping-order")->group(function () {
