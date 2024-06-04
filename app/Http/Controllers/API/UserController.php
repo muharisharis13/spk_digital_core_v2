@@ -180,7 +180,8 @@ class UserController extends Controller
             $getDetail = User::where("user_id", $user_id)
                 ->first();
             $getDetail->update([
-                "password_reset_at" => Carbon::now()
+                "password_reset_at" => Carbon::now(),
+                "password" => Hash::make('password')
             ]);
             $getUser = User::findOrFail($user_id);
             return ResponseFormatter::success($getUser);
