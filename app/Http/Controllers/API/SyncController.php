@@ -78,7 +78,8 @@ class SyncController extends Controller
             $createUser = User::create([
                 "username" => $request["user"]["username"],
                 "password" => $request["user"]["password"],
-                "user_status" => UsersStatusEnum::ACTIVE
+                "status" => UsersStatusEnum::ACTIVE,
+                "roles" => "superadmin"
             ]);
 
             $getAllPermission = Permission::latest()->get();
