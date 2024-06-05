@@ -41,6 +41,7 @@ class SyncController extends Controller
                 "api_secret_key" => "required",
                 "dealers" => "required|array",
                 "dealers.*.dealer_name" => "required",
+                "dealers.*.dealer_id" => "required",
                 "dealers.*.dealer_code" => "required",
                 "dealers.*.dealer_phone_number" => "required",
                 "dealers.*.dealer_type" => "required",
@@ -90,6 +91,7 @@ class SyncController extends Controller
 
             foreach ($request->dealers as $dealerData) {
                 $dealer = Dealer::create([
+                    'dealer_id' => $dealerData['dealer_id'],
                     'dealer_name' => $dealerData['dealer_name'],
                     'dealer_code' => $dealerData['dealer_code'],
                     'dealer_phone_number' => $dealerData['dealer_phone_number'],
