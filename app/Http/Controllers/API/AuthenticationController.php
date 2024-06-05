@@ -81,7 +81,7 @@ class AuthenticationController extends Controller
             if (!Hash::check($request->get("password"), $user->password, [])) {
                 return ResponseFormatter::error("Invalid Password", "Authentication Failed", 401);
             }
-            if ($user->status === 'unactive') {
+            if ($user->user_status === 'unactive') {
                 return ResponseFormatter::error("User status Inactive", "Authentication Failed", 401);
             }
             // if (!Hash::check($request->get("password"), $user->password, [])) {

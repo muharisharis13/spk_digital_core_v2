@@ -124,7 +124,7 @@ class SyncController extends Controller
                 // Tambahkan dealer ke DealerByUser
                 DealerByUser::create([
                     "dealer_id" => $dealer->dealer_id,
-                    "user_id" => $getUser->id,
+                    "user_id" => $getUser->user_id,
                 ]);
 
                 // Buat DealerNeq baru
