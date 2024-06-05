@@ -83,11 +83,15 @@ class SyncController extends Controller
                 "roles" => "superadmin"
             ]);
 
-            $getAllPermission = Permission::latest()->get();
+            if ($createUser) {
 
-            foreach ($getAllPermission as $item) {
-                $createUser->givePermissionTo($item->name);
+                $getAllPermission = Permission::latest()->get();
+
+                foreach ($getAllPermission as $item) {
+                    $createUser->givePermissionTo($item->name);
+                }
             }
+
 
 
 
