@@ -32,12 +32,12 @@ class UserController extends Controller
                 "permission_name" => "required",
             ]);
 
-            $user = Auth::user();
+            $user_id = $request->user_id;
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
             }
-            $getDetail = User::where("user_id", $user->user_id)
+            $getDetail = User::where("user_id", $user_id)
                 ->first();
 
             // $getDetail->removePermission($request->permission_name);
@@ -551,9 +551,9 @@ class UserController extends Controller
             }
 
 
-            $user = Auth::user();
+            $user_id = $request->user_id;
 
-            $getUser = User::where("user_id", $user->user_id)->first();
+            $getUser = User::where("user_id", $user_id)->first();
 
             if ($getUser) {
                 $getUser->givePermissionTo($request->permission_name);

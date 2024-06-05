@@ -438,13 +438,15 @@ class Master extends Controller
     public function getListDealerMDS(Request $request)
     {
         try {
+            $searchQuery = $request->input('q');
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'asc');
 
 
-
             // $getListAllDealer = DealerByUser::with(["dealer"])
-            $getListAllDealer = Dealer::orderBy($sortBy, $sortOrder)->get();
+            $getListAllDealer = Dealer::when(function ($query) use ($searchQuery) {
+                $query->where('dealer_name', 'LIKE', "%$searchQuery%");
+            })->orderBy($sortBy, $sortOrder)->get();
 
             return ResponseFormatter::success($getListAllDealer);
         } catch (\Throwable $e) {

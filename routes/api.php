@@ -123,12 +123,9 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("master")->group(function () {
-            Route::get("/motor", [Master::class, "getListPaginateMotor"])
-                ->middleware('permission:read_master_motor');
-            Route::get("/dealer-neq", [Master::class, "getListDealerNeq"])
-                ->middleware('permission:read_dealer_neq_master');
-            Route::get("/mds", [Master::class, "getListDealerMDS"])
-                ->middleware('permission:read_mds_master');
+            Route::get("/motor", [Master::class, "getListPaginateMotor"])->middleware('permission:read_master_motor');
+            Route::get("/dealer-neq", [Master::class, "getListDealerNeq"])->middleware('permission:read_dealer_neq_master');
+            Route::get("/mds", [Master::class, "getListDealerMDS"])->middleware('permission:read_mds_master');
             Route::get("/dealer-selected", [Master::class, "getListDealerSelected"]);
             Route::get("/location-current", [Master::class, "getListLocationByUserLogin"])
                 ->middleware('permission:read_location_current_master');
