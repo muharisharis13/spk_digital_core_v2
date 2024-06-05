@@ -15,6 +15,7 @@ use App\Http\Controllers\API\NeqReturnController;
 use App\Http\Controllers\API\RepairController;
 use App\Http\Controllers\API\RepairReturnController;
 use App\Http\Controllers\API\ReturUnitController;
+use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\ShippingOrderController;
 use App\Http\Controllers\API\ShippingOrderController2;
 use App\Http\Controllers\API\SPKController;
@@ -409,9 +410,15 @@ Route::prefix("v1")->group(function () {
             });
         });
 
+
         Route::prefix("spk-instansi")->group(function () {
             Route::get("/list", [SpkInstansiController::class, "getPaginateSpkInstansiUnit"])->middleware('permission:get_spk_inst');
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetailSpkInstansiUnit"])->middleware('permission:get_detail_spk_inst');
+        });
+
+        Route::prefix("role")->group(function () {
+            Route::post("/create", [RoleController::class, "createRole"]);
+            Route::post("/list", [RoleController::class, "getPaginateRole"]);
         });
     });
 });
