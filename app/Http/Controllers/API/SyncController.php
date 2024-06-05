@@ -37,6 +37,7 @@ class SyncController extends Controller
 
     public function syncData(Request $request)
     {
+        ini_set('max_execution_time', 0);
 
         try {
             $validator = Validator::make($request->all(), [
@@ -83,14 +84,18 @@ class SyncController extends Controller
                 "roles" => "superadmin"
             ]);
 
-            if ($createUser) {
+            $getUser = User::first();
 
-                $getAllPermission = Permission::latest()->get();
+            $getAllPermission = Permission::latest()->get();
+            if ($getUser) {
+
 
                 foreach ($getAllPermission as $item) {
-                    $createUser->givePermissionTo($item->name);
+                    $getUser->givePermissionTo($item->name);
                 }
             }
+
+            // return ResponseFormatter::success($getAllPermission);
 
 
 
@@ -125,7 +130,7 @@ class SyncController extends Controller
 
                 DealerByUser::create([
                     "dealer_id" => $dealer->dealer_id,
-                    "user_id" => $createUser->user_id,
+                    "user_id" => $getUser->user_id,
                 ]);
 
                 foreach ($dealerData['dealer_neq'] as $neqData) {
