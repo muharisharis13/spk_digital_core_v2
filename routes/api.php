@@ -125,7 +125,7 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("master")->group(function () {
-            Route::get("/motor", [Master::class, "getListPaginateMotor"])->middleware('permission:read_master_motor');
+            Route::get("/motor", [Master::class, "getListPaginateMotor"])->middleware('permission:read_motor_master');
             Route::get("/dealer-neq", [Master::class, "getListDealerNeq"])->middleware('permission:read_dealer_neq_master');
             Route::get("/mds", [Master::class, "getListDealerMDS"])->middleware('permission:read_mds_master');
             Route::get("/dealer-selected", [Master::class, "getListDealerSelected"]);
