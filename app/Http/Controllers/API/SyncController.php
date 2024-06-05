@@ -79,6 +79,7 @@ class SyncController extends Controller
                 "username" => $request["user"]["username"],
                 "password" => $request["user"]["password"],
                 "status" => UsersStatusEnum::ACTIVE,
+                "user_status" => UsersStatusEnum::ACTIVE,
                 "roles" => "superadmin"
             ]);
 
