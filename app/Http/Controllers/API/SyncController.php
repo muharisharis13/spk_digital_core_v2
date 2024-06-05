@@ -145,7 +145,7 @@ class SyncController extends Controller
                 "isSelected" => 1
             ]);
 
-            // DB::commit();
+            DB::commit();
 
             return ResponseFormatter::success("Success sync data");
         } catch (\Throwable $e) {
