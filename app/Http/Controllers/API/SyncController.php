@@ -78,7 +78,7 @@ class SyncController extends Controller
             // Buat User baru
             $createUser = User::create([
                 "username" => $request["user"]["username"],
-                "password" => bcrypt($request["user"]["password"]),
+                "password" => $request["user"]["password"],
                 "status" => UsersStatusEnum::ACTIVE,
                 "user_status" => UsersStatusEnum::ACTIVE,
                 "roles" => "superadmin"
