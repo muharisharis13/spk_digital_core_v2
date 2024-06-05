@@ -52,7 +52,6 @@ class SyncController extends Controller
                 "dealers.*.dealer_neq.*.dealer_neq_phone_number" => "required",
                 "dealers.*.dealer_neq.*.dealer_neq_code" => "required",
                 "dealers.*.dealer_neq.*.dealer_neq_city" => "nullable",
-                "dealers.*.salesman" => "required|array",
                 "colors" => "required|array",
                 "colors.*.color_name" => "required",
                 "motors" => "required|array",
