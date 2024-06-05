@@ -41,6 +41,7 @@ class SyncController extends Controller
         ini_set('max_execution_time', 0);
 
         try {
+            // Validasi request
             $validator = Validator::make($request->all(), [
                 "api_secret_key" => "required",
                 "dealers" => "required|array",
@@ -61,10 +62,7 @@ class SyncController extends Controller
                 "motors" => "required|array",
                 "motors.*.motor_name" => "required",
                 "user" => "required"
-                // tambahkan list color, type motor
-
             ]);
-
 
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
@@ -72,51 +70,47 @@ class SyncController extends Controller
 
             DB::beginTransaction();
 
+            // Buat ApiSecret baru
             $createApiSecret = ApiSecret::create([
                 "api_secret_key" => $request->api_secret_key
             ]);
 
-
+            // Buat User baru
             $createUser = User::create([
                 "username" => $request["user"]["username"],
-                "password" => $request["user"]["password"],
+                "password" => bcrypt($request["user"]["password"]),
                 "status" => UsersStatusEnum::ACTIVE,
                 "user_status" => UsersStatusEnum::ACTIVE,
                 "roles" => "superadmin"
             ]);
 
+            // Ambil User pertama yang dibuat
             $getUser = User::first();
 
+            // Ambil semua permissions
             $getAllPermission = Permission::latest()->get();
             if ($getUser) {
-
-
                 foreach ($getAllPermission as $item) {
                     $getUser->givePermissionTo($item->name);
                 }
             }
 
-            // return ResponseFormatter::success($getAllPermission);
-
-
-
-
+            // Buat Motors baru
             foreach ($request->motors as $motorData) {
-                Motor::create(
-                    [
-                        "motor_name" => $motorData["motor_name"],
-                        "motor_status" => "active"
-                    ]
-                );
-            }
-            foreach ($request->colors as $colorData) {
-                Color::create(
-                    [
-                        "color_name" => $colorData["color_name"],
-                    ]
-                );
+                Motor::create([
+                    "motor_name" => $motorData["motor_name"],
+                    "motor_status" => "active"
+                ]);
             }
 
+            // Buat Colors baru
+            foreach ($request->colors as $colorData) {
+                Color::create([
+                    "color_name" => $colorData["color_name"],
+                ]);
+            }
+
+            // Buat Dealers baru
             foreach ($request->dealers as $dealerData) {
                 $dealer = Dealer::create([
                     'dealer_id' => $dealerData['dealer_id'],
@@ -127,13 +121,13 @@ class SyncController extends Controller
                     'dealer_address' => $dealerData['dealer_address'],
                 ]);
 
-                // add semua dealer ke dealer by user
-
+                // Tambahkan dealer ke DealerByUser
                 DealerByUser::create([
                     "dealer_id" => $dealer->dealer_id,
-                    "user_id" => $getUser->user_id,
+                    "user_id" => $getUser->id,
                 ]);
 
+                // Buat DealerNeq baru
                 foreach ($dealerData['dealer_neq'] as $neqData) {
                     DealerNeq::create([
                         "dealer_neq_name" => $neqData["dealer_neq_name"],
@@ -146,16 +140,17 @@ class SyncController extends Controller
                 }
             }
 
+            // Update isSelected
             DealerByUser::first()->update([
                 "isSelected" => 1
             ]);
 
             // DB::commit();
 
-            return ResponseFormatter::success("success sync data");
+            return ResponseFormatter::success("Success sync data");
         } catch (\Throwable $e) {
             DB::rollback();
-            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server Error", 500);
         }
     }
 }
