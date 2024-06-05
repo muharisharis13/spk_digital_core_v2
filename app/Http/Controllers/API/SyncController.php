@@ -6,9 +6,11 @@ use App\Enums\UsersStatusEnum;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\ApiSecret;
+use App\Models\Color;
 use App\Models\Dealer;
 use App\Models\DealerByUser;
 use App\Models\DealerNeq;
+use App\Models\Motor;
 use App\Models\Sales;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -74,8 +76,8 @@ class SyncController extends Controller
 
 
             $createUser = User::create([
-                "username" => $request->user->username,
-                "password" => $request->user->password,
+                "username" => $request["user"]["username"],
+                "password" => $request["user"]["password"],
                 "user_status" => UsersStatusEnum::ACTIVE
             ]);
 
@@ -87,6 +89,21 @@ class SyncController extends Controller
 
 
 
+            foreach ($request->motors as $motorData) {
+                Motor::create(
+                    [
+                        "motor_name" => $motorData["motor_name"],
+                        "motor_status" => "active"
+                    ]
+                );
+            }
+            foreach ($request->colors as $colorData) {
+                Color::create(
+                    [
+                        "color_name" => $colorData["color_name"],
+                    ]
+                );
+            }
 
             foreach ($request->dealers as $dealerData) {
                 $dealer = Dealer::create([
@@ -115,29 +132,13 @@ class SyncController extends Controller
                         "dealer_id" => $dealer->dealer_id
                     ]);
                 }
-
-                foreach ($dealerData['motors'] as $motorData) {
-                    Sales::create(
-                        [
-                            "motor_name" => $motorData["motor_name"],
-                            "motor_status" => "active"
-                        ]
-                    );
-                }
-                foreach ($dealerData['colors'] as $colorData) {
-                    Sales::create(
-                        [
-                            "color_name" => $colorData["color_name"],
-                        ]
-                    );
-                }
             }
 
             DealerByUser::first()->update([
                 "isSelected" => 1
             ]);
 
-            DB::commit();
+            // DB::commit();
 
             return ResponseFormatter::success("success sync data");
         } catch (\Throwable $e) {
