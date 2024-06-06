@@ -296,7 +296,7 @@ Route::prefix("v1")->group(function () {
             Route::put("/update/{indent_id}", [IndentController::class, "updateIndent"])->middleware('permission:put_indent');
             Route::get("/detail/{indent_id}", [IndentController::class, "getDetailInden"])->middleware('permission:read_indent_detail');
             Route::post("/payment/{indent_id}", [IndentController::class, "addPayment"])->middleware('permission:post_payment_indent');
-            Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"])->middleware('permission:put_status_indent');
+            Route::put("/status/{indent_id}", [IndentController::class, "updateStatusIndent"])->middleware('permission:pit_status_indent');
             Route::prefix("payment")->group(function () {
                 Route::put("/delete/{indent_payment_id}", [IndentController::class, "refundPayment"])->middleware('permission:delete_payment_indent');
                 Route::put("/refund-all/{indent_id}", [IndentController::class, "refundAllPayment"])->middleware('permission:put_refund_all_payment_indent');
