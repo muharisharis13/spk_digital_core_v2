@@ -15,6 +15,7 @@ use App\Models\Sales;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 
@@ -89,6 +90,11 @@ class SyncController extends Controller
 
                 foreach ($getAllPermission as $item) {
                     $createUser->givePermissionTo($item->name);
+                    Log::info('Assigned permission to user', [
+                        'user_id' => $createUser->user_id,
+                        'permission_name' => $item->name,
+                        'permission_id' => $item->id
+                    ]);
                 }
             }
 
