@@ -163,7 +163,7 @@ class UserController extends Controller
             $data = [
                 "user" => $user
             ];
-            // DB::commit();
+            DB::commit();
 
             return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
