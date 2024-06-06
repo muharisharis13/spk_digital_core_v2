@@ -35,6 +35,7 @@ return new class extends Migration
             // $table->foreign("micro_finance_id")->references("micro_finance_id")->on("micro_finances")->onDelete("set null");
             $table->uuid("leasing_id")->nullable();
             $table->string("leasing_name")->nullable();
+            $table->date("indent_date")->nullable();
             // $table->foreign("leasing_id")->references("leasing_id")->on("leasings")->onDelete("set null");
             $table->timestamps();
         });

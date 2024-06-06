@@ -1101,26 +1101,42 @@ class SPKController extends Controller
             throw new \Exception("spk_general not found!", 400);
         }
 
-        //melakukan pengecekan apakah indent sudah ada di tempat lain
-        $getDetailIndent = Indent::where("indent_id", $request->indent_id)
-            ->with(["spk_general"])
-            ->first();
+        if ($findGeneral->indent_id !== $request->indent_id) {
 
-        if (isset($getDetailIndent->spk_general)) {
-            return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
+            //melakukan pengecekan apakah indent sudah ada di tempat lain
+            $getDetailIndent = Indent::where("indent_id", $request->indent_id)
+                ->with(["spk_general"])
+                ->first();
+
+            if (isset($getDetailIndent->spk_general)) {
+                throw new \Exception("Indent sudah ada di SPK Harap Ganti", 400);
+                // return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
+            }
+            $findGeneral->update([
+                "indent_id" => $request->indent_id,
+                "spk_general_date" => $request->spk_general_date,
+                "spk_general_location" => $request->spk_general_location,
+                "sales_name" => $request->sales_name,
+                "sales_id" => $request->sales_id,
+                "spk_general_method_sales" => $request->spk_general_method_sales,
+                "dealer_id" => $request->dealer_id,
+                "dealer_neq_id" => $request->dealer_neq_id
+            ]);
+            return $findGeneral;
+        } else {
+
+            $findGeneral->update([
+                "indent_id" => $request->indent_id,
+                "spk_general_date" => $request->spk_general_date,
+                "spk_general_location" => $request->spk_general_location,
+                "sales_name" => $request->sales_name,
+                "sales_id" => $request->sales_id,
+                "spk_general_method_sales" => $request->spk_general_method_sales,
+                "dealer_id" => $request->dealer_id,
+                "dealer_neq_id" => $request->dealer_neq_id
+            ]);
+            return $findGeneral;
         }
-
-        $findGeneral->update([
-            "indent_id" => $request->indent_id,
-            "spk_general_date" => $request->spk_general_date,
-            "spk_general_location" => $request->spk_general_location,
-            "sales_name" => $request->sales_name,
-            "sales_id" => $request->sales_id,
-            "spk_general_method_sales" => $request->spk_general_method_sales,
-            "dealer_id" => $request->dealer_id,
-            "dealer_neq_id" => $request->dealer_neq_id
-        ]);
-        return $findGeneral;
     }
 
     function updateSpkUnit($spk_id, $request)
