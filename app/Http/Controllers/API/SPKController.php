@@ -1098,8 +1098,7 @@ class SPKController extends Controller
         $findGeneral = SpkGeneral::where("spk_id", $spk_id)->first();
         if (!$findGeneral) {
             DB::rollBack();
-            return ResponseFormatter::error("spk_general not found", "bad request", 400);
-            // throw new \Exception("spk_general not found!", 400);
+            throw new \Exception("spk_general not found!", 400);
         }
 
         //melakukan pengecekan apakah indent sudah ada di tempat lain
@@ -1107,10 +1106,9 @@ class SPKController extends Controller
             ->with(["spk_general"])
             ->first();
 
-        if (isset($getDetailIndent->spk_general->spk_general_id)) {
-            throw new \Exception("Indent sudah ada di SPK Harap Ganti",  400);
-            // return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
-        }
+        // if (isset($getDetailIndent->spk_general)) {
+        //     return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
+        // }
 
         $findGeneral->update([
             "indent_id" => $request->indent_id,
@@ -1131,8 +1129,7 @@ class SPKController extends Controller
 
         if (!$findUnit) {
             DB::rollBack();
-            return ResponseFormatter::error("spk_unit not found", "bad request", 400);
-            // throw new \Exception("spk_unit not found!", 400);
+            throw new \Exception("spk_unit not found!", 400);
         }
 
         $findUnit->update([
@@ -1148,8 +1145,7 @@ class SPKController extends Controller
         $findTransaction = SpkTransaction::where("spk_id", $spk_id)->first();
         if (!$findTransaction) {
             DB::rollBack();
-            return ResponseFormatter::error("spk_transaction not found", "bad request", 400);
-            // throw new \Exception("spk_transaction not found!", 400);
+            throw new \Exception("spk_transaction not found!", 400);
         }
 
         if ($request->spk_transaction_method_payment == "cash") {
@@ -1183,8 +1179,7 @@ class SPKController extends Controller
         $findCustomer = SpkCustomer::where("spk_id", $spk_id)->first();
         if (!$findCustomer) {
             DB::rollBack();
-            return ResponseFormatter::error("spk_customer not found", "bad request", 400);
-            // throw new \Exception("spk_customer not found!", 400);
+            throw new \Exception("spk_customer not found!", 400);
         }
 
         $findCustomer->update([
@@ -1238,8 +1233,7 @@ class SPKController extends Controller
         $findLegal = SpkLegal::where("spk_id", $spk_id)->first();
         if (!$findLegal) {
             DB::rollBack();
-            return ResponseFormatter::error("spk_legal not found", "bad request", 400);
-            // throw new \Exception("spk_legal not found!", 400);
+            throw new \Exception("spk_legal not found!", 400);
         }
 
         $findLegal->update([
@@ -1273,8 +1267,7 @@ class SPKController extends Controller
 
             if (!$findAdditionaDocument) {
                 DB::rollBack();
-                return ResponseFormatter::error("spk_additional_document not found", "bad request", 400);
-                // throw new \Exception("spk_additional_document ktp not found!", 400);
+                throw new \Exception("spk_additional_document ktp not found!", 400);
             }
 
             $findAdditionaDocument->update([
@@ -1285,8 +1278,7 @@ class SPKController extends Controller
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
             if (!$findAdditionaDocument) {
                 DB::rollBack();
-                return ResponseFormatter::error("spk_additional_document not found", "bad request", 400);
-                // throw new \Exception("spk_additional_document kk not found!", 400);
+                throw new \Exception("spk_additional_document kk not found!", 400);
             }
             $findAdditionaDocument->update([
                 "spk_additional_document_kk" => $imagePathKK,
@@ -1320,8 +1312,7 @@ class SPKController extends Controller
         $findPricing = SpkPricing::where("spk_id", $spk_id)->first();
         if (!$findPricing) {
             DB::rollBack();
-            return ResponseFormatter::error("spk_pricing not found", "bad request", 400);
-            // throw new \Exception("spk_pricing not found!", 400);
+            throw new \Exception("spk_pricing not found!", 400);
         }
 
         $findPricing->update([
@@ -1572,77 +1563,77 @@ class SPKController extends Controller
             $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
 
             //update SPK unit
-            // $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
+            $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
 
             //update SPK transaction
-            // $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
+            $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
 
-            // //update SPK customer
-            // $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
+            //update SPK customer
+            $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
 
-            // //update SPK legal
-            // $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
+            //update SPK legal
+            $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
 
             // update spk document
-            // $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
+            $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
 
-            // // update spk document another
-            // $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
+            // update spk document another
+            $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
 
-            // // update spk pricing
-            // $updateSpkPricing = self::updateSpkPricing($spk_id, $request);
+            // update spk pricing
+            $updateSpkPricing = self::updateSpkPricing($spk_id, $request);
 
-            // // update spk pricing accecories
-            // $updateSpkPricingAccecories = self::updateSpkPricingAccecories($spk_id, $request);
+            // update spk pricing accecories
+            $updateSpkPricingAccecories = self::updateSpkPricingAccecories($spk_id, $request);
 
-            // // update spk pricing additional
-            // $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
+            // update spk pricing additional
+            $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
 
             //buat spk log
             $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
 
-            // //buat spk delivery berdasarkan type
-            // $createSPKDelivery = null;
-            // if ($request->spk_delivery_type === "ktp") {
-            //     $createSPKDelivery = self::updateDeliveryKtp($spk_id, $request);
-            // }
-            // if ($request->spk_delivery_type === "neq") {
-            //     $createSPKDelivery = self::updateDeliveryNeq($spk_id, $request);
-            // }
-            // if ($request->spk_delivery_type === "dealer") {
-            //     $createSPKDelivery = self::updateDeliveryDealer($spk_id, $request);
-            // }
-            // if ($request->spk_delivery_type === "domicile") {
-            //     $createSPKDelivery = self::updateDeliveryDomicile($spk_id, $request);
-            //     $createFileSK = null;
-            //     if (isset($createSPKDelivery->spk_delivery_domicile_id)) {
-            //         $createFileSK = self::createFileSKupdate($createSPKDelivery, $request);
-            //     }
-            // }
+            //buat spk delivery berdasarkan type
+            $createSPKDelivery = null;
+            if ($request->spk_delivery_type === "ktp") {
+                $createSPKDelivery = self::updateDeliveryKtp($spk_id, $request);
+            }
+            if ($request->spk_delivery_type === "neq") {
+                $createSPKDelivery = self::updateDeliveryNeq($spk_id, $request);
+            }
+            if ($request->spk_delivery_type === "dealer") {
+                $createSPKDelivery = self::updateDeliveryDealer($spk_id, $request);
+            }
+            if ($request->spk_delivery_type === "domicile") {
+                $createSPKDelivery = self::updateDeliveryDomicile($spk_id, $request);
+                $createFileSK = null;
+                if (isset($createSPKDelivery->spk_delivery_domicile_id)) {
+                    $createFileSK = self::createFileSKupdate($createSPKDelivery, $request);
+                }
+            }
 
             $data = [
                 "spk" => $findSpk,
                 "spk_general" => $updateSPKGeneral,
                 "spk_log" => $createSPKLog,
-                // "spk_unit" => $updateSPKUnit,
-                // "spk_transaction" => $updateSPKTransaction,
-                // "spk_customer" => $updateSPKCustomer,
-                // "spk_legal" => $updateSPKLegal,
-                // "spk_document" => $updateSpkDocument,
-                // "spk_document_another" => $updateSpkDocumentAnother,
-                // "spk_pricing" => $updateSpkPricing,
-                // "spk_pricing_accecories" => $updateSpkPricingAccecories,
-                // "spk_pricing_additional" => $updateSpkPricingAdditional,
-                // "spk_delivery" => $createSPKDelivery
+                "spk_unit" => $updateSPKUnit,
+                "spk_transaction" => $updateSPKTransaction,
+                "spk_customer" => $updateSPKCustomer,
+                "spk_legal" => $updateSPKLegal,
+                "spk_document" => $updateSpkDocument,
+                "spk_document_another" => $updateSpkDocumentAnother,
+                "spk_pricing" => $updateSpkPricing,
+                "spk_pricing_accecories" => $updateSpkPricingAccecories,
+                "spk_pricing_additional" => $updateSpkPricingAdditional,
+                "spk_delivery" => $createSPKDelivery
             ];
 
-            // if ($request->spk_delivery_type === "domicile") {
-            //     $data["file_sk"] = $createFileSK;
-            // }
+            if ($request->spk_delivery_type === "domicile") {
+                $data["file_sk"] = $createFileSK;
+            }
 
-            // DB::commit();
+            DB::commit();
 
-            return ResponseFormatter::success($data);
+            return ResponseFormatter::success($data, "Successfully updated SPK !");
         } catch (\Throwable $e) {
             $statusCode = $e->getCode() === 0 ? 400 : $e->getCode();
             DB::rollback();
