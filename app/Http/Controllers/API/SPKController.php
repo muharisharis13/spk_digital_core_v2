@@ -1641,7 +1641,7 @@ class SPKController extends Controller
 
             DB::commit();
 
-            return ResponseFormatter::success($data, "Successfully updated SPK !");
+            return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
             $statusCode = $e->getCode() === 0 ? 400 : $e->getCode();
             DB::rollback();
