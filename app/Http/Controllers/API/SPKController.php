@@ -1098,7 +1098,8 @@ class SPKController extends Controller
         $findGeneral = SpkGeneral::where("spk_id", $spk_id)->first();
         if (!$findGeneral) {
             DB::rollBack();
-            throw new \Exception("spk_general not found!", 400);
+            return ResponseFormatter::error("spk_general not found", "bad request", 400);
+            // throw new \Exception("spk_general not found!", 400);
         }
 
         //melakukan pengecekan apakah indent sudah ada di tempat lain
@@ -1129,7 +1130,8 @@ class SPKController extends Controller
 
         if (!$findUnit) {
             DB::rollBack();
-            throw new \Exception("spk_unit not found!", 400);
+            return ResponseFormatter::error("spk_unit not found", "bad request", 400);
+            // throw new \Exception("spk_unit not found!", 400);
         }
 
         $findUnit->update([
@@ -1145,7 +1147,8 @@ class SPKController extends Controller
         $findTransaction = SpkTransaction::where("spk_id", $spk_id)->first();
         if (!$findTransaction) {
             DB::rollBack();
-            throw new \Exception("spk_transaction not found!", 400);
+            return ResponseFormatter::error("spk_transaction not found", "bad request", 400);
+            // throw new \Exception("spk_transaction not found!", 400);
         }
 
         if ($request->spk_transaction_method_payment == "cash") {
@@ -1179,7 +1182,8 @@ class SPKController extends Controller
         $findCustomer = SpkCustomer::where("spk_id", $spk_id)->first();
         if (!$findCustomer) {
             DB::rollBack();
-            throw new \Exception("spk_customer not found!", 400);
+            return ResponseFormatter::error("spk_customer not found", "bad request", 400);
+            // throw new \Exception("spk_customer not found!", 400);
         }
 
         $findCustomer->update([
@@ -1233,7 +1237,8 @@ class SPKController extends Controller
         $findLegal = SpkLegal::where("spk_id", $spk_id)->first();
         if (!$findLegal) {
             DB::rollBack();
-            throw new \Exception("spk_legal not found!", 400);
+            return ResponseFormatter::error("spk_legal not found", "bad request", 400);
+            // throw new \Exception("spk_legal not found!", 400);
         }
 
         $findLegal->update([
@@ -1267,7 +1272,8 @@ class SPKController extends Controller
 
             if (!$findAdditionaDocument) {
                 DB::rollBack();
-                throw new \Exception("spk_additional_document ktp not found!", 400);
+                return ResponseFormatter::error("spk_additional_document not found", "bad request", 400);
+                // throw new \Exception("spk_additional_document ktp not found!", 400);
             }
 
             $findAdditionaDocument->update([
@@ -1278,7 +1284,8 @@ class SPKController extends Controller
             $imagePathKK = $request->file('spk_additional_document_kk')->store('spk', 'public');
             if (!$findAdditionaDocument) {
                 DB::rollBack();
-                throw new \Exception("spk_additional_document kk not found!", 400);
+                return ResponseFormatter::error("spk_additional_document not found", "bad request", 400);
+                // throw new \Exception("spk_additional_document kk not found!", 400);
             }
             $findAdditionaDocument->update([
                 "spk_additional_document_kk" => $imagePathKK,
@@ -1312,7 +1319,8 @@ class SPKController extends Controller
         $findPricing = SpkPricing::where("spk_id", $spk_id)->first();
         if (!$findPricing) {
             DB::rollBack();
-            throw new \Exception("spk_pricing not found!", 400);
+            return ResponseFormatter::error("spk_pricing not found", "bad request", 400);
+            // throw new \Exception("spk_pricing not found!", 400);
         }
 
         $findPricing->update([
