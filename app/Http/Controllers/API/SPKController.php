@@ -1568,78 +1568,78 @@ class SPKController extends Controller
             ]);
 
             //update SPK General
-            $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
+            // $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
 
-            //update SPK unit
-            $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
+            // //update SPK unit
+            // $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
 
-            //update SPK transaction
-            $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
+            // //update SPK transaction
+            // $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
 
-            //update SPK customer
-            $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
+            // //update SPK customer
+            // $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
 
-            //update SPK legal
-            $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
+            // //update SPK legal
+            // $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
 
-            // update spk document
-            $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
+            // // update spk document
+            // $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
 
-            // update spk document another
-            $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
+            // // update spk document another
+            // $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
 
-            // update spk pricing
-            $updateSpkPricing = self::updateSpkPricing($spk_id, $request);
+            // // update spk pricing
+            // $updateSpkPricing = self::updateSpkPricing($spk_id, $request);
 
-            // update spk pricing accecories
-            $updateSpkPricingAccecories = self::updateSpkPricingAccecories($spk_id, $request);
+            // // update spk pricing accecories
+            // $updateSpkPricingAccecories = self::updateSpkPricingAccecories($spk_id, $request);
 
-            // update spk pricing additional
-            $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
+            // // update spk pricing additional
+            // $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
 
-            //buat spk log
-            $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
+            // //buat spk log
+            // $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
 
-            //buat spk delivery berdasarkan type
-            $createSPKDelivery = null;
-            if ($request->spk_delivery_type === "ktp") {
-                $createSPKDelivery = self::updateDeliveryKtp($spk_id, $request);
-            }
-            if ($request->spk_delivery_type === "neq") {
-                $createSPKDelivery = self::updateDeliveryNeq($spk_id, $request);
-            }
-            if ($request->spk_delivery_type === "dealer") {
-                $createSPKDelivery = self::updateDeliveryDealer($spk_id, $request);
-            }
-            if ($request->spk_delivery_type === "domicile") {
-                $createSPKDelivery = self::updateDeliveryDomicile($spk_id, $request);
-                $createFileSK = null;
-                if (isset($createSPKDelivery->spk_delivery_domicile_id)) {
-                    $createFileSK = self::createFileSKupdate($createSPKDelivery, $request);
-                }
-            }
+            // //buat spk delivery berdasarkan type
+            // $createSPKDelivery = null;
+            // if ($request->spk_delivery_type === "ktp") {
+            //     $createSPKDelivery = self::updateDeliveryKtp($spk_id, $request);
+            // }
+            // if ($request->spk_delivery_type === "neq") {
+            //     $createSPKDelivery = self::updateDeliveryNeq($spk_id, $request);
+            // }
+            // if ($request->spk_delivery_type === "dealer") {
+            //     $createSPKDelivery = self::updateDeliveryDealer($spk_id, $request);
+            // }
+            // if ($request->spk_delivery_type === "domicile") {
+            //     $createSPKDelivery = self::updateDeliveryDomicile($spk_id, $request);
+            //     $createFileSK = null;
+            //     if (isset($createSPKDelivery->spk_delivery_domicile_id)) {
+            //         $createFileSK = self::createFileSKupdate($createSPKDelivery, $request);
+            //     }
+            // }
 
             $data = [
                 "spk" => $findSpk,
-                "spk_general" => $updateSPKGeneral,
-                "spk_log" => $createSPKLog,
-                "spk_unit" => $updateSPKUnit,
-                "spk_transaction" => $updateSPKTransaction,
-                "spk_customer" => $updateSPKCustomer,
-                "spk_legal" => $updateSPKLegal,
-                "spk_document" => $updateSpkDocument,
-                "spk_document_another" => $updateSpkDocumentAnother,
-                "spk_pricing" => $updateSpkPricing,
-                "spk_pricing_accecories" => $updateSpkPricingAccecories,
-                "spk_pricing_additional" => $updateSpkPricingAdditional,
-                "spk_delivery" => $createSPKDelivery
+                // "spk_general" => $updateSPKGeneral,
+                // "spk_log" => $createSPKLog,
+                // "spk_unit" => $updateSPKUnit,
+                // "spk_transaction" => $updateSPKTransaction,
+                // "spk_customer" => $updateSPKCustomer,
+                // "spk_legal" => $updateSPKLegal,
+                // "spk_document" => $updateSpkDocument,
+                // "spk_document_another" => $updateSpkDocumentAnother,
+                // "spk_pricing" => $updateSpkPricing,
+                // "spk_pricing_accecories" => $updateSpkPricingAccecories,
+                // "spk_pricing_additional" => $updateSpkPricingAdditional,
+                // "spk_delivery" => $createSPKDelivery
             ];
 
-            if ($request->spk_delivery_type === "domicile") {
-                $data["file_sk"] = $createFileSK;
-            }
+            // if ($request->spk_delivery_type === "domicile") {
+            //     $data["file_sk"] = $createFileSK;
+            // }
 
-            DB::commit();
+            // DB::commit();
 
             return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
