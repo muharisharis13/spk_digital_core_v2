@@ -206,7 +206,7 @@ class UserController extends Controller
                 return ResponseFormatter::error("User not found", "Not Found", 404);
             }
             if (!Hash::check($request->old_password, $getDetail->password)) {
-                return ResponseFormatter::error("The old password is incorrect", "Unauthorized", 401);
+                return ResponseFormatter::error("The old password is incorrect", "Unauthorized", 412);
             }
             $getDetail->update([
                 "password" => Hash::make($request->password),
