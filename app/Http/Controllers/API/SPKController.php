@@ -1574,13 +1574,13 @@ class SPKController extends Controller
             $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
 
             //update SPK transaction
-            $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
+            // $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
 
-            //update SPK customer
-            $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
+            // //update SPK customer
+            // $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
 
-            //update SPK legal
-            $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
+            // //update SPK legal
+            // $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
 
             // update spk document
             // $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
@@ -1624,9 +1624,9 @@ class SPKController extends Controller
                 "spk_general" => $updateSPKGeneral,
                 "spk_log" => $createSPKLog,
                 "spk_unit" => $updateSPKUnit,
-                "spk_transaction" => $updateSPKTransaction,
-                "spk_customer" => $updateSPKCustomer,
-                "spk_legal" => $updateSPKLegal,
+                // "spk_transaction" => $updateSPKTransaction,
+                // "spk_customer" => $updateSPKCustomer,
+                // "spk_legal" => $updateSPKLegal,
                 // "spk_document" => $updateSpkDocument,
                 // "spk_document_another" => $updateSpkDocumentAnother,
                 // "spk_pricing" => $updateSpkPricing,
