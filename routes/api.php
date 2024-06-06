@@ -418,7 +418,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("role")->group(function () {
             Route::post("/create", [RoleController::class, "createRole"]);
-            Route::post("/list", [RoleController::class, "getPaginateRole"]);
+            Route::get("/list", [RoleController::class, "getPaginateRole"]);
         });
     });
 });
