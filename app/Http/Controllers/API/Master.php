@@ -474,6 +474,7 @@ class Master extends Controller
                     ->when($selected_dealer, function ($query) use ($selected_dealer) {
                         return $query->where("dealer_id", $selected_dealer);
                     })
+                    ->with(["dealer", "neq"])
                     ->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
                 $getListAllMDSMD = DealerNeq::where(function ($query) use ($searchQuery) {
@@ -483,6 +484,7 @@ class Master extends Controller
                     ->when($selected_dealer, function ($query) use ($selected_dealer) {
                         return $query->where("dealer_id", $selected_dealer);
                     })
+                    ->with(["dealer", "neq"])
                     ->orderBy($sortBy, $sortOrder)->get();
             }
 
