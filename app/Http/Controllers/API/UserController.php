@@ -213,8 +213,15 @@ class UserController extends Controller
                 "password_reset_at" => null,
             ]);
 
-            $getUser = User::findOrFail($user_id);
-            return ResponseFormatter::success($getUser);
+            $user = User::where("user_id", $user_id)
+                ->with(["dealer_by_user.dealer", "dealer_by_user" => function ($query) {
+                    $query->where("isSelected", true);
+                }])
+                ->first();
+            $data = [
+                "user" => $user
+            ];
+            return ResponseFormatter::success($data);
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
