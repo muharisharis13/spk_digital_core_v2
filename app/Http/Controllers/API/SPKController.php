@@ -1598,7 +1598,7 @@ class SPKController extends Controller
             // $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
 
             //buat spk log
-            // $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
+            $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
 
             // //buat spk delivery berdasarkan type
             // $createSPKDelivery = null;
