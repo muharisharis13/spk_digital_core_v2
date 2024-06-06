@@ -1568,25 +1568,25 @@ class SPKController extends Controller
             ]);
 
             //update SPK General
-            // $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
+            $updateSPKGeneral = self::updateSpkGeneral($spk_id, $request);
 
-            // //update SPK unit
-            // $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
+            //update SPK unit
+            $updateSPKUnit = self::updateSpkUnit($spk_id, $request);
 
-            // //update SPK transaction
-            // $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
+            //update SPK transaction
+            $updateSPKTransaction = self::updateSpkTransaction($spk_id, $request);
 
-            // //update SPK customer
-            // $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
+            //update SPK customer
+            $updateSPKCustomer = self::updateSpkCustomer($spk_id, $request);
 
-            // //update SPK legal
-            // $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
+            //update SPK legal
+            $updateSPKLegal = self::updateSpkLegal($spk_id, $request);
 
-            // // update spk document
-            // $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
+            // update spk document
+            $updateSpkDocument = self::updateSpkDocument($spk_id, $request);
 
-            // // update spk document another
-            // $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
+            // update spk document another
+            $updateSpkDocumentAnother = self::updateSpkDocumentAnother($spk_id, $request);
 
             // // update spk pricing
             // $updateSpkPricing = self::updateSpkPricing($spk_id, $request);
@@ -1597,7 +1597,7 @@ class SPKController extends Controller
             // // update spk pricing additional
             // $updateSpkPricingAdditional = self::updateSpkPricingAdditional($spk_id, $request);
 
-            // //buat spk log
+            //buat spk log
             // $createSPKLog = self::createSpkLog($findSpk, $user, "update Spk");
 
             // //buat spk delivery berdasarkan type
@@ -1621,14 +1621,14 @@ class SPKController extends Controller
 
             $data = [
                 "spk" => $findSpk,
-                // "spk_general" => $updateSPKGeneral,
-                // "spk_log" => $createSPKLog,
-                // "spk_unit" => $updateSPKUnit,
-                // "spk_transaction" => $updateSPKTransaction,
-                // "spk_customer" => $updateSPKCustomer,
-                // "spk_legal" => $updateSPKLegal,
-                // "spk_document" => $updateSpkDocument,
-                // "spk_document_another" => $updateSpkDocumentAnother,
+                "spk_general" => $updateSPKGeneral,
+                "spk_log" => $createSPKLog,
+                "spk_unit" => $updateSPKUnit,
+                "spk_transaction" => $updateSPKTransaction,
+                "spk_customer" => $updateSPKCustomer,
+                "spk_legal" => $updateSPKLegal,
+                "spk_document" => $updateSpkDocument,
+                "spk_document_another" => $updateSpkDocumentAnother,
                 // "spk_pricing" => $updateSpkPricing,
                 // "spk_pricing_accecories" => $updateSpkPricingAccecories,
                 // "spk_pricing_additional" => $updateSpkPricingAdditional,
