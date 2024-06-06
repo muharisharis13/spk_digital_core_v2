@@ -1107,9 +1107,9 @@ class SPKController extends Controller
             ->with(["spk_general"])
             ->first();
 
-        if (isset($getDetailIndent->spk_general)) {
-            return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
-        }
+        // if (isset($getDetailIndent->spk_general)) {
+        //     return ResponseFormatter::error("Indent sudah ada di SPK Harap Ganti", "Bad Request", 400);
+        // }
 
         $findGeneral->update([
             "indent_id" => $request->indent_id,
