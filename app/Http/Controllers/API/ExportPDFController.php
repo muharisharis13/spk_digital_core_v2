@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Picqer\Barcode\BarcodeGeneratorHTML;
@@ -111,6 +112,8 @@ class ExportPDFController extends Controller
         }
     }
 
+
+
     public function printPdfIndent2(Request $request, $indent_id)
     {
         try {
@@ -120,25 +123,14 @@ class ExportPDFController extends Controller
                     $query->where("indent_payment_type", "payment");
                 }])
                 ->first();
-            // $user = Auth::user();
-            // $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
-            // Load HTML dari template Blade
+
+
             $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDetailIndent])->render();
-            // $html = view('pdf.faktur.faktur', ["indent" => $getDetailIndent, "dealer" => $getDealerSelected])->render();
 
-            // Logika pembuatan PDF
-            $pdf = new Dompdf();
-            $pdf->loadHtml($html);
-            $pdf->setPaper('A4', 'portrait');
-            $pdf->render();
+            $pdf = Pdf::loadHTML($html);
 
-            // Simpan PDF sebagai file sementara
-            $pdfFilePath = public_path("$getDetailIndent->indent_people_name.pdf");
-            file_put_contents($pdfFilePath, $pdf->output());
-
-            // Kembalikan PDF langsung sebagai respons
-            return Response::download($pdfFilePath, "$getDetailIndent->indent_people_name.pdf")->deleteFileAfterSend(true);
-            // return $pdf->stream("$getDetailIndent->indent_people_name.pdf");
+            $currentTime = Carbon::now()->timestamp;
+            return $pdf->stream("indent-$getDetailIndent->indent_number-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
@@ -167,17 +159,19 @@ class ExportPDFController extends Controller
         try {
 
             $uuid = $request->input("uuid");
+            $typeDelivery = $request->input("typeDelivery");
 
-            $repair = $this->getDetailDeliveryRepair($uuid);
+            $delivery = $this->getDetailDelivery($uuid, $typeDelivery);
 
             // return ResponseFormatter::success($repair);
 
 
-            $pdf = Pdf::loadView('pdf.surat_jalan.surat_jalan', ["data" => $repair]);
-            $pdf->setPaper('a4', 'portrait');
+            $html = view('pdf.faktur.faktur_surat_jalan', ["data" => $delivery])->render();
 
-            // // Kembalikan PDF langsung sebagai respons
-            return $pdf->download("surat_jalan.$uuid.pdf");
+            $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+            return $pdf->stream("Surat-jalan-$delivery->delivery_number-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
@@ -185,12 +179,23 @@ class ExportPDFController extends Controller
 
 
 
-    private function getDetailDeliveryRepair($delivery_id)
+    private function getDetailDelivery($delivery_id, $typeDelivery)
     {
 
         $response = delivery::where("delivery_id", $delivery_id)
-            ->with(["delivery_repair.repair.repair_unit.unit.motor", "dealer"])
+            // ->with(["delivery_repair.repair.repair_unit.unit.motor", "dealer"])
+            ->with(["dealer"])
             ->first();
+
+        switch ($typeDelivery) {
+            case 'spk':
+                $response->load(["delivery_spk.spk.spk_unit.unit.motor"]);
+                break;
+
+            default:
+
+                break;
+        }
 
         return $response;
     }
