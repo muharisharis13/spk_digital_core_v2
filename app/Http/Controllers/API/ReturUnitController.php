@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\UnitLogStatusEnum;
+use App\Enums\UnitStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -294,6 +296,7 @@ class ReturUnitController extends Controller
                 "units" => "array|required",
                 "unit.*.unit_id" => "required",
                 "unit.*.retur_unit_list_id" => "nullable",
+                "unit.*.is_delete" => "nullable",
                 "retur_unit_dealer_destination_id" => "required",
                 "retur_unit_dealer_destination_name" => "required",
             ]);
@@ -343,6 +346,29 @@ class ReturUnitController extends Controller
                         "unit_log_status" => "hold",
 
                     ]);
+                } else {
+                    $getDetailUnit = ReturUnitList::where("retur_unit_id", $item["retur_unit_list_id"])
+                        ->where("unit_id", $item["unit_id"])
+                        ->first();
+
+
+                    if ($item["is_delete"] == "true") {
+                        if (!isset($getDetailUnit->retur_unit_id)) {
+                            DB::rollBack();
+                            return ResponseFormatter::error("retur unit not found", "bad request", 400);
+                        }
+                        $getDetailUnit->delete();
+                        Unit::where("unit_id", $item["unit_id"])->update([
+                            "unit_status" => UnitStatusEnum::on_hand
+                        ]);
+                        UnitLog::create([
+                            "unit_id" => $item["unit_id"],
+                            "user_id" => $user->user_id,
+                            "unit_log_number" => "-",
+                            "unit_log_action" => "retur",
+                            "unit_log_status" => UnitLogStatusEnum::ON_HAND
+                        ]);
+                    }
                 }
             }
 
