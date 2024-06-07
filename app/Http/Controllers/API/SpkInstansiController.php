@@ -234,7 +234,7 @@ class SpkInstansiController extends Controller
             $spk_payment_amount_total = self::sumAmountTotalCash($getDetail);
 
 
-            if (intval($totalSpkInstansiPayment) >  $spk_payment_amount_total) {
+            if (intval($totalSpkInstansiPayment) >=  $spk_payment_amount_total) {
                 DB::rollBack();
                 return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
             }
