@@ -12,8 +12,10 @@
         }
 
         @page {
-            margin-top: 0cm;
-            margin-bottom: 0cm;
+            margin-top: 1cm;
+            margin-bottom: 1cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
         }
 
         .row {
