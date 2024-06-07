@@ -404,6 +404,7 @@ Route::prefix("v1")->group(function () {
                 Route::delete("/delete/{id}", [SpkInstansiController::class, "deletePayment"]);
                 Route::get("/detail/{id}", [SpkInstansiController::class, "detailPayment"])->middleware('permission:get_detail_payment_po_inst');
                 Route::post("/refund/{id}", [SpkInstansiController::class, "refundAllPayment"]);
+                Route::post("/status/{id}", [SpkInstansiController::class, "updateStatusPayment"]);
                 Route::get("/list", [SpkInstansiController::class, "getPaginatePayment"])->middleware('permission:get_payment_po_inst');
             });
 

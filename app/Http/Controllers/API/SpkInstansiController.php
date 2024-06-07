@@ -41,6 +41,53 @@ class SpkInstansiController extends Controller
 {
     //
 
+    public function updateStatusPayment(Request $request, $spk_instansi_payment_id)
+    {
+        try {
+            $validator  = Validator::make($request->all(), [
+                "spk_instansi_payment_status" => "required|in:cashier_check,finance_check"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            $getDetail = SpkInstansiPayment::where("spk_instansi_payment_id", $spk_instansi_payment_id)->first();
+
+
+            if (!isset($getDetail->spk_instansi_payment_id)) {
+                return ResponseFormatter::error("spk instansi payment not found");
+            }
+
+            $getDetail->update([
+                "spk_instansi_payment_status" => $request->spk_instansi_payment_status
+            ]);
+
+            $user = Auth::user();
+
+            // buat log spk payment
+            $createLog = SpkInstansiPaymentLog::create([
+                "user_id"
+                => $user->user_id,
+                "spk_instansi_payment_log_note" => "Update Status SPK Payment to $request->spk_instansi_payment_status",
+                "spk_instansi_payment_id" => $spk_instansi_payment_id
+            ]);
+
+            DB::commit();
+
+            $data = [
+                "spk_instansi_payment" => $getDetail,
+                "spk_instansi_payment_log" => $createLog
+            ];
+            return ResponseFormatter::success($data);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function detailPayment(Request $request, $spk_instansi_payment_id)
     {
         try {
