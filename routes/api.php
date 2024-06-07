@@ -162,7 +162,7 @@ Route::prefix("v1")->group(function () {
             Route::prefix("bank")->group(function () {
                 Route::get("/list", [Master::class, "getBank"])->middleware('permission:get_bank_master');
                 Route::post("/create", [Master::class, "createBank"])->middleware('permission:post_bank_master');
-                Route::delete("/delete/{id}", [Master::class, "deleteBank"])->middleware('permission:delete_bank_master');
+                Route::put("/status/{id}", [Master::class, "statusBank"])->middleware('permission:put_status_bank_master');
                 Route::put("/update/{id}", [Master::class, "updateBank"])->middleware('permission:put_bank_master');
             });
             Route::prefix("marital")->group(function () {

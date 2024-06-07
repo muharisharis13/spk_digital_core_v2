@@ -74,12 +74,20 @@ class Master extends Controller
         }
     }
 
-    public function deleteBank(Request $request, $bank_id)
+    public function statusBank(Request $request, $bank_id)
     {
         try {
             $getDetail = Bank::where("bank_id", $bank_id)->first();
 
-            $getDetail->delete();
+            if ($getDetail->status === "active") {
+                $getDetail->update([
+                    "status" => "unactive"
+                ]);
+            } else {
+                $getDetail->update([
+                    "status" => "active"
+                ]);
+            }
 
             return ResponseFormatter::success($getDetail);
         } catch (\Throwable $e) {

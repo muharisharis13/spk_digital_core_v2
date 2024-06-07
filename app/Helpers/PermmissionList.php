@@ -46,6 +46,7 @@ class PermmissionList
         "get_bank_master",
         "post_bank_master",
         "delete_bank_master",
+        "put_status_bank_master",
         "put_bank_master",
         "get_marital_master",
         "get_hobby_master",
