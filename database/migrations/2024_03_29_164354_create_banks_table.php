@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('banks', function (Blueprint $table) {
             $table->uuid("bank_id")->primary();
             $table->string("bank_name");
-            $table->string("bank_number");
-            $table->string("bank_name_account");
+            $table->string("bank_number")->nullable();
+            $table->string("bank_name_account")->nullable();
             $table->uuid("dealer_id")->nullable();
             $table->foreign("dealer_id")->references("dealer_id")->on("dealer")->onDelete("set null");
+            $table->enum("status", ["active", "unactive"])->default("active");
             $table->timestamps();
         });
     }
