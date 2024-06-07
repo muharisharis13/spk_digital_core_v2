@@ -8,6 +8,12 @@
     <style>
         body {
             font-size: x-small;
+            margin: 0px
+        }
+
+        @page {
+            margin-top: 0cm;
+            margin-bottom: 0cm;
         }
 
         .row {
@@ -48,19 +54,6 @@
 
         .th {
             background-color: #f2f2f2;
-        }
-
-        @page {
-            size: auto;
-            /* auto is the initial value */
-
-            /* this affects the margin in the printer settings */
-            margin: 25mm 25mm 25mm 25mm;
-        }
-
-        body {
-            /* this affects the margin on the content before sending to printer */
-            margin: 0px;
         }
     </style>
 </head>

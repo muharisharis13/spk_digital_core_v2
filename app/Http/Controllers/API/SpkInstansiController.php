@@ -288,7 +288,7 @@ class SpkInstansiController extends Controller
 
 
 
-            // DB::commit();
+            DB::commit();
 
             return ResponseFormatter::success($data);
         } catch (\Throwable $e) {

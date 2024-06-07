@@ -219,7 +219,7 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("return")->group(function () {
                 Route::get("/list", [RepairReturnController::class, "getPaginateRepairReturn"])->middleware('permission:read_repair');
-                Route::post("/create", [RepairReturnController::class, "createRepairReturn"])->middleware('permission:post_repai_return_create');
+                Route::post("/create", [RepairReturnController::class, "createRepairReturn"])->middleware('permission:post_repair_return_create');
                 Route::put("/update/{repair_return_id}", [RepairReturnController::class, "updateRepairReturn"])->middleware('permission:update_repair_return');
                 Route::put("/status/{repair_return_id}", [RepairReturnController::class, "updateStatusRepairReturn"])->middleware('permission:update_repair_return_status');
                 Route::get("/detail/{repair_return_id}", [RepairReturnController::class, "getDetailRepairReturn"])->middleware('permission:read_repair_return_detail');
