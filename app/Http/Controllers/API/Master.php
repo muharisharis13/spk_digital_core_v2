@@ -39,6 +39,41 @@ class Master extends Controller
 {
     //
 
+    public function updateBank(Request $request, $bank_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "bank_name" => "required",
+                "bank_number" => "required|numeric",
+                "bank_name_account" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+            DB::beginTransaction();
+
+
+            $getDetail = Bank::where("bank_id", $bank_id)->first();
+
+            $getDetail->update([
+                "bank_name" => $request->bank_name,
+                "bank_number" => $request->bank_number,
+                "bank_name_account" => $request->bank_name_account
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function deleteBank(Request $request, $bank_id)
     {
         try {
