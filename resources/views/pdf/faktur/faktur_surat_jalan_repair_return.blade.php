@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Print Faktur</title>
+    <title>Print Surat Jalan Repair Return</title>
     <style>
         body {
             font-size: x-small;
@@ -131,7 +131,7 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_spk->spk->spk_delivery_type == 'ktp' ? $data->delivery_spk->spk->spk_delivery_ktp->spk_delivery_ktp_customer_name : '-' }}
+                                        {{ $data->delivery_repair_return->repair_return->dealer->dealer_name ?? $data->delivery_repair_return->repair_return->dealer_neq->dealer_neq_name }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -139,7 +139,8 @@
                                         Phone
                                     </td>
                                     <td>
-                                        : {{ $data->delivery_spk->spk->spk_customer->spk_customer_no_phone }}
+                                        :
+                                        {{ $data->delivery_repair_return->repair_return->dealer->dealer_phone_number ?? ($data->delivery_repair_return->repair_return->dealer_neq->dealer_neq_phone_number ?? '-') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -148,7 +149,7 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_spk->spk->spk_delivery_type == 'ktp' ? $data->delivery_spk->spk->spk_delivery_ktp->spk_delivery_ktp_customer_address : '-' }}
+                                        {{ $data->delivery_repair_return->repair_return->dealer->dealer_address ?? ($data->delivery_repair_return->repair_return->dealer_neq->dealer_neq_address ?? '-') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -182,40 +183,15 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_type == 'spk' ? $data->delivery_spk->spk->spk_number : '-' }}
+                                        {{ $data->delivery_repair_return->repair_return->repair_return_number }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="width: 30%">
-                                        Jenis Transaksi
+                                        Tanggal
                                     </td>
                                     <td>
-                                        :
-                                        {{ $data->delivery_spk->spk->spk_transaction->spk_transaction_method_payment }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 30%">
-                                        Tgl. Spk
-                                    </td>
-                                    <td>
-                                        : {{ $data->delivery_spk->spk->created_at }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 30%">
-                                        Nama Stnk
-                                    </td>
-                                    <td>
-                                        : {{ $data->delivery_spk->spk->spk_legal->spk_legal_name }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 30%">
-                                        Alamat Pembeli
-                                    </td>
-                                    <td>
-                                        : {{ $data->delivery_spk->spk->spk_customer->spk_customer_address }}
+                                        : {{ $data->delivery_repair_return->repair_return->created_at }}
                                     </td>
                                 </tr>
 
@@ -239,12 +215,14 @@
 
             </thead>
             <tbody>
-                <tr>
-                    <td class="td">{{ $data->delivery_spk->spk->spk_unit->motor->motor_name }}</td>
-                    <td class="td">{{ $data->delivery_spk->spk->spk_unit->color->color_name }}</td>
-                    <td class="td">{{ $data->delivery_spk->spk->spk_unit->unit->unit_frame }}</td>
-                    <td class="td">{{ $data->delivery_spk->spk->spk_unit->unit->unit_engine }}</td>
-                </tr>
+                @foreach ($data->delivery_repair_return->repair_return->repair_return_unit as $item)
+                    <tr>
+                        <td class="td">{{ $item->repair_unit->unit->motor->motor_name }}</td>
+                        <td class="td">{{ $item->repair_unit->unit->color->color_name }}</td>
+                        <td class="td">{{ $item->repair_unit->unit->unit_frame }}</td>
+                        <td class="td">{{ $item->repair_unit->unit->unit_engine }}</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

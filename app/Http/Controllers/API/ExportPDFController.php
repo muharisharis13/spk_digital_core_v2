@@ -21,6 +21,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class ExportPDFController extends Controller
@@ -165,16 +166,70 @@ class ExportPDFController extends Controller
 
             // return ResponseFormatter::success($repair);
 
+            // return ResponseFormatter::success($delivery);
+            switch ($typeDelivery) {
+                case 'spk':
+                    return self::suratJalanSpk($delivery);
+                    break;
+                case 'repair':
+                    return self::suratJalanRepair($delivery);
+                    break;
+                case 'repair_return':
+                    return self::suratJalanRepairReturn($delivery);
+                    break;
+                case 'event':
+                    return self::suratJalanEvent($delivery);
+                    break;
 
-            $html = view('pdf.faktur.faktur_surat_jalan', ["data" => $delivery])->render();
-
-            $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
-
-            $currentTime = Carbon::now()->timestamp;
-            return $pdf->stream("Surat-jalan-$delivery->delivery_number-$currentTime.pdf");
+                default:
+                    # code...
+                    break;
+            }
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
+    }
+
+
+    private function suratJalanEvent($delivery)
+    {
+        // return ResponseFormatter::success($delivery);
+        $html = view('pdf.faktur.faktur_surat_jalan_event', ["data" => $delivery])->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+        $currentTime = Carbon::now()->timestamp;
+        return $pdf->stream("Surat-jalan-repair-$delivery->delivery_number-$currentTime.pdf");
+    }
+    private function suratJalanRepairReturn($delivery)
+    {
+        // return ResponseFormatter::success($delivery);
+        $html = view('pdf.faktur.faktur_surat_jalan_repair_return', ["data" => $delivery])->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+        $currentTime = Carbon::now()->timestamp;
+        return $pdf->stream("Surat-jalan-repair-$delivery->delivery_number-$currentTime.pdf");
+    }
+    private function suratJalanRepair($delivery)
+    {
+        // return ResponseFormatter::success($delivery);
+        $html = view('pdf.faktur.faktur_surat_jalan_repair', ["data" => $delivery])->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+        $currentTime = Carbon::now()->timestamp;
+        return $pdf->stream("Surat-jalan-repair-$delivery->delivery_number-$currentTime.pdf");
+    }
+    private function suratJalanSpk($delivery)
+    {
+        // return ResponseFormatter::success($delivery);
+        $html = view('pdf.faktur.faktur_surat_jalan', ["data" => $delivery])->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+        $currentTime = Carbon::now()->timestamp;
+        return $pdf->stream("Surat-jalan-spk-$delivery->delivery_number-$currentTime.pdf");
     }
 
 
@@ -190,6 +245,27 @@ class ExportPDFController extends Controller
         switch ($typeDelivery) {
             case 'spk':
                 $response->load(["delivery_spk.spk.spk_unit.unit.motor"]);
+                break;
+            case 'repair':
+                $response->load([
+                    "delivery_repair.repair.repair_unit",
+                    "delivery_repair.repair.repair_unit.unit.motor",
+                ]);
+                break;
+            case 'repair_return':
+                $response->load([
+                    "delivery_repair_return.repair_return"
+                ]);
+                break;
+            case 'event':
+                $response->load([
+                    "delivery_event.event.master_event",
+                    "delivery_event.event.event_unit.unit.motor",
+                    "delivery_event.event.master_event.dealer",
+                    "delivery_log" => function ($query) {
+                        $query->latest();
+                    },
+                ]);
                 break;
 
             default:

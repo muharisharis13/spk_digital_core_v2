@@ -18,4 +18,9 @@ class MasterEvent extends Model
     {
         return $this->hasMany(Event::class, "master_event_id");
     }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
 }
