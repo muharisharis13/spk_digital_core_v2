@@ -58,7 +58,7 @@ class Master extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "bank_name" => "required",
-                "bank_number" => "required",
+                "bank_number" => "required|numeric",
                 "bank_name_account" => "required"
             ]);
 
