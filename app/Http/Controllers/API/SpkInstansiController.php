@@ -230,11 +230,11 @@ class SpkInstansiController extends Controller
 
 
             // melakukan penjumlahan data lama dengan data baru
-            $totalSpkInstansiPayment = $totalSpkInstansiPayment + intval($request->payment_list_amount);
+            $totalSpkInstansiPayment = intval($totalSpkInstansiPayment) + intval($request->payment_list_amount);
             $spk_payment_amount_total = self::sumAmountTotalCash($getDetail);
 
 
-            if (intval($totalSpkInstansiPayment) >=  $spk_payment_amount_total) {
+            if (intval($totalSpkInstansiPayment) >=  intval($spk_payment_amount_total)) {
                 DB::rollBack();
                 return ResponseFormatter::error("Payment Harus sama besar dengan total amount", "Bad Request", 400);
             }
