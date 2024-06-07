@@ -44,6 +44,8 @@ class PermmissionList
         "get_leasing_master",
         "get_color_master",
         "get_bank_master",
+        "post_bank_master",
+        "delete_bank_master",
         "get_marital_master",
         "get_hobby_master",
         "get_tenor_master",

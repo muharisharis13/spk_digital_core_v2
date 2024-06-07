@@ -39,6 +39,52 @@ class Master extends Controller
 {
     //
 
+    public function deleteBank(Request $request, $bank_id)
+    {
+        try {
+            $getDetail = Bank::where("bank_id", $bank_id)->first();
+
+            $getDetail->delete();
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
+    public function createBank(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "bank_name" => "required",
+                "bank_number" => "required",
+                "bank_name_account" => "required"
+            ]);
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+
+            DB::beginTransaction();
+
+            $create = Bank::create([
+                "bank_name" => $request->bank_name,
+                "bank_number" => $request->bank_number,
+                "bank_name_account" => $request->bank_name_account
+            ]);
+
+            DB::commit();
+
+            return ResponseFormatter::success($create);
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function getBank(Request $request)
     {
         try {

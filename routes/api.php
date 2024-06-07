@@ -161,6 +161,8 @@ Route::prefix("v1")->group(function () {
             });
             Route::prefix("bank")->group(function () {
                 Route::get("/list", [Master::class, "getBank"])->middleware('permission:get_bank_master');
+                Route::get("/create", [Master::class, "createBank"])->middleware('permission:post_bank_master');
+                Route::get("/delete/{id}", [Master::class, "deleteBank"])->middleware('permission:delete_bank_master');
             });
             Route::prefix("marital")->group(function () {
                 Route::get("/list", [Master::class, "getListMaritalStatus"])->middleware('permission:get_marital_master');
