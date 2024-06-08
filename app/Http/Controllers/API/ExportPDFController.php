@@ -183,6 +183,10 @@ class ExportPDFController extends Controller
                 case 'event_return':
                     return self::suratJalanEventReturn($delivery);
                     break;
+                case 'neq':
+                case 'neq_return':
+                    return self::suratJalanNeq($delivery);
+                    break;
 
                 default:
                     # code...
@@ -194,6 +198,16 @@ class ExportPDFController extends Controller
     }
 
 
+    private function suratJalanNeq($delivery)
+    {
+        // return ResponseFormatter::success($delivery);
+        $html = view('pdf.faktur.faktur_surat_jalan_neq', ["data" => $delivery])->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+        $currentTime = Carbon::now()->timestamp;
+        return $pdf->stream("Surat-jalan-repair-return-$delivery->delivery_number-$currentTime.pdf");
+    }
     private function suratJalanEventReturn($delivery)
     {
         // return ResponseFormatter::success($delivery);
@@ -285,6 +299,16 @@ class ExportPDFController extends Controller
                     "delivery_event_return.event_return.master_event.event",
                     "delivery_event_return.event_return.event_return_unit",
                     "delivery_event_return.event_return.dealer"
+                ]);
+                break;
+            case 'neq':
+                $response->load([
+                    "delivery_neq.neq.neq_unit.unit.motor", "delivery_neq.neq.dealer_neq"
+                ]);
+                break;
+            case 'neq_return':
+                $response->load([
+                    "delivery_neq_return.neq_return.neq_return_unit.neq_unit.unit.motor", "delivery_neq_return.neq_return.dealer_neq"
                 ]);
                 break;
 

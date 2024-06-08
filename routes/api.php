@@ -282,8 +282,8 @@ Route::prefix("v1")->group(function () {
             Route::prefix("return")->group(function () {
                 Route::post("/create", [NeqReturnController::class, "createNeqReturn"])->middleware('permission:post_neq_return');
                 Route::put("/update/{neq_return_id}", [NeqReturnController::class, "updateNeqReturn"])->middleware('permission:put_neq_return');
-                Route::get("/list", [NeqReturnController::class, "getPaginateNeqReturn"])->middleware('permission:get_neq_return');
-                Route::get("/detail/{neq_return_id}", [NeqReturnController::class, "getDetailNeqReturn"])->middleware('permission:get_neq_detail_return');
+                Route::get("/list", [NeqReturnController::class, "getPaginateNeqReturn"])->middleware('permission:read_neq_return');
+                Route::get("/detail/{neq_return_id}", [NeqReturnController::class, "getDetailNeqReturn"])->middleware('permission:read_neq_detail_return');
                 Route::delete("/delete/{neq_return_id}", [NeqReturnController::class, "deleteNeqReturn"])->middleware('permission:delete_neq_return');
                 Route::put("/status/{neq_return_id}", [NeqReturnController::class, "updateStatusNeqReturn"])->middleware('permission:put_status_neq_return');
                 Route::prefix("neq-unit")->group(function () {
