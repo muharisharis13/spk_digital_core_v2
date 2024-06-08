@@ -12,6 +12,7 @@ use App\Models\District;
 use App\Models\Indent;
 use App\Models\IndentPayment;
 use App\Models\Province;
+use App\Models\Spk;
 use App\Models\SubDistrict;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
@@ -140,7 +141,19 @@ class ExportPDFController extends Controller
     public function prinSpk(Request $request, $spk_id)
     {
         try {
-            return view("pdf.faktur.faktur_spk")->render();
+
+            $getDetail = Spk::where("spk_id", $spk_id)
+                ->with(["dealer"])
+                ->first();
+
+            // return ResponseFormatter::success($getDetail);
+
+            $html = view('pdf.faktur.faktur_spk', ["data" => $getDetail])->render();
+
+            $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+            return $pdf->stream("faktur_spk_$spk_id-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
@@ -158,7 +171,7 @@ class ExportPDFController extends Controller
             $pdf->setPaper('a4', 'portrait');
 
             // Kembalikan PDF langsung sebagai respons
-            return $pdf->download("faktur_payment.$indent_payment_id.pdf");
+            return $pdf->download("faktur_payment_$indent_payment_id.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }

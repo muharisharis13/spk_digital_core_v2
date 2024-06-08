@@ -99,4 +99,9 @@ class Spk extends Model
     {
         return $this->hasOne(SpkPayment::class, "spk_id");
     }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
 }
