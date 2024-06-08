@@ -88,7 +88,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/user-permission", [UserController::class, "getPermissionUser"])->middleware('permission:get_permission_user');
             Route::get("/current-dealer", [UserController::class, "getCurrentDealer"])->middleware('permission:get_current_dealer_user');
             Route::post("/logout", [UserController::class, "logout"]);
-            Route::put("/select-dealer/{dealer_by_user_id}", [UserController::class, "selectDealerByUser"]);
+            Route::put("/select-dealer/{dealer_by_user_id}", [UserController::class, "selectDealerByUser2"]);
             Route::get("/role", [UserController::class, "getRoles"])->middleware("permission:get_role_user");
             Route::put("/status/{id}", [UserController::class, "updateStatus"])->middleware("permission:put_status_user");
             Route::get("/list", [UserController::class, "getUserList"])->middleware("permission:get_user");

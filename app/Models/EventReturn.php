@@ -34,4 +34,9 @@ class EventReturn extends Model
     {
         return $this->hasOne(DeliveryEventReturn::class, "event_return_id");
     }
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class, "dealer_id");
+    }
 }

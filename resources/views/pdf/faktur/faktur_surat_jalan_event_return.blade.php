@@ -131,7 +131,7 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_event->event->master_event->dealer->dealer_name ?? '-' }}
+                                        {{ $data->delivery_event_return->event_return->dealer->dealer_name ?? '-' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -140,7 +140,7 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_event->event->master_event->dealer->dealer_phone_number ?? '-' }}
+                                        {{ $data->delivery_event_return->event_return->dealer->dealer_phone_number ?? '-' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -149,7 +149,7 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_event->event->master_event->dealer->dealer_address ?? '-' }}
+                                        {{ $data->delivery_event_return->event_return->dealer->dealer_address ?? '-' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -183,7 +183,7 @@
                                     </td>
                                     <td>
                                         :
-                                        {{ $data->delivery_event->event->event_number }}
+                                        {{ $data->delivery_event_return->event_return->event_return_number }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -191,7 +191,25 @@
                                         Tanggal
                                     </td>
                                     <td>
-                                        : {{ $data->delivery_event->event->created_at }}
+                                        : {{ $data->delivery_event_return->event_return->created_at }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%">
+                                        Nama Event
+                                    </td>
+                                    <td>
+                                        :
+                                        {{ $data->delivery_event_return->event_return->master_event->master_event_name }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%">
+                                        Lokasi Event
+                                    </td>
+                                    <td>
+                                        :
+                                        {{ $data->delivery_event_return->event_return->master_event->master_event_location }}
                                     </td>
                                 </tr>
 
@@ -215,12 +233,12 @@
 
             </thead>
             <tbody>
-                @foreach ($data->delivery_event->event->event_unit as $item)
+                @foreach ($data->delivery_event_return->event_return->event_return_unit as $item)
                     <tr>
-                        <td class="td">{{ $item->unit->motor->motor_name }}</td>
-                        <td class="td">{{ $item->unit->color->color_name }}</td>
-                        <td class="td">{{ $item->unit->unit_frame }}</td>
-                        <td class="td">{{ $item->unit->unit_engine }}</td>
+                        <td class="td">{{ $item->event_list_unit->unit->motor->motor_name }}</td>
+                        <td class="td">{{ $item->event_list_unit->unit->color->color_name }}</td>
+                        <td class="td">{{ $item->event_list_unit->unit->unit_frame }}</td>
+                        <td class="td">{{ $item->event_list_unit->unit->unit_engine }}</td>
                     </tr>
                 @endforeach
             </tbody>

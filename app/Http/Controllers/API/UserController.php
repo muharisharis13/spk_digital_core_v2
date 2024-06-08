@@ -614,4 +614,43 @@ class UserController extends Controller
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
+    public function selectDealerByUser2(Request $request, $dealer_by_user_id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "dealer_id" => "required",
+                "user_id" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            $user = Auth::user();
+
+            DB::beginTransaction();
+
+            // Unselect any previously selected dealer for the user
+            DealerByUser::where("user_id", $user->user_id)
+                ->update(['isSelected' => false]);
+
+            // Select the new dealer
+            $getDealer = DealerByUser::with(['dealer'])
+                ->where('dealer_id', $request->dealer_id)
+                ->where("user_id", $user->user_id)
+                ->first();
+
+            if ($getDealer) {
+                $getDealer->update(['isSelected' => true]);
+            } else {
+                return ResponseFormatter::error('Dealer by User not found', "Bad Request", 400);
+            }
+
+            DB::commit();
+            return ResponseFormatter::success($getDealer);
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return ResponseFormatter::error($e->getMessage(), "Internal Server Error", 500);
+        }
+    }
 }

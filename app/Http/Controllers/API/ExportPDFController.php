@@ -180,6 +180,9 @@ class ExportPDFController extends Controller
                 case 'event':
                     return self::suratJalanEvent($delivery);
                     break;
+                case 'event_return':
+                    return self::suratJalanEventReturn($delivery);
+                    break;
 
                 default:
                     # code...
@@ -191,6 +194,16 @@ class ExportPDFController extends Controller
     }
 
 
+    private function suratJalanEventReturn($delivery)
+    {
+        // return ResponseFormatter::success($delivery);
+        $html = view('pdf.faktur.faktur_surat_jalan_event_return', ["data" => $delivery])->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('legal', 'landscape');
+
+        $currentTime = Carbon::now()->timestamp;
+        return $pdf->stream("Surat-jalan-repair-return-$delivery->delivery_number-$currentTime.pdf");
+    }
     private function suratJalanEvent($delivery)
     {
         // return ResponseFormatter::success($delivery);
@@ -265,6 +278,13 @@ class ExportPDFController extends Controller
                     "delivery_log" => function ($query) {
                         $query->latest();
                     },
+                ]);
+                break;
+            case 'event_return':
+                $response->load([
+                    "delivery_event_return.event_return.master_event.event",
+                    "delivery_event_return.event_return.event_return_unit",
+                    "delivery_event_return.event_return.dealer"
                 ]);
                 break;
 
