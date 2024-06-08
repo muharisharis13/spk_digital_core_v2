@@ -269,7 +269,7 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("neq")->group(function () {
-            Route::post("/create", [NeqController::class, "createNeq"])->middleware('permission:post_new');
+            Route::post("/create", [NeqController::class, "createNeq"])->middleware('permission:post_neq');
             Route::get("/list", [NeqController::class, "getPaginateNeq"])->middleware('permission:read_neq');
             Route::get("/detail/{neq_id}", [NeqController::class, "getDetailNeq"])->middleware('permission:read_neq_detail');
             Route::put("/status/{neq_id}", [NeqController::class, "updateStatusNeq"])->middleware('permission:put_status_neq');
