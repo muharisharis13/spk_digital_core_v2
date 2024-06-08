@@ -137,6 +137,15 @@ class ExportPDFController extends Controller
         }
     }
 
+    public function prinSpk(Request $request, $spk_id)
+    {
+        try {
+            return view("pdf.faktur.faktur_spk")->render();
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
     public function printPDFPayment2(Request $request, $indent_payment_id)
     {
 
@@ -184,6 +193,8 @@ class ExportPDFController extends Controller
                     return self::suratJalanEventReturn($delivery);
                     break;
                 case 'neq':
+                    return self::suratJalanNeq($delivery);
+                    break;
                 case 'neq_return':
                     return self::suratJalanNeq($delivery);
                     break;
