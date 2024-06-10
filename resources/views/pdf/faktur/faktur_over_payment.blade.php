@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktur Payment SPK</title>
+    <title>Faktur Over Payment</title>
     <style>
         body {
             font-size: x-small;
@@ -64,8 +64,8 @@
         </div>
 
         <div class="right" style="text-align: right">
-            <h2 style="text-transform: uppercase">KWITANSI SPK {{ $data->spk_payment_type }}</h2>
-            <div>No.{{ $data->spk_payment_number }}</div>
+            <h2 style="text-transform: uppercase">KWITANSI OVER PAYMENT</h2>
+            <div>No.{{ $data->spk_excess_fund_number }}</div>
             <div style="text-align: right;margin-top:10px">
                 <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                 {{-- {!!  !!} --}}
@@ -89,14 +89,14 @@
         <tr>
             <th style="padding-bottom:10px">Banyaknya Uang</th>
             <td>:</td>
-            <td> Rp {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</td>
+            <td> Rp {{ number_format(abs($data->spk_excess_fund_amount_total), 0, ',', '.') }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">
                 <div style="white-space: nowrap">Untuk Pembayaran</div>
             </th>
             <td>:</td>
-            <td>Pelunasan 1 (satu) unit pembelian motor </td>
+            <td>Pembayaran lebih </td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Type</th>
@@ -109,12 +109,16 @@
             <td>{{ $data->spk->spk_unit->color->color_name }}</td>
         </tr>
         <tr>
+            <th style="padding-bottom:10px">SPK No.</th>
+            <td>:</td>
+            <td>{{ $data->spk->spk_number }}</td>
+        </tr>
+        <tr>
             <th>Keterangan</th>
             <td>:</td>
-            <td>Untuk SPK no. {{ $data->spk_payment_number }}
+            <td>Untuk SPK no. {{ $data->spk_excess_fund_number }}
                 tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembayaran
-                Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
-                Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
+                Rp.{{ number_format(abs($data->spk_excess_fund_amount_total), 0, ',', '.') }}
                 via KASIR
             </td>
         </tr>
@@ -124,7 +128,7 @@
         <div style="width:100%;">
             <div
                 style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
+                <strong>Jumlah Rp. {{ number_format(abs($data->spk_excess_fund_amount_total), 0, ',', '.') }}</strong>
             </div>
             <div style="padding:10px;text-align:center;white-space:nowrap">
                 Lembar 1 : Konsumen
@@ -164,8 +168,8 @@
             </div>
 
             <div class="right" style="text-align: right">
-                <h2>KWITANSI SPK</h2>
-                <div>No.{{ $data->spk_payment_number }}</div>
+                <h2>KWITANSI OVER PAYMENT</h2>
+                <div>No.{{ $data->spk_excess_fund_number }}</div>
                 <div style="text-align: right;margin-top:10px">
                     <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                     {{-- {!!  !!} --}}
@@ -189,14 +193,14 @@
             <tr>
                 <th style="padding-bottom:10px">Banyaknya Uang</th>
                 <td>:</td>
-                <td> Rp {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</td>
+                <td> Rp {{ number_format(abs($data->spk_excess_fund_amount_total), 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">
                     <div style="white-space: nowrap">Untuk Pembayaran</div>
                 </th>
                 <td>:</td>
-                <td>Pelunasan 1 (satu) unit pembelian motor</td>
+                <td>Pembayaran lebih</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Type</th>
@@ -209,12 +213,16 @@
                 <td>{{ $data->spk->spk_unit->color->color_name }}</td>
             </tr>
             <tr>
+                <th style="padding-bottom:10px">SPK No.</th>
+                <td>:</td>
+                <td>{{ $data->spk->spk_number }}</td>
+            </tr>
+            <tr>
                 <th>Keterangan</th>
                 <td>:</td>
-                <td>Untuk SPK no. {{ $data->spk_payment_number }}
+                <td>Untuk SPK no. {{ $data->spk_excess_fund_number }}
                     tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembayaran
-                    Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
-                    Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
+                    Rp.{{ number_format(abs($data->spk_excess_fund_amount_total), 0, ',', '.') }}
                     via KASIR
                 </td>
             </tr>
@@ -224,7 +232,8 @@
             <div style="width:100%;">
                 <div
                     style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                    <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
+                    <strong>Jumlah Rp.
+                        {{ number_format(abs($data->spk_excess_fund_amount_total), 0, ',', '.') }}</strong>
                 </div>
                 <div style="padding:10px;text-align:center;white-space:nowrap">
                     Lembar 1 : Poskas

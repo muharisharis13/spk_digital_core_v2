@@ -13,6 +13,8 @@ use App\Models\Indent;
 use App\Models\IndentPayment;
 use App\Models\Province;
 use App\Models\Spk;
+use App\Models\SpkExcessFunds;
+use App\Models\SpkInstansiPayment;
 use App\Models\SpkPayment;
 use App\Models\SubDistrict;
 use Dompdf\Dompdf;
@@ -198,6 +200,7 @@ class ExportPDFController extends Controller
         return $result;
     }
 
+
     public function printPDFPaymentSPK(Request $request, $spk_payment_id)
     {
 
@@ -233,6 +236,46 @@ class ExportPDFController extends Controller
 
             // Kembalikan PDF langsung sebagai respons
             return $pdf->stream("faktur_payment_$spk_payment_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function printPDFPaymentSPKInstansi(Request $request, $spk_instansi_payment_id)
+    {
+        try {
+            $getDetail = SpkInstansiPayment::with(["spk_instansi_payment_refund", "spk_instansi", "spk_instansi_payment_list.bank", "spk_instansi_payment_list.spk_instansi_payment_list_file"])
+                ->where("spk_instansi_payment_id", $spk_instansi_payment_id)->first();
+
+
+
+            // return ResponseFormatter::success($getDetail);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi', ["data" => $getDetail]);
+            $pdf->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->stream("faktur_payment_$spk_instansi_payment_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function printPDFOverPayment(Request $request, $spk_excess_fund_id)
+    {
+        try {
+            $getDetail = SpkExcessFunds::where("spk_excess_fund_id", $spk_excess_fund_id)->with(["spk"])->first();
+
+
+            // return ResponseFormatter::success($getDetail);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_over_payment', ["data" => $getDetail]);
+            $pdf->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->stream("faktur_over_payment_$spk_excess_fund_id-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
