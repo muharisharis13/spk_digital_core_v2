@@ -829,8 +829,20 @@ class SpkInstansiController extends Controller
                 ]);
             }
 
+
+
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $getDetailIndentInstansi = IndentInstansi::where("indent_instansi_id", $getDetailSpkInstansi->indent_instansi_id)->update([
+                "indent_instansi_status" => "spk"
+            ]);
+
+            IndentInstansiLog::create([
+                "indent_instansi_id" => $getDetailIndentInstansi->indent_instansi_id,
+                "user_id" => $user->user_id,
+                "indent_instansi_log_action" => "update status to spk"
+            ]);
 
             //generate payment
             $createPayment = SpkInstansiPayment::create([
