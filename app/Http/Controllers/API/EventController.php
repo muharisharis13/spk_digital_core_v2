@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\EventStatusEnum;
 use App\Enums\UnitLocationStatusEnum;
+use App\Enums\UnitLogStatusEnum;
 use App\Helpers\FormatDate;
 use App\Helpers\FormateDate;
 use App\Helpers\GenerateAlias;
@@ -15,6 +16,7 @@ use App\Models\Event;
 use App\Models\EventListUnit;
 use App\Models\EventLog;
 use App\Models\Unit;
+use App\Models\UnitLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -86,8 +88,19 @@ class EventController extends Controller
 
                     // update unit location status
 
-                    Unit::where("unit_id", $unit)->update([
+                    $getDetailUnit =  Unit::where("unit_id", $unit)->first();
+                    $user = Auth::user();
+
+                    $getDetailUnit->update([
                         "unit_location_status" => UnitLocationStatusEnum::event
+                    ]);
+
+                    UnitLog::create([
+                        "unit_id" => $getDetailUnit->unit_id,
+                        "user_id" => $user->user_id,
+                        "unit_log_number" => "-",
+                        "unit_log_action" => "on_hand",
+                        "unit_log_status" => UnitLogStatusEnum::EVENT
                     ]);
                 }
             } else {

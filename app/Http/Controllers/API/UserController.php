@@ -7,6 +7,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Helpers\ValidatorFailed;
 use App\Http\Controllers\Controller;
+use App\Models\ApiSecret;
 use App\Models\DealerByUser;
 use App\Models\ModelHasPermission;
 use App\Models\User;
@@ -233,6 +234,12 @@ class UserController extends Controller
 
             $getDetail = User::with(['dealer_by_user_many.dealer', 'permissions'])->where("user_id", $user_id)
                 ->first();
+
+            $apiSecret = ApiSecret::first();
+
+            if ($getDetail) {
+                $getDetail->api_secret = $apiSecret;
+            }
 
             return ResponseFormatter::success($getDetail);
         } catch (\Throwable $e) {
