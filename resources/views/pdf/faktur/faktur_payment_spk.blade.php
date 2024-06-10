@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faktur Payment SPK</title>
     <style>
+        body {
+            font-size: x-small;
+            margin: 0px
+        }
+
         th,
         td {
             text-align: left;
@@ -43,7 +48,7 @@
 </head>
 
 <body style="padding: 0; margin: 0; font-family: Arial, Helvetica, sans-serif;">
-    <div class="row" style="height: 250px;">
+    <div class="row" style="height: 200px;">
         <div class="left">
             <div>
                 <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
@@ -51,9 +56,9 @@
             {{-- {{ $data }} --}}
 
             <div>
-                <h3>{{ $data->indent->dealer->dealer_name }}</h3>
+                <h3>{{ $data->spk->dealer->dealer_name }}</h3>
                 <div class="alamat">
-                    {{ $data->indent->dealer->dealer_address }}
+                    {{ $data->spk->dealer->dealer_address }}
                 </div>
             </div>
         </div>
@@ -61,19 +66,19 @@
         <div class="right" style="text-align: right">
             <h2 style="text-transform: uppercase">KWITANSI SPK {{ $data->spk_payment_type }}</h2>
             <div>No.{{ $data->spk_payment_number }}</div>
-            <div style="text-align: right;margin-top:50px">
+            <div style="text-align: right;margin-top:10px">
                 <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                 {{-- {!!  !!} --}}
 
             </div>
-            <div style="margin-top: 50px;font-weight:bold">
+            <div style="margin-top: 10px;font-weight:bold">
                 {{ date('d-M-Y', strtotime($data->created_at)) }}
             </div>
         </div>
     </div>
 
 
-    <table style="margin-top: 50px;width:100%">
+    <table style="margin-top: 10px;width:100%">
         <tr>
             <th style="space-white:nowrap;padding-bottom:10px">
                 <div style="white-space: nowrap">Sudah diterima dari</div>
@@ -96,7 +101,7 @@
         <tr>
             <th style="padding-bottom:10px">Type</th>
             <td>:</td>
-            <td>{{ $data->spk->->spk_unit->motor->motor_name }}</td>
+            <td>{{ $data->spk->spk_unit->motor->motor_name }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Warna</th>
@@ -106,10 +111,10 @@
         <tr>
             <th>Keterangan</th>
             <td>:</td>
-            <td>Untuk indent no. {{ $data->indent_payment_number }}
+            <td>Untuk SPK no. {{ $data->spk_payment_number }}
                 tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total panjar
-                Rp.{{ number_format($data->indent_payment_amount, 0, ',', '.') }}
-                Pembayaran {{ $data->indent_payment_method == 'cash' ? 'CASH' : '-' }}
+                Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
+                Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
                 via KASIR
             </td>
         </tr>
@@ -119,7 +124,7 @@
         <div style="width:100%;">
             <div
                 style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                <strong>Jumlah Rp. {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</strong>
+                <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
             </div>
             <div style="padding:10px;text-align:center;white-space:nowrap">
                 Lembar 1 : Konsumen
@@ -143,7 +148,7 @@
     </small>
     <div class="page-break"></div>
     <div>
-        <div class="row" style="height: 250px;">
+        <div class="row" style="height: 200px;">
             <div class="left">
                 <div>
                     <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
@@ -151,65 +156,65 @@
                 {{-- {{ $data }} --}}
 
                 <div>
-                    <h3>{{ $data->indent->dealer->dealer_name }}</h3>
+                    <h3>{{ $data->spk->dealer->dealer_name }}</h3>
                     <div class="alamat">
-                        {{ $data->indent->dealer->dealer_address }}
+                        {{ $data->spk->dealer->dealer_address }}
                     </div>
                 </div>
             </div>
 
             <div class="right" style="text-align: right">
-                <h2>KWITANSI PANJAR</h2>
-                <div>No.{{ $data->indent_payment_number }}</div>
-                <div style="text-align: right;margin-top:50px">
+                <h2>KWITANSI SPK</h2>
+                <div>No.{{ $data->spk_payment_number }}</div>
+                <div style="text-align: right;margin-top:10px">
                     <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                     {{-- {!!  !!} --}}
 
                 </div>
-                <div style="margin-top: 50px;font-weight:bold">
+                <div style="margin-top: 10px;font-weight:bold">
                     {{ date('d-M-Y', strtotime($data->created_at)) }}
                 </div>
             </div>
         </div>
 
 
-        <table style="margin-top: 50px;width:100%">
+        <table style="margin-top: 10px;width:100%">
             <tr>
                 <th style="space-white:nowrap;padding-bottom:10px">
                     <div style="white-space: nowrap">Sudah diterima dari</div>
                 </th>
                 <td>:</td>
-                <td>{{ $data->indent->indent_people_name }}</td>
+                <td>{{ $data->spk->spk_customer->spk_customer_name }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Banyaknya Uang</th>
                 <td>:</td>
-                <td> Rp {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</td>
+                <td> Rp {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">
                     <div style="white-space: nowrap">Untuk Pembayaran</div>
                 </th>
                 <td>:</td>
-                <td>Panjar 1 (satu) unit sepeda motor YAMAHA</td>
+                <td>Panjar 1 (satu) unit pembelian motor</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Type</th>
                 <td>:</td>
-                <td>{{ $data->indent->motor->motor_name }}</td>
+                <td>{{ $data->spk->spk_unit->motor->motor_name }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Warna</th>
                 <td>:</td>
-                <td>{{ $data->indent->color->color_name }}</td>
+                <td>{{ $data->spk->spk_unit->color->color_name }}</td>
             </tr>
             <tr>
                 <th>Keterangan</th>
                 <td>:</td>
-                <td>Untuk indent no. {{ $data->indent_payment_number }}
+                <td>Untuk SPK no. {{ $data->spk_payment_number }}
                     tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total panjar
-                    Rp.{{ number_format($data->indent_payment_amount, 0, ',', '.') }}
-                    Pembayaran {{ $data->indent_payment_method == 'cash' ? 'CASH' : '-' }}
+                    Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
+                    Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
                     via KASIR
                 </td>
             </tr>
@@ -219,7 +224,7 @@
             <div style="width:100%;">
                 <div
                     style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                    <strong>Jumlah Rp. {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</strong>
+                    <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
                 </div>
                 <div style="padding:10px;text-align:center;white-space:nowrap">
                     Lembar 1 : Poskas
