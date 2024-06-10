@@ -1356,6 +1356,8 @@ class SpkInstansiController extends Controller
 
             DB::beginTransaction();
 
+
+
             // Fetch previous instances of SpkInstansiMotor for the same spk_instansi_id
             $previousMotors = SpkInstansiMotor::where("spk_instansi_id", $getDetail->spk_instansi_id)
                 ->where("spk_instansi_motor_id", "!=", $spk_instansi_motor_id)
@@ -1363,7 +1365,17 @@ class SpkInstansiController extends Controller
 
             $getDetail->update([
                 "motor_id" => $request->motor_id,
-                "qty" => $request->qty
+                "qty" => $request->qty,
+                "color_id" => $request->color_id,
+                "off_the_road" => $request->off_the_road,
+                "bbn" => $request->bbn,
+                "on_the_road" => $request->on_the_road,
+                "discount" => $request->discount,
+                "discount_over" => $request->discount_over,
+                "commission" => $request->commission,
+                "booster" => $request->booster,
+                "additional_cost" => $request->additional_cost,
+                "additional_cost_note" => $request->additional_cost_note,
             ]);
 
             $user = Auth::user();
