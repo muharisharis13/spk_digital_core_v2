@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktur Payment SPK</title>
+    <title>Faktur Payment SPK Instansi</title>
     <style>
         body {
             font-size: x-small;
@@ -44,6 +44,22 @@
         .page-break {
             page-break-after: always;
         }
+
+        .table,
+        .th,
+        .td {
+            border: 1px solid #d4d4d4;
+        }
+
+        .th,
+        .td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 
@@ -56,16 +72,16 @@
             {{-- {{ $data }} --}}
 
             <div>
-                <h3>{{ $data->spk->dealer->dealer_name }}</h3>
-                <div class="alamat">
-                    {{ $data->spk->dealer->dealer_address }}
+                <h3 style="padding: 0">{{ $data->spk_instansi->dealer->dealer_name }}</h3>
+                <div class="alamat" style="padding: 0">
+                    {{ $data->spk_instansi->dealer->dealer_address }}
                 </div>
             </div>
         </div>
 
         <div class="right" style="text-align: right">
-            <h2 style="text-transform: uppercase">KWITANSI SPK {{ $data->spk_payment_type }}</h2>
-            <div>No.{{ $data->spk_payment_number }}</div>
+            <h2 style="text-transform: uppercase">KWITANSI SPK</h2>
+            <div>No.{{ $data->spk_instansi_payment_number }}</div>
             <div style="text-align: right;margin-top:10px">
                 <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                 {{-- {!!  !!} --}}
@@ -84,12 +100,12 @@
                 <div style="white-space: nowrap">Sudah diterima dari</div>
             </th>
             <td>:</td>
-            <td>{{ $data->spk->spk_customer->spk_customer_name }}</td>
+            <td>{{ $data->spk_instansi->spk_instansi_general->instansi_name }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Banyaknya Uang</th>
             <td>:</td>
-            <td> Rp {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</td>
+            <td> Rp {{ number_format($data->spk_instansi->spk_instansi_general->po_values, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">
@@ -98,33 +114,46 @@
             <td>:</td>
             <td>Pelunasan 1 (satu) unit pembelian motor </td>
         </tr>
-        <tr>
-            <th style="padding-bottom:10px">Type</th>
-            <td>:</td>
-            <td>{{ $data->spk->spk_unit->motor->motor_name }}</td>
-        </tr>
-        <tr>
-            <th style="padding-bottom:10px">Warna</th>
-            <td>:</td>
-            <td>{{ $data->spk->spk_unit->color->color_name }}</td>
-        </tr>
+
         <tr>
             <th>Keterangan</th>
             <td>:</td>
-            <td>Untuk SPK no. {{ $data->spk_payment_number }}
-                tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembayaran
-                Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
-                Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
+            <td>Untuk SPK no. {{ $data->spk_instansi_payment_number }}
+                tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembelian
+                Rp.{{ number_format($data->spk_instansi->spk_instansi_general->po_values, 0, ',', '.') }}
+                Pembayaran {{ $data->spk_instansi_payment_type == 'cash' ? 'CASH' : '-' }}
                 via KASIR
             </td>
         </tr>
     </table>
+    <div style="margin-top:20px">
+        <table class="table" style="width: 100%">
+            <thead>
+                <tr>
+                    <th class="th">Model</th>
+                    <th class="th">Warna</th>
+                    <th class="th">Qty</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach ($data->spk_instansi->spk_instansi_motor as $item)
+                    <tr>
+                        <td class="td">{{ $item->motor->motor_name }}</td>
+                        <td class="td">{{ $item->color->color_name }}</td>
+                        <td class="td">{{ $item->qty }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
     <div class="container-total-amount" style="
     margin-top:40px;margin-bottom:40px">
         <div style="width:100%;">
             <div
                 style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
+                <strong>Jumlah Rp.
+                    {{ number_format($data->spk_instansi->spk_instansi_general->po_values, 0, ',', '.') }}</strong>
             </div>
             <div style="padding:10px;text-align:center;white-space:nowrap">
                 Lembar 1 : Konsumen
@@ -156,16 +185,16 @@
                 {{-- {{ $data }} --}}
 
                 <div>
-                    <h3>{{ $data->spk->dealer->dealer_name }}</h3>
+                    <h3>{{ $data->spk_instansi->dealer->dealer_name }}</h3>
                     <div class="alamat">
-                        {{ $data->spk->dealer->dealer_address }}
+                        {{ $data->spk_instansi->dealer->dealer_address }}
                     </div>
                 </div>
             </div>
 
             <div class="right" style="text-align: right">
                 <h2>KWITANSI SPK</h2>
-                <div>No.{{ $data->spk_payment_number }}</div>
+                <div>No.{{ $data->spk_instansi_payment_number }}</div>
                 <div style="text-align: right;margin-top:10px">
                     <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                     {{-- {!!  !!} --}}
@@ -184,12 +213,12 @@
                     <div style="white-space: nowrap">Sudah diterima dari</div>
                 </th>
                 <td>:</td>
-                <td>{{ $data->spk->spk_customer->spk_customer_name }}</td>
+                <td>{{ $data->spk_instansi->spk_instansi_general->instansi_name }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">Banyaknya Uang</th>
                 <td>:</td>
-                <td> Rp {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</td>
+                <td> Rp {{ number_format($data->spk_instansi->spk_instansi_general->po_values, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <th style="padding-bottom:10px">
@@ -199,32 +228,44 @@
                 <td>Pelunasan 1 (satu) unit pembelian motor</td>
             </tr>
             <tr>
-                <th style="padding-bottom:10px">Type</th>
-                <td>:</td>
-                <td>{{ $data->spk->spk_unit->motor->motor_name }}</td>
-            </tr>
-            <tr>
-                <th style="padding-bottom:10px">Warna</th>
-                <td>:</td>
-                <td>{{ $data->spk->spk_unit->color->color_name }}</td>
-            </tr>
-            <tr>
                 <th>Keterangan</th>
                 <td>:</td>
-                <td>Untuk SPK no. {{ $data->spk_payment_number }}
-                    tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembayaran
-                    Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
-                    Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
+                <td>Untuk SPK no. {{ $data->spk_instansi_payment_number }}
+                    tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembelian
+                    Rp.{{ number_format($data->spk_instansi->spk_instansi_general->po_values, 0, ',', '.') }}
+                    Pembayaran {{ $data->spk_instansi_payment_type == 'cash' ? 'CASH' : '-' }}
                     via KASIR
                 </td>
             </tr>
         </table>
+        <div style="margin-top:20px">
+            <table class="table" style="width: 100%">
+                <thead>
+                    <tr>
+                        <th class="th">Model</th>
+                        <th class="th">Warna</th>
+                        <th class="th">Qty</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @foreach ($data->spk_instansi->spk_instansi_motor as $item)
+                        <tr>
+                            <td class="td">{{ $item->motor->motor_name }}</td>
+                            <td class="td">{{ $item->color->color_name }}</td>
+                            <td class="td">{{ $item->qty }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
         <div class="container-total-amount" style="
     margin-top:40px;margin-bottom:40px">
             <div style="width:100%;">
                 <div
                     style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                    <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
+                    <strong>Jumlah Rp.
+                        {{ number_format($data->spk_instansi->spk_instansi_general->po_values, 0, ',', '.') }}</strong>
                 </div>
                 <div style="padding:10px;text-align:center;white-space:nowrap">
                     Lembar 1 : Poskas

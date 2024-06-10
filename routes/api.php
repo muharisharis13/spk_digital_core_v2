@@ -60,6 +60,8 @@ Route::prefix("v1")->group(function () {
             Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
             Route::get("/spk/{id}", [ExportPDFController::class, "prinSpk"]);
             Route::get("/spk-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPK"]);
+            Route::get("/spk-instansi-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansi"]);
+            Route::get("/over-payment/{id}", [ExportPDFController::class, "printPDFOverPayment"]);
         });
         Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
         Route::get("/province", [ExportPDFController::class, "getProvince"]);
