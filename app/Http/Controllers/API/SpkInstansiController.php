@@ -1263,20 +1263,81 @@ class SpkInstansiController extends Controller
         }
     }
 
+    // public function updateMotor(Request $request, $spk_instansi_motor_id)
+    // {
+    //     try {
+    //         $getDetail = SpkInstansiMotor::where("spk_instansi_motor_id", $spk_instansi_motor_id)
+    //             ->first();
+
+    //         if (!isset($getDetail->spk_instansi_motor_id)) {
+    //             return ResponseFormatter::error("motor not found", "Bad Request", 400);
+    //         }
+
+    //         $validator = Validator::make($request->all(), [
+    //             "motor_id" => "required",
+    //             "qty" => "required"
+    //         ]);
+    //         if ($validator->fails()) {
+    //             return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+    //         }
+
+    //         DB::beginTransaction();
+
+    //         $getDetail->update([
+    //             "motor_id" => $request->motor_id,
+    //             "qty" => $request->qty
+    //         ]);
+
+    //         $user = Auth::user();
+
+
+    //         //menghitung nilai kontrak untuk di update ke database
+    //         $total = ((intval($getDetail->off_the_road) + intval($getDetail->bbn)) * intval($request->qty) + (intval($request->qty) * intval($getDetail->additional_cost))) - intval($getDetail->discount) - intval($getDetail->discount_over);
+
+    //         $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
+
+    //         $totalBaru = intval($getDetailGeneral->po_values) + $total;
+    //         $getDetailGeneral->update([
+    //             "po_values" => $totalBaru
+    //         ]);
+
+    //         $dataRequestLog = [
+    //             "spk_instansi_id" => $getDetail->spk_instansi_id,
+    //             "user_id" => $user->user_id,
+    //             "spk_instansi_log_action" => "update motor"
+    //         ];
+
+    //         $createLog = SpkInstansiLog::create($dataRequestLog);
+
+    //         $data = [
+    //             "spk_instansi_motor" => $getDetail,
+    //             "spk_instansi_log" => $createLog
+    //         ];
+    //         DB::commit();
+
+    //         return ResponseFormatter::success($data, "Successfully updated po instansi motor");
+    //     } catch (\Throwable $e) {
+    //         DB::rollBack();
+    //         return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+    //     }
+    // }
+
+
+
     public function updateMotor(Request $request, $spk_instansi_motor_id)
     {
         try {
-            $getDetail = SpkInstansiMotor::where("spk_instansi_motor_id", $spk_instansi_motor_id)
-                ->first();
+            $getDetail = SpkInstansiMotor::where("spk_instansi_motor_id", $spk_instansi_motor_id)->first();
 
             if (!isset($getDetail->spk_instansi_motor_id)) {
-                return ResponseFormatter::error("motor not found", "Bad Request", 400);
+                return ResponseFormatter::error("Motor not found", "Bad Request", 400);
             }
 
             $validator = Validator::make($request->all(), [
                 "motor_id" => "required",
-                "qty" => "required"
+                "qty" => "required|integer|min=1" // Ensure qty is a positive integer
             ]);
+
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
             }
@@ -1290,9 +1351,15 @@ class SpkInstansiController extends Controller
 
             $user = Auth::user();
 
+            // Calculate the new total considering qty anomalies
+            $qty = intval($request->qty);
+            $off_the_road = intval($getDetail->off_the_road);
+            $bbn = intval($getDetail->bbn);
+            $additional_cost = intval($getDetail->additional_cost);
+            $discount = intval($getDetail->discount);
+            $discount_over = intval($getDetail->discount_over);
 
-            //menghitung nilai kontrak untuk di update ke database
-            $total = ((intval($getDetail->off_the_road) + intval($getDetail->bbn)) * intval($request->qty) + (intval($request->qty) * intval($getDetail->additional_cost))) - intval($getDetail->discount) - intval($getDetail->discount_over);
+            $total = (($off_the_road + $bbn) * $qty + ($qty * $additional_cost)) - $discount - $discount_over;
 
             $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
 
@@ -1313,6 +1380,7 @@ class SpkInstansiController extends Controller
                 "spk_instansi_motor" => $getDetail,
                 "spk_instansi_log" => $createLog
             ];
+
             DB::commit();
 
             return ResponseFormatter::success($data, "Successfully updated po instansi motor");
@@ -1321,6 +1389,7 @@ class SpkInstansiController extends Controller
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
+
 
 
     public function addMotor(Request $request, $spk_instansi_id)
