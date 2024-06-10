@@ -738,8 +738,14 @@ class SPKController extends Controller
 
             self::generateSpkPayment($getDetailSpkTransaction, $spk_id, $getDealerSelected, $user);
 
-            // generate spk excess payment
-            $total_amount = $getDetailSpkTransaction->spk_transaction_down_payment - $getDetailSpkPricing->spk_pricing_indent_nominal - $getDetailSpkPricing->spk_pricing_discount - $getDetailSpkPricing->spk_pricing_subsidi - ($getDetailSpkPricing->spk_pricing_over_discount ?? 0);
+            $total_amount = 0;
+
+            if ($getDetailSpkTransaction->spk_transaction_method_payment == "credit") {
+                // generate spk excess payment
+                $total_amount = $getDetailSpkTransaction->spk_transaction_down_payment - $getDetailSpkPricing->spk_pricing_indent_nominal - $getDetailSpkPricing->spk_pricing_discount - $getDetailSpkPricing->spk_pricing_subsidi - ($getDetailSpkPricing->spk_pricing_over_discount ?? 0);
+            } else {
+                $total_amount = ($getDetailSpkPricing->spk_pricing_on_the_road ?? 0) - ($getDetailSpkPricing->spk_pricing_indent_nominal ?? 0) - ($getDetailSpkPricing->spk_pricing_discount ?? 0) - ($getDetailSpkPricing->spk_pricing_subsidi ?? 0) - ($getDetailSpkPricing->spk_pricing_over_discount ?? 0);
+            }
 
             if ($total_amount < 0) {
                 self::generateExcessFund($spk_id, $getDealerSelected, $total_amount);
