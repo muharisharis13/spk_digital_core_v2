@@ -6,6 +6,7 @@ use App\Enums\UsersStatusEnum;
 use App\Helpers\ResponseFormatter;
 use App\Helpers\ValidatorFailed;
 use App\Http\Controllers\Controller;
+use App\Models\ApiSecret;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,7 @@ class AuthenticationController extends Controller
                 "password" => Hash::make($request->password),
                 "user_status" => UsersStatusEnum::ACTIVE
             ]);
+
 
 
             $data = [
@@ -90,10 +92,14 @@ class AuthenticationController extends Controller
 
             $tokenResult = $user->createToken("authToken")->plainTextToken;
 
+            $getApiSecret = ApiSecret::first();
+
+
             $data = [
                 "token" => $tokenResult,
                 "token_type" => "Bearer",
-                "user" => $user
+                "user" => $user,
+                "api_secret" => $getApiSecret
             ];
 
             return  ResponseFormatter::success($data);
