@@ -51,6 +51,7 @@ Route::prefix("v1")->group(function () {
     Route::prefix("sync-data")->group(function () {
         Route::post("/sync", [SyncController::class, "syncData"]);
         Route::get("/check-dealer", [SyncController::class, "checkDealer"]);
+        Route::get("/dealer/sync", [SyncController::class, "syncDataDealer"]);
     });
 
     Route::prefix("export")->group(function () {
