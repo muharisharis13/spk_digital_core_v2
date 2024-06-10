@@ -1344,6 +1344,11 @@ class SpkInstansiController extends Controller
 
             DB::beginTransaction();
 
+            // Fetch previous instances of SpkInstansiMotor for the same spk_instansi_id
+            $previousMotors = SpkInstansiMotor::where("spk_instansi_id", $getDetail->spk_instansi_id)
+                ->where("spk_instansi_motor_id", "!=", $spk_instansi_motor_id)
+                ->get();
+
             $getDetail->update([
                 "motor_id" => $request->motor_id,
                 "qty" => $request->qty
@@ -1355,18 +1360,27 @@ class SpkInstansiController extends Controller
             $qty = intval($request->qty);
             $off_the_road = intval($getDetail->off_the_road);
             $bbn = intval($getDetail->bbn);
-            $additional_cost = intval($getDetail->additional_cost);
+            // $additional_cost = intval($getDetail->additional_cost);
             $discount = intval($getDetail->discount);
             $discount_over = intval($getDetail->discount_over);
 
-            $total = (($off_the_road + $bbn) * $qty + ($qty * $additional_cost)) - $discount - $discount_over;
+            $total = (($off_the_road + $bbn) * $qty)  - $discount - $discount_over;
 
-            $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
 
-            $totalBaru = intval($getDetailGeneral->po_values) + $total;
-            $getDetailGeneral->update([
-                "po_values" => $totalBaru
-            ]);
+            foreach ($previousMotors as $previousMotor) {
+                $prev_qty = intval($previousMotor->qty);
+                $prev_off_the_road = intval($previousMotor->off_the_road);
+                $prev_bbn = intval($previousMotor->bbn);
+                $prev_discount = intval($previousMotor->discount);
+                $prev_discount_over = intval($previousMotor->discount_over);
+
+                $total += (($prev_off_the_road + $prev_bbn) * $prev_qty) - $prev_discount - $prev_discount_over;
+            }
+
+            // $totalBaru = intval($getDetailGeneral->po_values) + $total;
+            // $getDetailGeneral->update([
+            //     "po_values" => $totalBaru
+            // ]);
 
             $dataRequestLog = [
                 "spk_instansi_id" => $getDetail->spk_instansi_id,
