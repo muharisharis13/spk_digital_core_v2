@@ -381,6 +381,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("po-instansi")->group(function () {
             Route::get("/list", [SpkInstansiController::class, "getPaginate"])->middleware('permission:get_po_inst');
+            Route::post("/cro/{id}", [SpkInstansiController::class, "addCRO"])->middleware('permission:add_cro');
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"])->middleware('permission:get_detail_po_inst');
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/update/{id}", [SpkInstansiController::class, "update"]);

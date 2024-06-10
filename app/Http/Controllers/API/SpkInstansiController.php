@@ -41,6 +41,38 @@ class SpkInstansiController extends Controller
 {
     //
 
+    public function addCRO(Request $request, $spk_instansi_id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "is_cro_check" => "nullable|in:1,0",
+                "spk_instansi_cro_check_note" => "nullable"
+            ]);
+
+
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+
+            $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
+
+            $getDetail->update([
+                "is_cro_check" => $request->is_cro_check,
+                "spk_instansi_cro_check_note" => $request->spk_instansi_cro_check_note
+            ]);
+
+            return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function updateStatusPayment(Request $request, $spk_instansi_payment_id)
     {
         try {
