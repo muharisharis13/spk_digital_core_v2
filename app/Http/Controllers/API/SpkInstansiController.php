@@ -1335,7 +1335,7 @@ class SpkInstansiController extends Controller
 
             $validator = Validator::make($request->all(), [
                 "motor_id" => "required",
-                "qty" => "required|integer|min=1" // Ensure qty is a positive integer
+                "qty" => "required" // Ensure qty is a positive integer
             ]);
 
             if ($validator->fails()) {
