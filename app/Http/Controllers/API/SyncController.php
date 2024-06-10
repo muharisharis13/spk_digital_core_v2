@@ -41,7 +41,6 @@ class SyncController extends Controller
         try {
             // Validasi request
             $validator = Validator::make($request->all(), [
-                "api_secret_key" => "required",
                 "dealers" => "required|array",
                 "dealers.*.dealer_name" => "required",
                 "dealers.*.dealer_id" => "required",
