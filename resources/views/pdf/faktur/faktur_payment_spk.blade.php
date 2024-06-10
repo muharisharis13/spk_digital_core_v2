@@ -59,8 +59,8 @@
         </div>
 
         <div class="right" style="text-align: right">
-            <h2>KWITANSI PANJAR</h2>
-            <div>No.{{ $data->indent_payment_number }}</div>
+            <h2 style="text-transform: uppercase">KWITANSI SPK {{ $data->spk_payment_type }}</h2>
+            <div>No.{{ $data->spk_payment_number }}</div>
             <div style="text-align: right;margin-top:50px">
                 <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
                 {{-- {!!  !!} --}}
@@ -79,29 +79,29 @@
                 <div style="white-space: nowrap">Sudah diterima dari</div>
             </th>
             <td>:</td>
-            <td>{{ $data->indent->indent_people_name }}</td>
+            <td>{{ $data->spk->spk_customer->spk_customer_name }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Banyaknya Uang</th>
             <td>:</td>
-            <td> Rp {{ number_format($data->indent_payment_amount, 0, ',', '.') }}</td>
+            <td> Rp {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">
                 <div style="white-space: nowrap">Untuk Pembayaran</div>
             </th>
             <td>:</td>
-            <td>Panjar 1 (satu) unit sepeda motor YAMAHA</td>
+            <td>Pelunasan 1 (satu) unit pembelian motor </td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Type</th>
             <td>:</td>
-            <td>{{ $data->indent->motor->motor_name }}</td>
+            <td>{{ $data->spk->->spk_unit->motor->motor_name }}</td>
         </tr>
         <tr>
             <th style="padding-bottom:10px">Warna</th>
             <td>:</td>
-            <td>{{ $data->indent->color->color_name }}</td>
+            <td>{{ $data->spk->spk_unit->color->color_name }}</td>
         </tr>
         <tr>
             <th>Keterangan</th>

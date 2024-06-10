@@ -1290,6 +1290,16 @@ class SpkInstansiController extends Controller
 
             $user = Auth::user();
 
+
+            //menghitung nilai kontrak untuk di update ke database
+            $total = ((intval($getDetail->off_the_road) + intval($getDetail->bbn)) * intval($getDetail->qty) + (intval($getDetail->qty) * intval($getDetail->additional_cost))) - intval($getDetail->discount) - intval($getDetail->discount_over);
+
+            $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
+            $totalBaru = intval($getDetailGeneral->po_values) + $total;
+            $getDetailGeneral->update([
+                "po_values" => $totalBaru
+            ]);
+
             $dataRequestLog = [
                 "spk_instansi_id" => $getDetail->spk_instansi_id,
                 "user_id" => $user->user_id,
