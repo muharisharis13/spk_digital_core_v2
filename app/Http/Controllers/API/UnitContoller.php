@@ -316,11 +316,12 @@ class UnitContoller extends Controller
                         ->orWhere('unit_status', 'LIKE', "%$searchQuery%")
                         ->orWhere('unit_frame', 'LIKE', "%$searchQuery%");
                 })
-                ->where(function ($query) use ($location) {
-                    $query->where('dealer_id', "LIKE", "%$location%")
-                        ->orWhere('dealer_neq_id', "LIKE", "%$location%")
-                        ->orWhereNull('dealer_id')
-                        ->orWhereNull('dealer_neq_id');
+                ->when($location, function ($query) use ($location) {
+                    $query->where('dealer_id', 'LIKE', "%$location%")
+                        ->orWhere('dealer_neq_id', 'LIKE', "%$location%");
+                })
+                ->orWhereHas('event_list_unit.event.master_event', function ($query) use ($location) {
+                    $query->where('master_event_id', 'LIKE', "%$location%");
                 })
                 ->whereHas("shipping_order", function ($query) use ($getDealerByUserSelected) {
                     $query->where("dealer_id", $getDealerByUserSelected->dealer_id);
@@ -328,7 +329,9 @@ class UnitContoller extends Controller
                 ->whereHas("motor", function ($query) use ($motor) {
                     $query->where("motor_name", "LIKE", "%$motor%");
                 })
-                ->where("unit_status", "LIKE", "%$unit_status%")
+                ->when($unit_status, function ($query) use ($unit_status) {
+                    return $query->where('unit_status', 'LIKE', "%$unit_status%");
+                })
                 ->where("motor_id", "LIKE", "%$motor_id%")
                 ->where("unit_frame", "LIKE", "%$unit_frame%")
                 ->when($date, function ($query) use ($date) {

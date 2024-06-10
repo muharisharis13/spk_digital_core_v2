@@ -36,6 +36,69 @@ class SyncController extends Controller
         }
     }
 
+    public function syncDataDealer(Request $request)
+    {
+        try {
+            // Validasi request
+            $validator = Validator::make($request->all(), [
+                "dealers" => "required|array",
+                "dealers.*.dealer_name" => "required",
+                "dealers.*.dealer_id" => "required",
+                "dealers.*.dealer_code" => "required",
+                "dealers.*.dealer_phone_number" => "nullable",
+                "dealers.*.dealer_type" => "required",
+                "dealers.*.dealer_address" => "nullable",
+                "dealers.*.dealer_neq" => "array",
+                "dealers.*.dealer_neq.*.dealer_neq_name" => "required",
+                "dealers.*.dealer_neq.*.dealer_neq_address" => "nullable",
+                "dealers.*.dealer_neq.*.dealer_neq_phone_number" => "nullable",
+                "dealers.*.dealer_neq.*.dealer_neq_code" => "nullable",
+                "dealers.*.dealer_neq.*.dealer_neq_city" => "nullable",
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+            }
+
+            DB::beginTransaction();
+
+            // Buat Dealers baru
+            foreach ($request->dealers as $dealerData) {
+                $dealer = Dealer::firstOrCreate([
+                    "dealer_id" => $dealerData["dealer_id"],
+                ], [
+                    'dealer_id' => $dealerData['dealer_id'],
+                    'dealer_name' => $dealerData['dealer_name'],
+                    'dealer_code' => $dealerData['dealer_code'],
+                    'dealer_phone_number' => $dealerData['dealer_phone_number'],
+                    'dealer_type' => $dealerData['dealer_type'],
+                    'dealer_address' => $dealerData['dealer_address'],
+                ]);
+
+                // Buat DealerNeq baru
+                foreach ($dealerData['dealer_neq'] as $neqData) {
+                    DealerNeq::firstOrCreate([
+                        "dealer_neq_code" => $neqData["dealer_neq_code"]
+                    ], [
+                        "dealer_neq_name" => $neqData["dealer_neq_name"],
+                        "dealer_neq_address" => $neqData["dealer_neq_address"],
+                        "dealer_neq_phone_number" => $neqData["dealer_neq_phone_number"],
+                        "dealer_neq_code" => $neqData["dealer_neq_code"],
+                        "dealer_neq_city" => $neqData["dealer_neq_city"],
+                        "dealer_id" => $dealer->dealer_id
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return ResponseFormatter::success("Successfully sync dealer");
+        } catch (\Throwable $e) {
+            DB::commit();
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function syncData(Request $request)
     {
         ini_set('max_execution_time', 0);

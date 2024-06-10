@@ -11,4 +11,6 @@ class UnitLogStatusEnum
     const RETOUR = 'retour';
     const REPAIR = 'repair';
     const EVENT = 'event';
+
+    const REPAIRRETURN = "repair_return";
 }

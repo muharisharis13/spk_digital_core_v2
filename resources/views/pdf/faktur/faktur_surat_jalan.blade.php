@@ -57,6 +57,16 @@
         .th {
             background-color: #f2f2f2;
         }
+
+        .left2 {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            margin-right: 20px;
+            /* Space between the logo and the text */
+        }
     </style>
 </head>
 
@@ -65,14 +75,13 @@
         <table style="width: 100%">
             <tr>
                 <td>
-                    <div class="left2" style="height: 180px">
-                        <div>
-                            <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
-                        </div>
+                    <div style="height: 180px;">
+                        <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100"
+                            style="margin-right: 20px; float: left;">
 
                         <div>
-                            <h3>{{ $data->dealer->dealer_name }}</h3>
-                            <div class="alamat">
+                            <h3 style="margin-top: -5px">{{ $data->dealer->dealer_name }}</h3>
+                            <div class="alamat" style="width: 200px; float: left; margin-top: -10px">
                                 {{ $data->dealer->dealer_address }}
                             </div>
                         </div>
