@@ -59,6 +59,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
             Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
             Route::get("/spk/{id}", [ExportPDFController::class, "prinSpk"]);
+            Route::get("/spk-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPK"]);
         });
         Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
         Route::get("/province", [ExportPDFController::class, "getProvince"]);
@@ -353,7 +354,7 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("excess-payment")->group(function () {
                 Route::get("/list", [SPKController::class, "getpaginateExcessPayment"])->middleware('permission:get_excess_payment');
-                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"])->middleware('permission:get_detail_excess_paymnent');
+                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"])->middleware('permission:get_detail_excess_payment');
             });
 
             Route::prefix("payment")->group(function () {

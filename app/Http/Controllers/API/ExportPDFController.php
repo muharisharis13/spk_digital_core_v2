@@ -13,6 +13,7 @@ use App\Models\Indent;
 use App\Models\IndentPayment;
 use App\Models\Province;
 use App\Models\Spk;
+use App\Models\SpkPayment;
 use App\Models\SubDistrict;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
@@ -154,6 +155,84 @@ class ExportPDFController extends Controller
 
             $currentTime = Carbon::now()->timestamp;
             return $pdf->stream("faktur_spk_$spk_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    function sumAmountTotalDp($getDetail)
+    {
+        $result = null;
+        $spk = $getDetail->spk;
+
+        $result = ($spk->spk_transaction->spk_transaction_down_payment ?? 0) -
+            ($spk->spk_pricing->spk_pricing_indent_nominal ?? 0) -
+            ($spk->spk_pricing->spk_pricing_discount ?? 0) - ($spk->spk_pricing->spk_pricing_over_discount ?? 0) - ($spk->spk_pricing->spk_pricing_subsidi ?? 0);
+
+        return $result;
+    }
+
+    function sumAmountTotalLeasing($getDetail)
+    {
+        $spk = $getDetail->spk;
+
+        $onTheRoad = ($spk->spk_pricing->spk_pricing_on_the_road ?? 0);
+
+
+        return $onTheRoad - $spk->spk_transaction->spk_transaction_down_payment;
+    }
+
+
+    function sumAmountTotalCash($getDetail)
+    {
+        $result = null;
+        $spk = $getDetail->spk;
+
+        $result =
+            ($spk->spk_pricing->spk_pricing_on_the_road ?? 0) -
+            ($spk->spk_pricing->spk_pricing_indent_nominal ?? 0) -
+            ($spk->spk_pricing->spk_pricing_discount ?? 0) -
+            ($spk->spk_pricing->spk_pricing_over_discount ?? 0) -
+            ($spk->spk_pricing->spk_pricing_subsidi ?? 0);
+
+        return $result;
+    }
+
+    public function printPDFPaymentSPK(Request $request, $spk_payment_id)
+    {
+
+        try {
+            $getDetail = SpkPayment::latest()
+                ->with(["spk"])
+                ->where("spk_payment_id", $spk_payment_id)
+                ->first();
+
+            if (!isset($getDetail->spk_payment_type)) {
+                return ResponseFormatter::error("payment not found", "Bad Request", 400);
+            }
+
+            if ($getDetail->spk_payment_type === "dp") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalDp($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "leasing") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalLeasing($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "cash") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalCash($getDetail);
+            }
+
+
+            return ResponseFormatter::success($getDetail);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail]);
+            $pdf->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->download("faktur_payment_$spk_payment_id-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
