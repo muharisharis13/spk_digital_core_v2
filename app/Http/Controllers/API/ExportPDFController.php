@@ -22,6 +22,7 @@ use App\Models\SpkInstansiPayment;
 use App\Models\SpkInstansiPaymentList;
 use App\Models\SpkInstansiUnit;
 use App\Models\SpkPayment;
+use App\Models\SpkPaymentList;
 use App\Models\SubDistrict;
 use App\Models\Unit;
 use Dompdf\Dompdf;
@@ -322,6 +323,26 @@ class ExportPDFController extends Controller
 
             // Kembalikan PDF langsung sebagai respons
             return $pdf->stream("faktur_payment_$spk_payment_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function printSpkPaymentDetail(Request $request, $spk_payment_list_id)
+    {
+        try {
+            $getDetailPaymentList = SpkPaymentList::where("spk_payment_list_id", $spk_payment_list_id)
+                ->with(["spk_payment.spk"])
+                ->first();
+
+            // return ResponseFormatter::success($getDetailPaymentList);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_detail', ["data" => $getDetailPaymentList]);
+            $pdf->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->stream("faktur_payment_detail_$spk_payment_list_id-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }

@@ -23,4 +23,9 @@ class SpkPaymentList extends Model
     {
         return $this->belongsTo(Bank::class, "bank_id");
     }
+
+    public function spk_payment()
+    {
+        return $this->belongsTo(SpkPayment::class, "spk_payment_id");
+    }
 }
