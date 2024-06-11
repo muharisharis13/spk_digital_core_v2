@@ -10,6 +10,7 @@ use App\Models\delivery;
 use App\Models\DeliveryRepair;
 use App\Models\District;
 use App\Models\Indent;
+use App\Models\IndentInstansi;
 use App\Models\IndentPayment;
 use App\Models\Province;
 use App\Models\Spk;
@@ -129,6 +130,29 @@ class ExportPDFController extends Controller
 
 
 
+    public function printPdfIndentInstansi(Request $request, $indent_instansi_id)
+    {
+        try {
+
+            $getDetail = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)
+                ->with(["dealer", "motor"])
+                ->first();
+
+
+            return ResponseFormatter::success($getDetail);
+
+
+            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetail, "dealer" => $getDetail])->render();
+
+            $pdf = Pdf::loadHTML($html);
+            $pdf->setPaper('A4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+            return $pdf->stream("indent-instansi-$getDetail->indent_instansi_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
     public function printPdfIndent2(Request $request, $indent_id)
     {
         try {
@@ -143,6 +167,7 @@ class ExportPDFController extends Controller
             $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDetailIndent])->render();
 
             $pdf = Pdf::loadHTML($html);
+            $pdf->setPaper('A4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;
             return $pdf->stream("indent-$getDetailIndent->indent_number-$currentTime.pdf");

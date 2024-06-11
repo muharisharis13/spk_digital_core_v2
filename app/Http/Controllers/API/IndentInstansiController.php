@@ -310,7 +310,11 @@ class IndentInstansiController extends Controller
             $indentInstansiStatus = $request->input("indent_instansi_status");
             $q = $request->input("q");
 
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
             $getPaginate = IndentInstansi::latest()
+                ->where("dealer_id", $getDealerSelected->dealer_id)
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
                 })
