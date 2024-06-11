@@ -14,6 +14,7 @@ use App\Models\IndentPayment;
 use App\Models\Province;
 use App\Models\Spk;
 use App\Models\SubDistrict;
+use App\Models\Unit;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,15 @@ use Picqer\Barcode\BarcodeGeneratorHTML;
 class ExportPDFController extends Controller
 {
     //
+
+    public function exportExcelMotor(Request $request)
+    {
+        try {
+            $getDataUnit = Unit::with(["color", "motor"])->get();
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function getProvince(Request $request)
     {

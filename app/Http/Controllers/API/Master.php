@@ -247,6 +247,9 @@ class Master extends Controller
             $paginate = $request->input("paginate");
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'asc');
+            $user = Auth::user();
+
+            $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             if ($paginate === "true") {
                 $getListEvent = MasterEvent::with([
@@ -258,15 +261,19 @@ class Master extends Controller
                         });
                     },
                     "event.event_unit"
-                ])->where(function ($query) use ($searchQuery) {
-                    $query->where("master_event_name", "LIKE", "%$searchQuery%")
-                        ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
-                })->orderBy($sortBy, $sortOrder)->paginate($limit);
+                ])
+                    ->where("dealer_id", $getDealerByUserSelected->dealer_id)
+                    ->where(function ($query) use ($searchQuery) {
+                        $query->where("master_event_name", "LIKE", "%$searchQuery%")
+                            ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
+                    })->orderBy($sortBy, $sortOrder)->paginate($limit);
             } else {
-                $getListEvent = MasterEvent::with(["event.event_unit"])->where(function ($query) use ($searchQuery) {
-                    $query->where("master_event_name", "LIKE", "%$searchQuery%")
-                        ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
-                })->orderBy($sortBy, $sortOrder)->get();
+                $getListEvent = MasterEvent::with(["event.event_unit"])
+                    ->where("dealer_id", $getDealerByUserSelected->dealer_id)
+                    ->where(function ($query) use ($searchQuery) {
+                        $query->where("master_event_name", "LIKE", "%$searchQuery%")
+                            ->orWhere("master_event_location", "LIKE", "%$searchQuery%");
+                    })->orderBy($sortBy, $sortOrder)->get();
             }
 
             return ResponseFormatter::success($getListEvent);

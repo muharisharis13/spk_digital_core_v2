@@ -9,6 +9,7 @@ use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\EventListUnit;
 use App\Models\Neq;
 use App\Models\NeqLog;
 use App\Models\NeqUnit;
@@ -101,6 +102,13 @@ class NeqController extends Controller
                 foreach ($getDetailNeq->neq_unit as $eventUnit) {
                     $unit = $eventUnit->unit_id;
 
+                    // $checkUnitOnEvent = EventListUnit::where("unit_id", $unit)->first();
+
+                    // if (isset($checkUnitOnEvent->unit_id)) {
+                    //     DB::rollBack();
+                    //     return ResponseFormatter::error("unit sudah berada di event harap periksa kembali", "bad request", 400);
+                    // }
+
                     // check unit apakah unit location status tidak null
                     $getUnitDetail = Unit::where("unit_id", $eventUnit->unit_id)->first();
 
@@ -124,9 +132,10 @@ class NeqController extends Controller
                     }
 
                     // update unit location status
-
-                    Unit::where("unit_id", $unit)->update([
-                        "unit_location_status" => UnitLocationStatusEnum::neq
+                    $updateUnit =  Unit::where("unit_id", $unit)->first();
+                    $updateUnit->update([
+                        "unit_location_status" => UnitLocationStatusEnum::neq,
+                        "dealer_neq_id" => $getDetailNeq->dealer_neq_id
                     ]);
                 }
             } else {

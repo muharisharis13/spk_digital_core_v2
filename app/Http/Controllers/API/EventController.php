@@ -87,7 +87,8 @@ class EventController extends Controller
                     // update unit location status
 
                     Unit::where("unit_id", $unit)->update([
-                        "unit_location_status" => UnitLocationStatusEnum::event
+                        "unit_location_status" => UnitLocationStatusEnum::event,
+                        "event_id" => $getDetailEvent->event_id
                     ]);
                 }
             } else {

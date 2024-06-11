@@ -549,6 +549,7 @@ class IndentController extends Controller
                 "amount_total" => "required",
                 "sales_id" => "required",
                 "salesman_name" => "required",
+                "indent_date" => "required"
                 // "micro_finance_id" => "nullable",
                 // "leasing_id" => "nullable"
             ]);
@@ -595,7 +596,8 @@ class IndentController extends Controller
                 "microfinance_name" => $request->microfinance_name,
                 "leasing_id" => $request->leasing_id,
                 "leasing_name" => $request->leasing_name,
-                "indent_date" => Carbon::now(),
+                "indent_date" => $request->indent_date,
+                // "indent_date" => Carbon::now(),
                 "indent_number" => GenerateNumber::generate("INDENT", GenerateAlias::generate($getDealerSelected->dealer->dealer_name), "indents", "indent_number")
             ]);
 

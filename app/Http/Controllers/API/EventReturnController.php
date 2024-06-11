@@ -122,7 +122,14 @@ class EventReturnController extends Controller
 
                     $getDetailEventListUnit = EventListUnit::with(["unit"])->where("event_list_unit_id", $item["event_list_unit_id"])->first();
 
-                    Unit::where("unit_id", $getDetailEventListUnit->unit->unit_id)->update([
+                    $getDetailUnit =  Unit::where("unit_id", $getDetailEventListUnit->unit->unit_id)->first();
+
+
+                    if (!isset($getDetailUnit->unit_id)) {
+                        DB::rollBack();
+                        return ResponseFormatter::error("unit not found", "bad request", 400);
+                    }
+                    $getDetailUnit->update([
                         "unit_location_status" => null
                     ]);
 
