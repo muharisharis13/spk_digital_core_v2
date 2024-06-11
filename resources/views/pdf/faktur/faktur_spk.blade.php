@@ -108,7 +108,7 @@
     <div style="text-transform: uppercase">
         <table style="width: 100%">
             <tr>
-                <td style="display: flex">
+                <td style="width:50%">
                     <table class="table">
                         <thead>
                             <tr>
@@ -196,8 +196,8 @@
                         </tr>
                     </table>
                 </td>
-                <td style="width: 50%">
-                    <div style="width:100%;display:flex">
+                <td style="display:flex">
+                    <div>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -303,30 +303,7 @@
         lain diluar Yamaha sebagaimana disebutkan diatas. Dan seluruh
         dokumen yang telan diserankan kepada Yamana (Dealer) tidak dapat dikembalikan.
     </div>
-    {{-- 
-    <div>
-        <table class="table" style="width:100%">
-            <thead>
-                <tr>
-                    <th class="th">Model</th>
-                    <th class="th">Warna</th>
-                    <th class="th">Rangka</th>
-                    <th class="th">No. Mesin</th>
-                </tr>
 
-            </thead>
-            <tbody>
-                @foreach ($data->delivery_event_return->event_return->event_return_unit as $item)
-                    <tr>
-                        <td class="td">{{ $item->event_list_unit->unit->motor->motor_name }}</td>
-                        <td class="td">{{ $item->event_list_unit->unit->color->color_name }}</td>
-                        <td class="td">{{ $item->event_list_unit->unit->unit_frame }}</td>
-                        <td class="td">{{ $item->event_list_unit->unit->unit_engine }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div> --}}
 
 
 

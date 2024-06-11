@@ -69,8 +69,8 @@
         </div>
 
         <div class="right" style="text-align: right">
-            <h2>Indent</h2>
-            <div>No.{{ $indent->indent_number }}</div>
+            <h2>Indent Instansi</h2>
+            <div>No.{{ $indent->indent_instansi_number }}</div>
             <div style="text-align: right;margin-top:10px">
                 <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
 
@@ -85,11 +85,11 @@
 
     <div style="margin-top: 0px;margin-bottom:10px">
         <span style="font-size: 14px; font-weight: 600;">Detail Indent&nbsp;:</span><br>
-        <span style="font-size: 14px;">{{ $indent->indent_people_name }}</span><br>
-        <span style="font-size: 14px;">{{ $indent->indent_number }}</span><br>
+        <span style="font-size: 14px;">{{ $indent->indent_instansi_name }}</span><br>
+        <span style="font-size: 14px;">{{ $indent->indent_instansi_number }}</span><br>
         <span style="font-size: 14px;">Tgl Indent&nbsp;: {{ date('d M Y', strtotime($indent->created_at)) }}</span><br>
         <span
-            style="font-size: 14px; text-transform:uppercase; font-weight:bold; color:red">{{ $indent->indent_status }}</span>
+            style="font-size: 14px; text-transform:uppercase; font-weight:bold; color:red">{{ $indent->indent_instansi_status }}</span>
     </div>
     <table style="width: 100%; border-collapse: collapse; border: 1px solid #d4d4d4;">
         <thead style="background-color: #f2f2f2;">
@@ -101,7 +101,7 @@
         <tbody>
             <tr>
                 <td style="padding: 8px;text-align:center">{{ $indent->motor->motor_name }}</td>
-                <td style="padding: 8px;text-align:center">{{ $indent->color->color_name }}</td>
+                <td style="padding: 8px;text-align:center">{{ $indent->color->color_name ?? '-' }}</td>
             </tr>
         </tbody>
     </table>
@@ -117,15 +117,16 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($indent->indent_payment as $item)
+            @foreach ($indent->indent_instansi_payments as $item)
                 <tr>
                     <td class="td" style="padding: 8px; text-transform: uppercase; text-align:center">
-                        {{ $item->indent_payment_method }}</td>
+                        {{ $item->indent_instansi_payment_method }}</td>
                     <td class="td" style="padding: 8px;text-align:center">
                         {{ isset($item->bank->bank_name) ? $item->bank->bank_name : '-' }}</td>
                     <td class="td" style="padding: 8px;text-align:center">
-                        {{ 'Rp ' . number_format($item->indent_payment_amount, 0, ',', '.') }}</td>
-                    <td class="td" style="padding: 8px;text-align:center">{{ $item->indent_payment_date }}</td>
+                        {{ 'Rp ' . number_format($item->indent_instansi_payment_amount, 0, ',', '.') }}</td>
+                    <td class="td" style="padding: 8px;text-align:center">{{ $item->indent_instansi_payment_date }}
+                    </td>
                 </tr>
             @endforeach
         </tbody>

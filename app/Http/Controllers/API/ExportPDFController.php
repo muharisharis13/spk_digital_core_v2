@@ -15,7 +15,10 @@ use App\Models\IndentPayment;
 use App\Models\Province;
 use App\Models\Spk;
 use App\Models\SpkExcessFunds;
+use App\Models\SpkInstansi;
+use App\Models\SpkInstansiMotor;
 use App\Models\SpkInstansiPayment;
+use App\Models\SpkInstansiUnit;
 use App\Models\SpkPayment;
 use App\Models\SubDistrict;
 use App\Models\Unit;
@@ -33,6 +36,51 @@ use Picqer\Barcode\BarcodeGeneratorHTML;
 class ExportPDFController extends Controller
 {
     //
+
+    public function printPDFPoInstansi(Request $request, $spk_instansi_id)
+    {
+        try {
+            $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)
+                ->with(["spk_instansi_delivery.dealer_neq", "delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery", "spk_instansi_unit.spk_instansi_unit_delivery"])
+                ->first();
+
+            // return ResponseFormatter::success($getDetail);
+
+
+            $html = view('pdf.faktur.faktur_po_instansi', ["data" => $getDetail])->render();
+
+            $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+            return $pdf->stream("faktur_po_instansi_$spk_instansi_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
+
+    public function printPDFSPKInstansi(Request $request, $spk_instansi_unit_id)
+    {
+        try {
+            $getDetail = SpkInstansiUnit::where("spk_instansi_unit_id", $spk_instansi_unit_id)
+                ->with(["motor", "unit", "spk_instansi.spk_instansi_delivery.dealer_neq", "spk_instansi_unit_legal", "spk_instansi_unit_delivery"])
+                ->first();
+
+
+            $getDetailMotor = SpkInstansiMotor::where("spk_instansi_id", $getDetail->spk_instansi_id)->where("motor_id", $getDetail->motor_id)->first();
+
+            // return ResponseFormatter::success([$getDetail, $getDetailMotor]);
+
+
+            $html = view('pdf.faktur.faktur_spk_instansi', ["data" => $getDetail, "motor" => $getDetailMotor])->render();
+
+            $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+            return $pdf->stream("faktur_spk_$spk_instansi_unit_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
 
     public function exportExcelMotor(Request $request)
     {
@@ -139,10 +187,10 @@ class ExportPDFController extends Controller
                 ->first();
 
 
-            return ResponseFormatter::success($getDetail);
+            // return ResponseFormatter::success($getDetail);
 
 
-            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetail, "dealer" => $getDetail])->render();
+            $html = view('pdf.faktur.faktur_indent_instansi', ["indent" => $getDetail, "dealer" => $getDetail])->render();
 
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('A4', 'landscape');
@@ -188,7 +236,8 @@ class ExportPDFController extends Controller
 
             $html = view('pdf.faktur.faktur_spk', ["data" => $getDetail])->render();
 
-            $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
+            $pdf = Pdf::loadHTML($html);
+            $pdf->setPaper('A4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;
             return $pdf->stream("faktur_spk_$spk_id-$currentTime.pdf");
