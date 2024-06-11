@@ -11,6 +11,7 @@ use App\Models\DeliveryRepair;
 use App\Models\District;
 use App\Models\Indent;
 use App\Models\IndentInstansi;
+use App\Models\IndentInstansiPayment;
 use App\Models\IndentPayment;
 use App\Models\Province;
 use App\Models\Spk;
@@ -18,6 +19,7 @@ use App\Models\SpkExcessFunds;
 use App\Models\SpkInstansi;
 use App\Models\SpkInstansiMotor;
 use App\Models\SpkInstansiPayment;
+use App\Models\SpkInstansiPaymentList;
 use App\Models\SpkInstansiUnit;
 use App\Models\SpkPayment;
 use App\Models\SubDistrict;
@@ -325,6 +327,26 @@ class ExportPDFController extends Controller
         }
     }
 
+    public function printPDFPaymentSPKInstansiDetail(Request $request, $spk_instansi_payment_list_id)
+    {
+        try {
+            $getDetailPaymentList = SpkInstansiPaymentList::where("spk_instansi_payment_list_id", $spk_instansi_payment_list_id)
+                ->with(["spk_instansi_payment.spk_instansi", "bank"])
+                ->first();
+
+
+            // return ResponseFormatter::success($getDetailPaymentList);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi_detail', ["data" => $getDetailPaymentList]);
+            $pdf->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->stream("faktur_payment_instansi_detail_$spk_instansi_payment_list_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
     public function printPDFPaymentSPKInstansi(Request $request, $spk_instansi_payment_id)
     {
         try {
@@ -365,6 +387,27 @@ class ExportPDFController extends Controller
         }
     }
 
+    public function printPdfIndentInstansiPayment(Request $request, $indent_instansi_payment_id)
+    {
+
+        try {
+            $getDetailIndentInstansiPayment = IndentInstansiPayment::where("indent_instansi_payment_id", $indent_instansi_payment_id)
+                ->with(["indent_instansi.dealer", "indent_instansi.motor"])
+                ->first();
+
+
+            // return ResponseFormatter::success($getDetailIndentInstansiPayment);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent_instansi', ["data" => $getDetailIndentInstansiPayment]);
+            $pdf->setPaper('a4', 'landscape');
+
+            $currentTime = Carbon::now()->timestamp;
+
+            // Kembalikan PDF langsung sebagai respons
+            return $pdf->stream("faktur_indent_instansi_payment_$indent_instansi_payment_id-$currentTime.pdf");
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+        }
+    }
     public function printPDFPayment2(Request $request, $indent_payment_id)
     {
 
@@ -377,7 +420,7 @@ class ExportPDFController extends Controller
             $pdf->setPaper('a4', 'portrait');
 
             // Kembalikan PDF langsung sebagai respons
-            return $pdf->download("faktur_payment_$indent_payment_id.pdf");
+            return $pdf->stream("faktur_payment_$indent_payment_id.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }

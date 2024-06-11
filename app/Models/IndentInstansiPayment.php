@@ -24,4 +24,9 @@ class IndentInstansiPayment extends Model
     {
         return $this->belongsTo(Bank::class, "bank_id");
     }
+
+    public function indent_instansi()
+    {
+        return $this->belongsTo(IndentInstansi::class, "indent_instansi_id");
+    }
 }
