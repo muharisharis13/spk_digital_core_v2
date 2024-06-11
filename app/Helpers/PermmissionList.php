@@ -197,7 +197,8 @@ class PermmissionList
         "post_payment_indent_inst",
         "put_cancel_payment_indent_inst",
         "delete_payment_indent_inst",
-        "put_refund_all_payment_indent_inst"
+        "put_refund_all_payment_indent_inst",
+        "add_cro"
     ];
 
     const permissionPoInstansi = [

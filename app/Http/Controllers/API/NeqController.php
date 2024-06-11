@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\NeqStatusEnum;
 use App\Enums\UnitLocationStatusEnum;
+use App\Enums\UnitLogStatusEnum;
 use App\Helpers\GenerateAlias;
 use App\Helpers\GenerateNumber;
 use App\Helpers\GetDealerByUserSelected;
@@ -14,6 +15,7 @@ use App\Models\Neq;
 use App\Models\NeqLog;
 use App\Models\NeqUnit;
 use App\Models\Unit;
+use App\Models\UnitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -136,6 +138,14 @@ class NeqController extends Controller
                     $updateUnit->update([
                         "unit_location_status" => UnitLocationStatusEnum::neq,
                         "dealer_neq_id" => $getDetailNeq->dealer_neq_id
+                    ]);
+
+                    UnitLog::create([
+                        "unit_id" => $updateUnit->unit_id,
+                        "user_id" => $user->user_id,
+                        "unit_log_number" => "-",
+                        "unit_log_action" => "on_hand",
+                        "unit_log_status" => "NEQ"
                     ]);
                 }
             } else {

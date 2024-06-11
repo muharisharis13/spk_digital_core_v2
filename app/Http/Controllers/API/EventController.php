@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\EventStatusEnum;
 use App\Enums\UnitLocationStatusEnum;
+use App\Enums\UnitLogStatusEnum;
 use App\Helpers\FormatDate;
 use App\Helpers\FormateDate;
 use App\Helpers\GenerateAlias;
@@ -15,6 +16,7 @@ use App\Models\Event;
 use App\Models\EventListUnit;
 use App\Models\EventLog;
 use App\Models\Unit;
+use App\Models\UnitLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +56,7 @@ class EventController extends Controller
             DB::beginTransaction();
 
             $getDetailEvent = Event::with(["event_unit.event.master_event"])->where("event_id", $event_id)->first();
-
+            $user = Auth::user();
             // check apakah unit tersebut sudah approve di event lain apa belum
             if (isset($getDetailEvent->event_unit) && $getDetailEvent->event_unit->count() > 0) {
                 foreach ($getDetailEvent->event_unit as $eventUnit) {
@@ -86,9 +88,17 @@ class EventController extends Controller
 
                     // update unit location status
 
-                    Unit::where("unit_id", $unit)->update([
+                    $getDetailUnit =  Unit::where("unit_id", $unit)->update([
                         "unit_location_status" => UnitLocationStatusEnum::event,
                         "event_id" => $getDetailEvent->event_id
+                    ]);
+
+                    UnitLog::create([
+                        "unit_id" => $getDetailUnit->unit_id,
+                        "user_id" => $user->user_id,
+                        "unit_log_number" => "-",
+                        "unit_log_action" => "on_hand",
+                        "unit_log_status" => UnitLogStatusEnum::EVENT
                     ]);
                 }
             } else {
@@ -96,7 +106,7 @@ class EventController extends Controller
                 return
                     ResponseFormatter::error("Paling tidak memiliki satu unit untuk di approve", "Bad Request", 400);
             }
-            $user = Auth::user();
+
 
             // add event log
             EventLog::create([

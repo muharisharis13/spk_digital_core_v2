@@ -56,9 +56,9 @@
             </div>
 
             <div>
-                <h3>{{ $dealer->dealer->dealer_name }}</h3>
+                <h3>{{ $dealer->dealer->dealer_name ?? '-' }}</h3>
                 <div class="alamat">
-                    {{ $dealer->dealer->dealer_address }}
+                    {{ $dealer->dealer->dealer_address ?? '-' }}
                 </div>
             </div>
         </div>

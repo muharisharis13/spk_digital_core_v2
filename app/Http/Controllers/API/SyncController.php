@@ -64,7 +64,7 @@ class SyncController extends Controller
 
             // Buat Dealers baru
             foreach ($request->dealers as $dealerData) {
-                $dealer = Dealer::firstOrCreate([
+                $dealer = Dealer::updateOrCreate([
                     "dealer_id" => $dealerData["dealer_id"],
                 ], [
                     'dealer_id' => $dealerData['dealer_id'],
@@ -77,7 +77,7 @@ class SyncController extends Controller
 
                 // Buat DealerNeq baru
                 foreach ($dealerData['dealer_neq'] as $neqData) {
-                    DealerNeq::firstOrCreate([
+                    DealerNeq::updateOrCreate([
                         "dealer_neq_code" => $neqData["dealer_neq_code"]
                     ], [
                         "dealer_neq_name" => $neqData["dealer_neq_name"],

@@ -64,7 +64,7 @@
     <div>
         <table style="width: 100%">
             <tr>
-                <td>
+                {{-- <td>
                     <div class="left2" style="height: 180px">
                         <div>
                             <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
@@ -73,6 +73,19 @@
                         <div>
                             <h3>{{ $data->dealer->dealer_name }}</h3>
                             <div class="alamat">
+                                {{ $data->dealer->dealer_address }}
+                            </div>
+                        </div>
+                    </div>
+                </td> --}}
+                <td>
+                    <div style="height: 180px;">
+                        <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100"
+                            style="margin-right: 20px; float: left;">
+
+                        <div>
+                            <h3 style="margin-top: -5px">{{ $data->dealer->dealer_name }}</h3>
+                            <div class="alamat" style="width: 200px; float: left; margin-top: -10px">
                                 {{ $data->dealer->dealer_address }}
                             </div>
                         </div>

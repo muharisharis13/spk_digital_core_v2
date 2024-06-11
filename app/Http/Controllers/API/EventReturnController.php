@@ -14,6 +14,7 @@ use App\Models\EventReturn;
 use App\Models\EventReturnListUnit;
 use App\Models\EventReturnLog;
 use App\Models\Unit;
+use App\Models\UnitLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -131,6 +132,15 @@ class EventReturnController extends Controller
                     }
                     $getDetailUnit->update([
                         "unit_location_status" => null
+                    ]);
+                    $user = Auth::user();
+
+                    UnitLog::create([
+                        "unit_id" => $getDetailUnit->unit_id,
+                        "user_id" => $user->user_id,
+                        "unit_log_number" => "-",
+                        "unit_log_action" => $getDetailUnit->unit_status,
+                        "unit_log_status" => $getDetailUnit->unit_status
                     ]);
 
                     if ($getDetailEventListUnit->is_return === true) {

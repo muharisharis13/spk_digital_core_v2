@@ -59,6 +59,9 @@ Route::prefix("v1")->group(function () {
             Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
             Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
             Route::get("/spk/{id}", [ExportPDFController::class, "prinSpk"]);
+            Route::get("/spk-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPK"]);
+            Route::get("/spk-instansi-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansi"]);
+            Route::get("/over-payment/{id}", [ExportPDFController::class, "printPDFOverPayment"]);
         });
         Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
         Route::get("/province", [ExportPDFController::class, "getProvince"]);
@@ -353,7 +356,7 @@ Route::prefix("v1")->group(function () {
 
             Route::prefix("excess-payment")->group(function () {
                 Route::get("/list", [SPKController::class, "getpaginateExcessPayment"])->middleware('permission:get_excess_payment');
-                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"])->middleware('permission:get_detail_excess_paymnent');
+                Route::get("/detail/{id}", [SPKController::class, "getDetailExcessPayment"])->middleware('permission:get_detail_excess_payment');
             });
 
             Route::prefix("payment")->group(function () {
@@ -381,6 +384,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("po-instansi")->group(function () {
             Route::get("/list", [SpkInstansiController::class, "getPaginate"])->middleware('permission:get_po_inst');
+            Route::post("/cro/{id}", [SpkInstansiController::class, "addCRO"])->middleware('permission:add_cro');
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"])->middleware('permission:get_detail_po_inst');
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/update/{id}", [SpkInstansiController::class, "update"]);
