@@ -344,7 +344,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/detail/{spk_id}", [SPKController::class, "getDetailSpk"])->middleware('permission:read_spk_detail');
             Route::put("/status/{spk_id}", [SPKController::class, "updateStatusSpk"]);
             Route::post("/shipment/{spk_id}", [SPKController::class, "addShipment"]);
-            Route::post("/cro/{spk_id}", [SPKController::class, "addCRO"])->middleware('permission:add_cro');
+            Route::post("/cro/{spk_id}", [SPKController::class, "addCRO"])->middleware('permission:post_cro_spk');
 
             Route::prefix("purchase-order")->group(function () {
                 Route::post("/create/{id}", [SPKController::class, "createPurchaseOrder"]);
@@ -390,7 +390,7 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("po-instansi")->group(function () {
             Route::get("/list", [SpkInstansiController::class, "getPaginate"])->middleware('permission:get_po_inst');
-            Route::post("/cro/{id}", [SpkInstansiController::class, "addCRO"])->middleware('permission:add_cro_inst');
+            Route::post("/cro/{id}", [SpkInstansiController::class, "addCRO"])->middleware('permission:post_add_cro_inst');
             Route::get("/detail/{id}", [SpkInstansiController::class, "getDetail"])->middleware('permission:get_detail_po_inst');
             Route::post("/create", [SpkInstansiController::class, "create"]);
             Route::post("/update/{id}", [SpkInstansiController::class, "update"]);

@@ -313,6 +313,8 @@ class UserController extends Controller
     {
         try {
             $allPermission = Permission::latest()->get();
+
+            return ResponseFormatter::success($allPermission);
             $groupedPermissions = [];
 
             // Function to convert permission name to a more human-readable format

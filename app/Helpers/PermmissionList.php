@@ -198,8 +198,6 @@ class PermmissionList
         "put_cancel_payment_indent_inst",
         "delete_payment_indent_inst",
         "put_refund_all_payment_indent_inst",
-        "post_add_cro",
-        "post_add_cro_inst"
     ];
 
     const permissionPoInstansi = [
@@ -232,7 +230,8 @@ class PermmissionList
         "post_delivery_po_inst",
         "get_spk_inst",
         "get_detail_spk_inst",
-        "update_status_payment_spk_inst"
+        "update_status_payment_spk_inst",
+        "post_add_cro_inst"
     ];
 
     const permissionUser = [
