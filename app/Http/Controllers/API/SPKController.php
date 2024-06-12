@@ -696,7 +696,7 @@ class SPKController extends Controller
 
             $getIndent = Indent::where("indent_id", $getSpk->spk_general->indent_id)->first();
 
-            if (isset($getIndent)) {
+            if (isset($getIndent->indent_id)) {
                 if ($getIndent->indent_status === "spk") {
                     DB::rollBack();
                     return
