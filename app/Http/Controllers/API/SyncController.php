@@ -23,6 +23,15 @@ class SyncController extends Controller
 {
     //
 
+    public function uploadLogo(Request $request)
+    {
+        try {
+            # code...
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
+    }
+
     public function checkDealer(Request $request)
     {
         try {
