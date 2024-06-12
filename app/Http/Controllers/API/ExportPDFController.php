@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exports\UnitExport;
 use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
@@ -34,6 +35,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class ExportPDFController extends Controller
@@ -88,7 +90,7 @@ class ExportPDFController extends Controller
     public function exportExcelMotor(Request $request)
     {
         try {
-            $getDataUnit = Unit::with(["color", "motor"])->get();
+            return Excel::download(new UnitExport, 'unit.xlsx');
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }

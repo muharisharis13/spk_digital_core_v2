@@ -69,6 +69,9 @@ Route::prefix("v1")->group(function () {
             Route::get("/over-payment/{id}", [ExportPDFController::class, "printPDFOverPayment"]);
             Route::get("/po-instansi/{id}", [ExportPDFController::class, "printPDFPoInstansi"]);
         });
+        Route::prefix("excel")->group(function () {
+            Route::get("/unit", [ExportPDFController::class, "exportExcelMotor"]);
+        });
         Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
         Route::get("/province", [ExportPDFController::class, "getProvince"]);
     });
