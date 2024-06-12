@@ -3,6 +3,7 @@
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AdiraController;
 use App\Http\Controllers\API\AuthenticationController;
+use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
@@ -91,6 +92,10 @@ Route::prefix("v1")->group(function () {
 
 
     Route::middleware("auth:sanctum")->group(function () {
+
+        Route::prefix("dashboard")->group(function () {
+            Route::get("/count", [DashboardController::class, "getCountTotal"]);
+        });
 
         Route::prefix("permissions")->group(function () {
             Route::get("/list", [UserController::class, "getPermissionAttribute"]);
