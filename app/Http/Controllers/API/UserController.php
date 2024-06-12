@@ -322,6 +322,7 @@ class UserController extends Controller
                 $wordReplacements = [
                     'put' => 'Edit',
                     'post' => 'Create',
+                    'add' => "Add"
                     // Add more replacements as needed
                 ];
 
