@@ -231,7 +231,7 @@ class PermmissionList
         "get_spk_inst",
         "get_detail_spk_inst",
         "update_status_payment_spk_inst",
-        "post_add_cro_inst"
+        "post_add_cro_po_inst"
     ];
 
     const permissionUser = [
