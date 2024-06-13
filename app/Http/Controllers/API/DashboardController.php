@@ -6,6 +6,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\Spk;
+use App\Models\SpkInstansi;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,8 +21,10 @@ class DashboardController extends Controller
             $user = Auth::user();
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-
             $getCountSpk = Spk::where("spk_status", "spk")
+                ->where("dealer_id", $getDealerByUserSelected->dealer_id)
+                ->count();
+            $getCountSpkInstansi = SpkInstansi::where("spk_instansi_status", "publish")
                 ->where("dealer_id", $getDealerByUserSelected->dealer_id)
                 ->count();
             $getCountUnit = Unit::where("unit_status", "on_hand")
@@ -30,7 +33,8 @@ class DashboardController extends Controller
 
             $data = [
                 "spk" => $getCountSpk,
-                "unit" => $getCountUnit
+                "unit" => $getCountUnit,
+                "spk_instansi" => $getCountSpkInstansi
             ];
 
             return ResponseFormatter::success($data);
