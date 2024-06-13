@@ -1267,7 +1267,7 @@ class SpkInstansiController extends Controller
             }
             $getSpkInstansi = SpkInstansiGeneral::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
             $getSpkInstansiIndent = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
-            $getSpkInstansi->update(['po_values' => $total - $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal]);
+            $getSpkInstansi->update(['po_values' => $total - ($getSpkInstansiIndent->indent_instansi->indent_instansi_nominal || 0)]);
 
 
             $user = Auth::user();
@@ -1424,7 +1424,7 @@ class SpkInstansiController extends Controller
             $getSpkInstansi = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
             // $totalBaru = intval($getDetailGeneral->po_values) + $total;
             $getDetailGeneral->update([
-                "po_values" => $total - $getSpkInstansi->indent_instansi->indent_instansi_nominal
+                "po_values" => $total - ($getSpkInstansi->indent_instansi->indent_instansi_nominal || 0)
             ]);
 
             $dataRequestLog = [
