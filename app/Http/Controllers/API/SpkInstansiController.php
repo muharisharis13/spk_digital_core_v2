@@ -1384,11 +1384,11 @@ class SpkInstansiController extends Controller
             $qty = intval($request->qty);
             $off_the_road = intval($getDetail->off_the_road);
             $bbn = intval($getDetail->bbn);
-            // $additional_cost = intval($getDetail->additional_cost);
+            $additional_cost = intval($getDetail->additional_cost);
             $discount = intval($getDetail->discount);
             $discount_over = intval($getDetail->discount_over);
 
-            $total = (($off_the_road + $bbn) * $qty)  - $discount - $discount_over;
+            $total = ((($off_the_road + $bbn))  - $discount - $discount_over + $additional_cost) * $qty;
 
 
             foreach ($previousMotors as $previousMotor) {
@@ -1397,8 +1397,9 @@ class SpkInstansiController extends Controller
                 $prev_bbn = intval($previousMotor->bbn);
                 $prev_discount = intval($previousMotor->discount);
                 $prev_discount_over = intval($previousMotor->discount_over);
+                $prev_additional_cost = intval($previousMotor->additional_cost);
 
-                $total += (($prev_off_the_road + $prev_bbn) * $prev_qty) - $prev_discount - $prev_discount_over;
+                $total += ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
             }
             $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
             // $totalBaru = intval($getDetailGeneral->po_values) + $total;
