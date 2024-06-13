@@ -1421,9 +1421,10 @@ class SpkInstansiController extends Controller
                 $total += ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
             }
             $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
+            $getSpkInstansi = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
             // $totalBaru = intval($getDetailGeneral->po_values) + $total;
             $getDetailGeneral->update([
-                "po_values" => $total
+                "po_values" => $total - $getSpkInstansi->indent_instansi->indent_instansi_nominal
             ]);
 
             $dataRequestLog = [
