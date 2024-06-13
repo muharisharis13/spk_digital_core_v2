@@ -1249,7 +1249,26 @@ class SpkInstansiController extends Controller
 
             DB::beginTransaction();
 
+
             $getDetail->delete();
+            $previousMotors = SpkInstansiMotor::where('spk_instansi_id', $getDetail->spk_instansi_id)->get();
+
+
+            $total = 0;
+            foreach ($previousMotors as $previousMotor) {
+                $prev_qty = intval($previousMotor->qty);
+                $prev_off_the_road = intval($previousMotor->off_the_road);
+                $prev_bbn = intval($previousMotor->bbn);
+                $prev_discount = intval($previousMotor->discount);
+                $prev_discount_over = intval($previousMotor->discount_over);
+                $prev_additional_cost = intval($previousMotor->additional_cost);
+
+                $total = ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
+            }
+            $getSpkInstansi = SpkInstansiGeneral::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
+            $getSpkInstansiIndent = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
+            $getSpkInstansi->update(['po_values' => $total - $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal]);
+
 
             $user = Auth::user();
 
@@ -1476,12 +1495,37 @@ class SpkInstansiController extends Controller
 
 
             //menghitung nilai kontrak untuk di update ke database
-            $total = ((intval($request->off_the_road) + intval($request->bbn)) * intval($request->qty) + (intval($request->qty) * intval($request->additional_cost))) - intval($request->discount) - intval($request->discount_over);
+            // $total = ((intval($request->off_the_road) + intval($request->bbn)) * intval($request->qty) + (intval($request->qty) * intval($request->additional_cost))) - intval($request->discount) - intval($request->discount_over);
+            $off_the_road = intVal($request->off_the_road);
+            $bbn = intVal($request->bbn);
+            $qty = intVal($request->qty);
+            $additional_cost = intVal($request->additional_cost);
+            $discount = intVal($request->discount);
+            $discount_over = intVal($request->discount_over);
+            $total = (($off_the_road + $bbn) - $discount - $discount_over + $additional_cost) * $qty;
 
             $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $spk_instansi_id)->first();
-            $totalBaru = intval($getDetailGeneral->po_values) + $total;
+            $previousMotors = SpkInstansiMotor::where("spk_instansi_id", $spk_instansi_id)
+                ->where("spk_instansi_motor_id", "!=", $createSpkInstansiMotor->spk_instansi_motor_id)
+                ->get();
+
+            foreach ($previousMotors as $previous_motor) {
+                $prev_qty = intval($previous_motor->qty);
+                $prev_off_the_road = intval($previous_motor->off_the_road);
+                $prev_bbn = intval($previous_motor->bbn);
+                $prev_discount = intval($previous_motor->discount);
+                $prev_discount_over = intval($previous_motor->discount_over);
+                $prev_additional_cost = intval($previous_motor->additional_cost);
+
+                $total += ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
+            }
+            $getSpkInstansiIndent = SpkInstansi::where('spk_instansi_id', $spk_instansi_id)->first();
+            $totalNew = $total - $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal;
             $getDetailGeneral->update([
-                "po_values" => $totalBaru
+                "po_values" => 0
+            ]);
+            $getDetailGeneral->update([
+                "po_values" => $totalNew
             ]);
 
             $dataRequestLog = [
