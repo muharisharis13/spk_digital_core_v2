@@ -1270,7 +1270,8 @@ class SpkInstansiController extends Controller
             if ($getSpkInstansiIndent) {
                 $indentNominal = $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal ?? 0;
                 $poValues = $total - $indentNominal;
-                $getSpkInstansiIndent->update(['po_values' => $poValues]);
+                $getDetailGeneral = SpkInstansiGeneral::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
+                $getDetailGeneral->update(['po_values' => $poValues]);
             }
 
             $user = Auth::user();
