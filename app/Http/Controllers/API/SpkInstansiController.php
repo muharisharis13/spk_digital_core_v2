@@ -839,7 +839,7 @@ class SpkInstansiController extends Controller
             ]);
 
             IndentInstansiLog::create([
-                "indent_instansi_id" => $getDetailIndentInstansi->indent_instansi_id,
+                "indent_instansi_id" => $getDetailSpkInstansi->indent_instansi_id,
                 "user_id" => $user->user_id,
                 "indent_instansi_log_action" => "update status to spk"
             ]);
