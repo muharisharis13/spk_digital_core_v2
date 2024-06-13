@@ -308,8 +308,12 @@ class ExportPDFController extends Controller
                 $getDetail["spk_payment_amount_total"] = self::sumAmountTotalDp($getDetail);
             }
             if ($getDetail->spk_payment_type === "leasing") {
-
+                $getDetailSpkLeasing = SpkPayment::where("spk_id", $getDetail->spk_id)->where("spk_payment_type", "leasing")->first();
+                $getDetailSpkDP = SpkPayment::where("spk_id", $getDetail->spk_id)->where("spk_payment_type", "dp")->with(["spk"])->first();
                 $getDetail["spk_payment_amount_total"] = self::sumAmountTotalLeasing($getDetail);
+                $getDetail["data_leasing"] = $getDetailSpkLeasing;
+                $getDetail["data_dp"] = $getDetailSpkDP;
+                $getDetail["spk_payment_amount_total_dp"] = self::sumAmountTotalDp($getDetailSpkDP);
             }
             if ($getDetail->spk_payment_type === "cash") {
 
@@ -318,17 +322,24 @@ class ExportPDFController extends Controller
 
 
             // return ResponseFormatter::success($getDetail);
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail]);
-            $pdf->setPaper('a4', 'landscape');
+            if ($getDetail->spk_payment_type === "leasing") {
+                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_leasing', ["data" => $getDetail]);
+                $pdf->setPaper('a4', 'landscape');
+            } else {
+                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail]);
+                $pdf->setPaper('a4', 'landscape');
+            }
 
             $currentTime = Carbon::now()->timestamp;
 
             // Kembalikan PDF langsung sebagai respons
-            return $pdf->stream("faktur_payment_$spk_payment_id-$currentTime.pdf");
+            return $pdf->stream("faktur_payment_$getDetail->spk_payment_type-$spk_payment_id-$currentTime.pdf");
         } catch (\Throwable $e) {
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
+
+
 
     public function printSpkPaymentDetail(Request $request, $spk_payment_list_id)
     {

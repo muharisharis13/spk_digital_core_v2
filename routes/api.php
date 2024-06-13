@@ -64,6 +64,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/spk/{id}", [ExportPDFController::class, "prinSpk"]);
             Route::get("/spk-instansi/{id}", [ExportPDFController::class, "printPDFSPKInstansi"]);
             Route::get("/spk-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPK"]);
+            // Route::get("/spk-payment-leasing/{id}", [ExportPDFController::class, "printPDFPaymentSPKLeasing"]);
             Route::get("/spk-payment-detail/{id}", [ExportPDFController::class, "printSpkPaymentDetail"]);
             Route::get("/spk-instansi-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansi"]);
             Route::get("/spk-instansi-payment-detail/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansiDetail"]);
