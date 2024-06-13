@@ -492,7 +492,11 @@ class SPKController extends Controller
         try {
             DB::beginTransaction();
 
-            Spk::where("spk_id", $spk_id)->delete();
+            $getDetailSpk =  Spk::where("spk_id", $spk_id)->first();
+            if (!isset($getDetailSpk->spk_id)) {
+                return ResponseFormatter::error("spk not found", "bad request", 400);
+            }
+            $getDetailSpk->delete();
             SpkAdditionalDocument::where("spk_id")->delete();
             SpkAdditionalDocumentAnother::where("spk_id", $spk_id)->delete();
             SpkCustomer::where("spk_id", $spk_id)->delete();

@@ -638,6 +638,11 @@ class SpkInstansiController extends Controller
 
             $getDetailSpkInstansi = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)->first();
 
+
+            if (!isset($getDetailSpkInstansi->spk_instansi_id)) {
+                return ResponseFormatter::error("Spk instansi not found", "bad request", 400);
+            }
+
             //update unit menjadi on_hand
             $getUnitSpk = SpkInstansiUnit::where("spk_instansi_id", $spk_instansi_id)->get();
 
