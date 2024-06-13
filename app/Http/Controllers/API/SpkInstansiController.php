@@ -1265,10 +1265,13 @@ class SpkInstansiController extends Controller
 
                 $total = ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
             }
-            $getSpkInstansi = SpkInstansiGeneral::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
             $getSpkInstansiIndent = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
-            $getSpkInstansi->update(['po_values' => $total - ($getSpkInstansiIndent->indent_instansi->indent_instansi_nominal || 0)]);
 
+            if ($getSpkInstansiIndent) {
+                $indentNominal = $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal ?? 0;
+                $poValues = $total - $indentNominal;
+                $getSpkInstansiIndent->update(['po_values' => $poValues]);
+            }
 
             $user = Auth::user();
 
@@ -1421,11 +1424,17 @@ class SpkInstansiController extends Controller
                 $total += ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
             }
             $getDetailGeneral = SpkInstansiGeneral::where("spk_instansi_id", $getDetail->spk_instansi_id)->first();
-            $getSpkInstansi = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
             // $totalBaru = intval($getDetailGeneral->po_values) + $total;
-            $getDetailGeneral->update([
-                "po_values" => $total - ($getSpkInstansi->indent_instansi->indent_instansi_nominal || 0)
-            ]);
+            $getSpkInstansiIndent = SpkInstansi::where('spk_instansi_id', $getDetail->spk_instansi_id)->first();
+
+            if ($getSpkInstansiIndent) {
+                $indentNominal = $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal ?? 0;
+                $poValues = $total - $indentNominal;
+                $getDetailGeneral->update([
+                    "po_values" => $poValues
+                ]);
+            }
+
 
             $dataRequestLog = [
                 "spk_instansi_id" => $getDetail->spk_instansi_id,
@@ -1521,6 +1530,14 @@ class SpkInstansiController extends Controller
                 $total += ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
             }
             $getSpkInstansiIndent = SpkInstansi::where('spk_instansi_id', $spk_instansi_id)->first();
+
+            if ($getSpkInstansiIndent) {
+                $indentNominal = $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal ?? 0;
+                $poValues = $total - $indentNominal;
+                $getDetailGeneral->update([
+                    "po_values" => $poValues
+                ]);
+            }
             $totalNew = $total - $getSpkInstansiIndent->indent_instansi->indent_instansi_nominal;
             $getDetailGeneral->update([
                 "po_values" => 0
