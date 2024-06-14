@@ -210,8 +210,16 @@ class EventReturnController extends Controller
             $event_return_status = $request->input("event_return_status");
             $searchQuery = $request->input('q');
 
+
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
             $getPaginateEventReturn = EventReturn::latest()
                 ->with(["master_event"])
+                ->whereHas("master_event", function ($query) use ($getDealerSelected) {
+                    return $query->where("dealer_id", $getDealerSelected->dealer_id);
+                })
                 ->withCount([
                     "event_return_unit as event_return_unit_total" => function ($query) {
                         $query
