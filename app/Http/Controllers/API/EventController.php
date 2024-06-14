@@ -155,10 +155,10 @@ class EventController extends Controller
 
 
             $getPaginateEvent = Event::latest()->with(["master_event", "event_unit.unit.motor"])
-                ->where("event_number", "LIKE", "%$searchQuery%")
                 ->whereHas("master_event", function ($query) use ($getDealerByUserSelected) {
                     return $query->where("dealer_id", $getDealerByUserSelected->dealer_id);
                 })
+                ->where("event_number", "LIKE", "%$searchQuery%")
                 ->orWhereHas("master_event", function ($query) use ($searchQuery) {
                     return $query->where('master_event_name', 'LIKE', "%$searchQuery%")
                         ->orWhere('master_event_location', 'LIKE', "%$searchQuery%")
