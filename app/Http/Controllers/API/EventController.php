@@ -94,7 +94,7 @@ class EventController extends Controller
                     ]);
 
                     UnitLog::create([
-                        "unit_id" => $getDetailUnit->unit_id,
+                        "unit_id" => $unit,
                         "user_id" => $user->user_id,
                         "unit_log_number" => "-",
                         "unit_log_action" => "on_hand",
