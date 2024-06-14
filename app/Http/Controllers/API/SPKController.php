@@ -63,8 +63,17 @@ class SPKController extends Controller
     public function getpaginateExcessPayment(Request $request)
     {
         try {
+
+
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
             $limit = $request->input("limit", 5);
-            $getPaginate = SpkExcessFunds::with(['spk'])->latest()
+            $getPaginate = SpkExcessFunds::with(['spk'])
+                ->whereHas("spk", function ($query) use ($getDealerSelected) {
+                    return $query->where("dealer_id", $getDealerSelected->dealer_id);
+                })
+                ->latest()
                 ->paginate($limit);
             // Mengubah nilai negatif menjadi positif
             foreach ($getPaginate->items() as $item) {
