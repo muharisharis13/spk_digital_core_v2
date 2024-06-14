@@ -79,6 +79,13 @@ class IndentController extends Controller
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
             }
 
+            // melakukan update ident status menjadi unpaid
+            $getDetailIndent = Indent::where("indent_id", $indent_id)->first();
+
+            if (!isset($getDetailIndent->indent_id)) {
+                return ResponseFormatter::error("data indent tidak ditemukan", "bad request", 400);
+            }
+
 
 
             $user = Auth::user();
@@ -98,8 +105,7 @@ class IndentController extends Controller
             // melakukan penghapusan indent payment secara keseluruhan
             IndentPayment::where("indent_id", $indent_id)->delete();
 
-            // melakukan update ident status menjadi unpaid
-            Indent::where("indent_id", $indent_id)->update([
+            $getDetailIndent->update([
                 "indent_status" => IndentStatusEnum::unpaid
             ]);
 
