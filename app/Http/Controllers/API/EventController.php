@@ -154,24 +154,26 @@ class EventController extends Controller
             $getDealerByUserSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
 
-            $getPaginateEvent = Event::latest()->with(["master_event", "event_unit.unit.motor"])
+            $getPaginateEvent = Event::latest()
+                ->with(["master_event", "event_unit.unit.motor"])
                 ->whereHas("master_event", function ($query) use ($getDealerByUserSelected) {
-                    return $query->where("dealer_id", $getDealerByUserSelected->dealer_id);
+                    $query->where("dealer_id", $getDealerByUserSelected->dealer_id);
                 })
-                // ->where("master_event_id", "!=", null)
-                // ->when($searchQuery, function ($queryDate) use ($searchQuery) {
-                //     return $queryDate->whereDate('created_at', 'LIKE', "%$searchQuery%");
-                // })
-                // ->where("event_number", "LIKE", "%$searchQuery%")
-                // ->orWhereHas("master_event", function ($query) use ($searchQuery) {
-                //     return $query->where('master_event_name', 'LIKE', "%$searchQuery%")
-                //         ->orWhere('master_event_location', 'LIKE', "%$searchQuery%")
-                //         ->orWhere('master_event_date', 'LIKE', "%$searchQuery%");
-                // })
+                ->where("master_event_id", "!=", null)
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    $query->where(function ($query) use ($searchQuery) {
+                        $query->whereDate('created_at', 'LIKE', "%$searchQuery%")
+                            ->orWhere("event_number", "LIKE", "%$searchQuery%")
+                            ->orWhereHas("master_event", function ($query) use ($searchQuery) {
+                                $query->where('master_event_name', 'LIKE', "%$searchQuery%")
+                                    ->orWhere('master_event_location', 'LIKE', "%$searchQuery%")
+                                    ->orWhere('master_event_date', 'LIKE', "%$searchQuery%");
+                            });
+                    });
+                })
                 ->withCount([
                     "event_unit as event_unit_total" => function ($query) {
-                        $query
-                            ->selectRaw('count(*)');
+                        $query->selectRaw('count(*)');
                     },
                     "event_unit as event_unit_return_total" => function ($query) {
                         $query->where("is_return", true)
@@ -179,6 +181,7 @@ class EventController extends Controller
                     },
                 ])
                 ->paginate($limit);
+
 
             return ResponseFormatter::success($getPaginateEvent);
         } catch (\Throwable $e) {
