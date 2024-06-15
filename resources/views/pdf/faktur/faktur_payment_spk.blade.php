@@ -127,12 +127,15 @@
         <tr>
             <th>Keterangan</th>
             <td>:</td>
-            <td>Untuk SPK no. {{ $data->spk_payment_number }}
+            <td>
+                {{ $description ?? '-' }}
+            </td>
+            {{-- <td>Untuk SPK no. {{ $data->spk_payment_number }}
                 tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembayaran
                 Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
                 Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
                 via KASIR
-            </td>
+            </td> --}}
         </tr>
     </table>
     <div style="margin-top:20px">
@@ -161,7 +164,8 @@
         <div style="width:100%;">
             <div
                 style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
+                <strong>Jumlah Rp. {{ number_format($total, 0, ',', '.') }}</strong>
+                {{-- <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong> --}}
             </div>
             <div style="padding:10px;text-align:center;white-space:nowrap">
                 Lembar 1 : Konsumen
@@ -248,12 +252,15 @@
             <tr>
                 <th>Keterangan</th>
                 <td>:</td>
-                <td>Untuk SPK no. {{ $data->spk_payment_number }}
+                <td>
+                    {{ $description ?? '-' }}
+                </td>
+                {{-- <td>Untuk SPK no. {{ $data->spk_payment_number }}
                     tgl.{{ date('d-M-Y', strtotime($data->created_at)) }} dengan total pembayaran
                     Rp.{{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}
                     Pembayaran {{ $data->spk_payment_type == 'cash' ? 'CASH' : '-' }}
                     via KASIR
-                </td>
+                </td> --}}
             </tr>
         </table>
         <div style="margin-top:20px">
@@ -283,7 +290,8 @@
             <div style="width:100%;">
                 <div
                     style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
-                    <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong>
+                    <strong>Jumlah Rp. {{ number_format($total, 0, ',', '.') }}</strong>
+                    {{-- <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong> --}}
                 </div>
                 <div style="padding:10px;text-align:center;white-space:nowrap">
                     Lembar 1 : Poskas

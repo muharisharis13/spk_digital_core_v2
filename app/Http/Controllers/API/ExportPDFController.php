@@ -323,10 +323,16 @@ class ExportPDFController extends Controller
 
             // return ResponseFormatter::success($getDetail);
             if ($getDetail->spk_payment_type === "leasing") {
-                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_leasing', ["data" => $getDetail]);
+                $description = $request->input('description');
+                $total = $request->input('total');
+                $descriptionLeasing = $request->input('descriptionLeasing');
+                $totalLeasing = $request->input('totalLeasing');
+                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_leasing', ["data" => $getDetail, "description" => $description, "total" => $total, "descriptionLeasing" => $descriptionLeasing, "totalLeasing" => $totalLeasing]);
                 $pdf->setPaper('a4', 'landscape');
             } else {
-                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail]);
+                $description = $request->input('description');
+                $total = $request->input('total');
+                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail, "description" => $description, "total" => $total]);
                 $pdf->setPaper('a4', 'landscape');
             }
 
