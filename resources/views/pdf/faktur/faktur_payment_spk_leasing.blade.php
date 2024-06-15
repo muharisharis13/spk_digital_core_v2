@@ -159,6 +159,19 @@
             </td> --}}
         </tr>
     </table>
+    <div class="container-total-amount" style="
+    margin-top:40px;margin-bottom:40px">
+        <div style="width:100%;">
+            <div
+                style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
+                <strong>Jumlah Rp. {{ number_format($totalLeasing, 0, ',', '.') }}</strong>
+                {{-- <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong> --}}
+            </div>
+            {{-- <div style="padding:10px;text-align:center;white-space:nowrap">
+                    Lembar 1 : Poskas
+                </div> --}}
+        </div>
+    </div>
     <div style="margin-top:20px">
         <table class="table" style="width: 100%">
             <thead>
@@ -280,6 +293,19 @@
                 </td> --}}
             </tr>
         </table>
+        <div class="container-total-amount" style="
+    margin-top:40px;margin-bottom:40px">
+            <div style="width:100%;">
+                <div
+                    style="float:left; text-align:center; border:1px solid black; width:50%; padding:10px; border-radius:5px;">
+                    <strong>Jumlah Rp. {{ number_format($total, 0, ',', '.') }}</strong>
+                    {{-- <strong>Jumlah Rp. {{ number_format($data->spk_payment_amount_total, 0, ',', '.') }}</strong> --}}
+                </div>
+                {{-- <div style="padding:10px;text-align:center;white-space:nowrap">
+                    Lembar 1 : Poskas
+                </div> --}}
+            </div>
+        </div>
         <div style="margin-top:20px">
             <table class="table" style="width: 100%">
                 <thead>
