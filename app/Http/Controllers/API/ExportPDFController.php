@@ -396,7 +396,9 @@ class ExportPDFController extends Controller
 
 
             // return ResponseFormatter::success($getDetail);
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi', ["data" => $getDetail]);
+            $description = $request->input("description");
+            $total = $request->input("total");
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi', ["data" => $getDetail, "description" => $description, "total" => $total]);
             $pdf->setPaper('a4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;

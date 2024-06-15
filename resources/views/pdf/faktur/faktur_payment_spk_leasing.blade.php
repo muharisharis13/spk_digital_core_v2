@@ -172,7 +172,7 @@
                 </div> --}}
         </div>
     </div>
-    <div style="margin-top:20px">
+    <div style="margin-top:40px">
         <table class="table" style="width: 100%">
             <thead>
                 <tr>
@@ -306,7 +306,7 @@
                 </div> --}}
             </div>
         </div>
-        <div style="margin-top:20px">
+        <div style="margin-top:40px">
             <table class="table" style="width: 100%">
                 <thead>
                     <tr>
