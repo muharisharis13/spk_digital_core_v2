@@ -4,6 +4,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\API\AdiraController;
 use App\Http\Controllers\API\AuthenticationController;
 use App\Http\Controllers\API\DashboardController;
+use App\Http\Controllers\API\DealerController;
 use App\Http\Controllers\API\DeliveryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventReturnController;
@@ -100,6 +101,12 @@ Route::prefix("v1")->group(function () {
 
         Route::prefix("permissions")->group(function () {
             Route::get("/list", [UserController::class, "getPermissionAttribute"]);
+        });
+
+        Route::prefix("dealer")->group(function () {
+            Route::prefix("logo")->group(function () {
+                Route::post("/create", [DealerController::class, "createLogoDealer"]);
+            });
         });
 
         Route::prefix("user")->group(function () {
