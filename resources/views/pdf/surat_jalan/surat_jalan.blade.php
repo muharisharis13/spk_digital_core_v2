@@ -11,7 +11,7 @@
     <div style="clear: both;position:relative;margin-bottom:100px">
         <div style="float: left;width:50%;">
             <div>
-                <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
+                <img src="{{ $logo }}" alt="Company Logo" class="logo" width="100">
             </div>
 
             <div>

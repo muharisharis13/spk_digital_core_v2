@@ -7,6 +7,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\City;
+use App\Models\DealerLogo;
 use App\Models\delivery;
 use App\Models\DeliveryRepair;
 use App\Models\District;
@@ -45,6 +46,19 @@ class ExportPDFController extends Controller
     public function printPDFPoInstansi(Request $request, $spk_instansi_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
             $getDetail = SpkInstansi::where("spk_instansi_id", $spk_instansi_id)
                 ->with(["spk_instansi_delivery.dealer_neq", "delivery_spk_instansi.spk_instansi", "delivery_spk_instansi.spk_instansi_unit_delivery", "spk_instansi_unit.spk_instansi_unit_delivery"])
                 ->first();
@@ -52,7 +66,7 @@ class ExportPDFController extends Controller
             // return ResponseFormatter::success($getDetail);
 
 
-            $html = view('pdf.faktur.faktur_po_instansi', ["data" => $getDetail])->render();
+            $html = view('pdf.faktur.faktur_po_instansi', ["data" => $getDetail, "logo" => $base64])->render();
 
             $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
 
@@ -162,7 +176,9 @@ class ExportPDFController extends Controller
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-            $html = view("pdf.faktur.faktur_payment_indent", ["indent_payment" => $getDetailPaymentIndent, "dealer" => $getDealerSelected])->render();
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            $html = view("pdf.faktur.faktur_payment_indent", ["indent_payment" => $getDetailPaymentIndent, "dealer" => $getDealerSelected, "logo" => $DataLogo->logo])->render();
 
             // Logika pembuatan PDF
             $pdf = new Dompdf();
@@ -186,6 +202,19 @@ class ExportPDFController extends Controller
     public function printPdfIndentInstansi(Request $request, $indent_instansi_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
 
             $getDetail = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)
                 ->with(["dealer", "motor"])
@@ -195,7 +224,7 @@ class ExportPDFController extends Controller
             // return ResponseFormatter::success($getDetail);
 
 
-            $html = view('pdf.faktur.faktur_indent_instansi', ["indent" => $getDetail, "dealer" => $getDetail])->render();
+            $html = view('pdf.faktur.faktur_indent_instansi', ["indent" => $getDetail, "dealer" => $getDetail, "logo" => $base64])->render();
 
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('A4', 'landscape');
@@ -209,6 +238,18 @@ class ExportPDFController extends Controller
     public function printPdfIndent2(Request $request, $indent_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
                 ->with(["sales", "motor", "color",  "indent_payment.bank", "dealer", "indent_payment" => function ($query) {
@@ -216,8 +257,12 @@ class ExportPDFController extends Controller
                 }])
                 ->first();
 
+            if (!isset($getDetailIndent->indent_id)) {
+                return ResponseFormatter::error("data not found", "bad request", 400);
+            }
 
-            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDetailIndent])->render();
+
+            $html = view('pdf.faktur.faktur_non_bootstrap', ["indent" => $getDetailIndent, "dealer" => $getDetailIndent, "logo" => $base64])->render();
 
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('A4', 'landscape');
@@ -232,6 +277,18 @@ class ExportPDFController extends Controller
     public function prinSpk(Request $request, $spk_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
 
             $getDetail = Spk::where("spk_id", $spk_id)
                 ->with(["dealer"])
@@ -239,7 +296,7 @@ class ExportPDFController extends Controller
 
             // return ResponseFormatter::success($getDetail);
 
-            $html = view('pdf.faktur.faktur_spk', ["data" => $getDetail])->render();
+            $html = view('pdf.faktur.faktur_spk', ["data" => $getDetail, "logo" => $base64])->render();
 
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('A4', 'landscape');
@@ -294,6 +351,20 @@ class ExportPDFController extends Controller
     {
 
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
+
             $getDetail = SpkPayment::latest()
                 ->with(["spk"])
                 ->where("spk_payment_id", $spk_payment_id)
@@ -327,12 +398,12 @@ class ExportPDFController extends Controller
                 $total = $request->input('total');
                 $descriptionLeasing = $request->input('descriptionLeasing');
                 $totalLeasing = $request->input('totalLeasing');
-                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_leasing', ["data" => $getDetail, "description" => $description, "total" => $total, "descriptionLeasing" => $descriptionLeasing, "totalLeasing" => $totalLeasing]);
+                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_leasing', ["data" => $getDetail, "description" => $description, "total" => $total, "descriptionLeasing" => $descriptionLeasing, "totalLeasing" => $totalLeasing, "logo" => $base64]);
                 $pdf->setPaper('a4', 'landscape');
             } else {
                 $description = $request->input('description');
                 $total = $request->input('total');
-                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail, "description" => $description, "total" => $total]);
+                $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk', ["data" => $getDetail, "description" => $description, "total" => $total, "logo" => $base64]);
                 $pdf->setPaper('a4', 'landscape');
             }
 
@@ -350,12 +421,25 @@ class ExportPDFController extends Controller
     public function printSpkPaymentDetail(Request $request, $spk_payment_list_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
             $getDetailPaymentList = SpkPaymentList::where("spk_payment_list_id", $spk_payment_list_id)
                 ->with(["spk_payment.spk"])
                 ->first();
 
             // return ResponseFormatter::success($getDetailPaymentList);
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_detail', ["data" => $getDetailPaymentList]);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_detail', ["data" => $getDetailPaymentList, "logo" => $base64]);
             $pdf->setPaper('a4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;
@@ -370,13 +454,25 @@ class ExportPDFController extends Controller
     public function printPDFPaymentSPKInstansiDetail(Request $request, $spk_instansi_payment_list_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
             $getDetailPaymentList = SpkInstansiPaymentList::where("spk_instansi_payment_list_id", $spk_instansi_payment_list_id)
                 ->with(["spk_instansi_payment.spk_instansi", "bank"])
                 ->first();
 
 
             // return ResponseFormatter::success($getDetailPaymentList);
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi_detail', ["data" => $getDetailPaymentList]);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi_detail', ["data" => $getDetailPaymentList, "logo" => $base64]);
             $pdf->setPaper('a4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;
@@ -390,6 +486,19 @@ class ExportPDFController extends Controller
     public function printPDFPaymentSPKInstansi(Request $request, $spk_instansi_payment_id)
     {
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
             $getDetail = SpkInstansiPayment::with(["spk_instansi_payment_refund", "spk_instansi", "spk_instansi_payment_list.bank", "spk_instansi_payment_list.spk_instansi_payment_list_file"])
                 ->where("spk_instansi_payment_id", $spk_instansi_payment_id)->first();
 
@@ -398,7 +507,7 @@ class ExportPDFController extends Controller
             // return ResponseFormatter::success($getDetail);
             $description = $request->input("description");
             $total = $request->input("total");
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi', ["data" => $getDetail, "description" => $description, "total" => $total]);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_spk_instansi', ["data" => $getDetail, "description" => $description, "total" => $total, "logo" => $base64]);
             $pdf->setPaper('a4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;
@@ -433,13 +542,25 @@ class ExportPDFController extends Controller
     {
 
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
             $getDetailIndentInstansiPayment = IndentInstansiPayment::where("indent_instansi_payment_id", $indent_instansi_payment_id)
                 ->with(["indent_instansi.dealer", "indent_instansi.motor"])
                 ->first();
 
 
             // return ResponseFormatter::success($getDetailIndentInstansiPayment);
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent_instansi', ["data" => $getDetailIndentInstansiPayment]);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent_instansi', ["data" => $getDetailIndentInstansiPayment, "logo" => $base64]);
             $pdf->setPaper('a4', 'landscape');
 
             $currentTime = Carbon::now()->timestamp;
@@ -454,11 +575,24 @@ class ExportPDFController extends Controller
     {
 
         try {
+            $user = Auth::user();
+            $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+            $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+            // Path gambar
+            $path = public_path("storage/$DataLogo->logo");
+
+            // Konversi gambar ke base64
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $dataImage = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
             $getDetailPaymentIndent = IndentPayment::with(["bank", "indent.dealer", "indent.motor", "indent.color"])->where("indent_payment_id", $indent_payment_id)->first();
 
 
 
-            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent2', ["data" => $getDetailPaymentIndent]);
+            $pdf = Pdf::loadView('pdf.faktur.faktur_payment_indent2', ["data" => $getDetailPaymentIndent, "logo" => $base64]);
             $pdf->setPaper('a4', 'portrait');
 
             // Kembalikan PDF langsung sebagai respons

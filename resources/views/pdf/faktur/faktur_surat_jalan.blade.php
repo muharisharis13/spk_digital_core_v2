@@ -76,7 +76,7 @@
             <tr>
                 <td>
                     <div style="height: 180px;">
-                        <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100"
+                        <img src="{{ $logo }}" alt="Company Logo" class="logo" width="100"
                             style="margin-right: 20px; float: left;">
 
                         <div>

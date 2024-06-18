@@ -13,4 +13,13 @@ class DealerLogo extends Model
     protected $guarded = [];
 
     protected $primaryKey = "dealer_logo_id";
+
+    // public function getLogoAttribute($value): string
+    // {
+    //     if ($value) {
+    //         return asset('/storage/' . $value);
+    //     } else {
+    //         return "";
+    //     }
+    // }
 }

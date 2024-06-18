@@ -56,28 +56,7 @@ Route::prefix("v1")->group(function () {
         Route::post("/dealer/sync", [SyncController::class, "syncDataDealer"]);
     });
 
-    Route::prefix("export")->group(function () {
-        Route::prefix("faktur")->group(function () {
-            Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
-            Route::get("/indent-instansi/{id}", [ExportPDFController::class, "printPdfIndentInstansi"]);
-            Route::get("/indent-instansi-payment/{id}", [ExportPDFController::class, "printPdfIndentInstansiPayment"]);
-            Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
-            Route::get("/spk/{id}", [ExportPDFController::class, "prinSpk"]);
-            Route::get("/spk-instansi/{id}", [ExportPDFController::class, "printPDFSPKInstansi"]);
-            Route::get("/spk-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPK"]);
-            // Route::get("/spk-payment-leasing/{id}", [ExportPDFController::class, "printPDFPaymentSPKLeasing"]);
-            Route::get("/spk-payment-detail/{id}", [ExportPDFController::class, "printSpkPaymentDetail"]);
-            Route::get("/spk-instansi-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansi"]);
-            Route::get("/spk-instansi-payment-detail/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansiDetail"]);
-            Route::get("/over-payment/{id}", [ExportPDFController::class, "printPDFOverPayment"]);
-            Route::get("/po-instansi/{id}", [ExportPDFController::class, "printPDFPoInstansi"]);
-        });
-        Route::prefix("excel")->group(function () {
-            Route::get("/unit", [ExportPDFController::class, "exportExcelMotor"]);
-        });
-        Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
-        Route::get("/province", [ExportPDFController::class, "getProvince"]);
-    });
+
 
 
     Route::prefix("adira-spk")->group(function () {
@@ -95,6 +74,29 @@ Route::prefix("v1")->group(function () {
 
     Route::middleware("auth:sanctum")->group(function () {
 
+        Route::prefix("export")->group(function () {
+            Route::prefix("faktur")->group(function () {
+                Route::get("/indent/{indent_id}", [ExportPDFController::class, "printPdfIndent2"]);
+                Route::get("/indent-instansi/{id}", [ExportPDFController::class, "printPdfIndentInstansi"]);
+                Route::get("/indent-instansi-payment/{id}", [ExportPDFController::class, "printPdfIndentInstansiPayment"]);
+                Route::get("/indent-payment/{indent_payment_id}", [ExportPDFController::class, "printPDFPayment2"]);
+                Route::get("/spk/{id}", [ExportPDFController::class, "prinSpk"]);
+                Route::get("/spk-instansi/{id}", [ExportPDFController::class, "printPDFSPKInstansi"]);
+                Route::get("/spk-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPK"]);
+                // Route::get("/spk-payment-leasing/{id}", [ExportPDFController::class, "printPDFPaymentSPKLeasing"]);
+                Route::get("/spk-payment-detail/{id}", [ExportPDFController::class, "printSpkPaymentDetail"]);
+                Route::get("/spk-instansi-payment/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansi"]);
+                Route::get("/spk-instansi-payment-detail/{id}", [ExportPDFController::class, "printPDFPaymentSPKInstansiDetail"]);
+                Route::get("/over-payment/{id}", [ExportPDFController::class, "printPDFOverPayment"]);
+                Route::get("/po-instansi/{id}", [ExportPDFController::class, "printPDFPoInstansi"]);
+            });
+            Route::prefix("excel")->group(function () {
+                Route::get("/unit", [ExportPDFController::class, "exportExcelMotor"]);
+            });
+            Route::get("/surat-jalan", [ExportPDFController::class, "printSuratJalan"]);
+            Route::get("/province", [ExportPDFController::class, "getProvince"]);
+        });
+
         Route::prefix("dashboard")->group(function () {
             Route::get("/count", [DashboardController::class, "getCountTotal"]);
         });
@@ -104,8 +106,9 @@ Route::prefix("v1")->group(function () {
         });
 
         Route::prefix("dealer")->group(function () {
+            Route::get("/detail/{id}", [DealerController::class, "getDetailDealer"]);
             Route::prefix("logo")->group(function () {
-                Route::post("/create", [DealerController::class, "createLogoDealer"]);
+                Route::post("/upload", [DealerController::class, "createLogoDealer"]);
             });
         });
 

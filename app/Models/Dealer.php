@@ -23,4 +23,9 @@ class Dealer extends Model
     ];
 
     protected $primaryKey = "dealer_id";
+
+    public function dealer_logo()
+    {
+        return $this->hasOne(DealerLogo::class, "dealer_id");
+    }
 }

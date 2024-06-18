@@ -52,7 +52,7 @@
     <div class="row" style="height: 250px;">
         <div class="left">
             <div>
-                <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
+                <img src="{{ $logo }}" alt="Company Logo" class="logo" width="100">
             </div>
             {{-- {{ $data }} --}}
 
@@ -148,7 +148,7 @@
         <div class="row" style="height: 250px;">
             <div class="left">
                 <div>
-                    <img src="logo/alfa-scorpii-logo.png" alt="Company Logo" class="logo" width="100">
+                    <img src="{{ $logo }}" alt="Company Logo" class="logo" width="100">
                 </div>
                 {{-- {{ $data }} --}}
 
