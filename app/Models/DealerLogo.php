@@ -22,4 +22,11 @@ class DealerLogo extends Model
     //         return "";
     //     }
     // }
+
+    protected $appends = ['full_url'];
+
+    public function getFullUrlAttribute()
+    {
+        return url('storage/' . $this->attributes['logo']);
+    }
 }
