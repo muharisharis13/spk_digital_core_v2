@@ -276,7 +276,7 @@ class SpkInstansiController extends Controller
                 "payment_list_file" => "nullable|array",
                 "payment_list_file.*" => "required|mimes:png,jpg,pdf|max:5120",
                 "payment_list_method" => "required|in:cash,bank_transfer,giro",
-                "payment_list_amount" => "integer|required|min:1",
+                // "payment_list_amount" => "integer|required|min:1",
                 "payment_list_note" => "nullable",
                 "payment_list_date" => "required"
             ]);
