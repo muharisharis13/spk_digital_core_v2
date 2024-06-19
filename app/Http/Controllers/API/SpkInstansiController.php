@@ -573,7 +573,7 @@ class SpkInstansiController extends Controller
                 "city" => "required",
                 "district" => "required",
                 "sub_district" => "required",
-                "postal_code" => "required",
+                "postal_code" => "nullable",
                 "no_telp" => "nullable",
                 "no_hp" => "required",
             ]);

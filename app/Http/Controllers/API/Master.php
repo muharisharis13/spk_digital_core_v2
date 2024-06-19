@@ -149,7 +149,7 @@ class Master extends Controller
         try {
             $limit = $request->input("limit", 5);
             $searchQuery = $request->input("q");
-            $getPaginate = Color::latest()
+            $getPaginate = Color::orderBy('color_name', 'asc')
                 ->when($searchQuery, function ($query) use ($searchQuery) {
                     $query->where("color_name", "LIKE", "%$searchQuery%");
                 })
