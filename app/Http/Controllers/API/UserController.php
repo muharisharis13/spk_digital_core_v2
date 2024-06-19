@@ -313,224 +313,439 @@ class UserController extends Controller
     {
         try {
             $allPermission = Permission::latest()->get();
-
-            // return ResponseFormatter::success($allPermission);
             $groupedPermissions = [];
 
             // Function to convert permission name to a more human-readable format
             function convertToHumanReadable($string)
             {
-                // Define mapping for word replacements
-                $wordReplacements = [
-                    'put' => 'Edit',
-                    'post' => 'Create',
-                    // Add more replacements as needed
-                ];
-
-                // Replace words based on mapping
-                $string = str_replace(array_keys($wordReplacements), array_values($wordReplacements), $string);
-
+                // Ambil bagian depan hingga titik (.)
+                $string = strstr($string, '.', true);
+                // Ganti underscore dengan spasi dan ubah menjadi huruf kapital
                 return ucwords(str_replace('_', ' ', $string));
             }
 
-            // Function to check if a permission name contains a certain string
-            function contain($string, $permissions)
+            // Function to check if a permission name starts with a certain string
+            function startWith($string, $permissions)
             {
                 foreach ($permissions as $permission) {
-                    if (strpos($permission->name, $string) !== false) {
-                        return convertToHumanReadable($permission->alias_name ?? $permission->name); // Return alias name if available, otherwise return permission name
+                    if (strpos($permission->name, $string) === 0) {
+                        return convertToHumanReadable($permission->name); // Return human-readable name from start of permission
                     }
                 }
                 return false;
             }
 
             foreach ($allPermission as $permission) {
-                // Check if the permission name contains 'user'
-                if ($aliasName = contain('user', [$permission])) {
+
+                $parts = collect(explode('.', $permission->name));
+                if ($aliasName = startWith('user_list', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "User"
                     ];
-                }
-                // Check if the permission name contains 'pricelist'
-                elseif ($aliasName = contain('pricelist', [$permission])) {
+                } elseif ($aliasName = startWith('pricelist', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Price List"
                     ];
-                } elseif ($aliasName = contain('shipping_order', [$permission])) {
+                } elseif ($aliasName = startWith('shipping_order', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Shipping Order"
                     ];
-                } elseif ($aliasName = contain('unit', [$permission])) {
+                } elseif ($aliasName = startWith('unit', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Unit"
                     ];
-                } elseif ($aliasName = contain('po_inst', [$permission])) {
+                } elseif ($aliasName = startWith('po_inst', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "PO Instansi"
                     ];
-                } elseif ($aliasName = contain('spk_inst', [$permission])) {
+                } elseif ($aliasName = startWith('spk_inst', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "SPK Instansi"
                     ];
-                } elseif ($aliasName = contain('payment_po_inst', [$permission])) {
+                } elseif ($aliasName = startWith('payment_po_inst', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Payment PO Instansi"
                     ];
-                } elseif ($aliasName = contain('payment_spk', [$permission])) {
+                } elseif ($aliasName = startWith('payment_spk', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Payment SPK"
                     ];
-                } elseif ($aliasName = contain('excess_payment', [$permission])) {
+                } elseif ($aliasName = startWith('excess_payment', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Overpayment SPK"
                     ];
-                } elseif ($aliasName = contain('spk', [$permission])) {
+                } elseif ($aliasName = startWith('spk', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "SPK"
                     ];
-                } elseif ($aliasName = contain('purchase_order_spk', [$permission])) {
+                } elseif ($aliasName = startWith('purchase_order_spk', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Purchase Order SPK"
                     ];
-                } elseif ($aliasName = contain('delete_purchase_order', [$permission])) {
+                } elseif ($aliasName = startWith('delete_purchase_order', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Purchase Order SPK"
                     ];
-                } elseif ($aliasName = contain('delete_dcmt_another', [$permission])) {
+                } elseif ($aliasName = startWith('delete_dcmt_another', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "SPK"
                     ];
-                } elseif ($aliasName = contain('delete_dcmt_file_sk', [$permission])) {
+                } elseif ($aliasName = startWith('delete_dcmt_file_sk', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "SPK"
                     ];
-                } elseif ($aliasName = contain('delete_price_accessories', [$permission])) {
+                } elseif ($aliasName = startWith('delete_price_accessories', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "SPK"
                     ];
-                } elseif ($aliasName = contain('retur_unit', [$permission])) {
+                } elseif ($aliasName = startWith('retur_unit', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Return Unit"
                     ];
-                } elseif ($aliasName = contain('delete_unit_list', [$permission])) {
+                } elseif ($aliasName = startWith('delete_unit_list', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Return Unit"
                     ];
-                } elseif ($aliasName = contain('master', [$permission])) {
+                } elseif ($aliasName = startWith('master', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Master"
                     ];
-                } elseif ($aliasName = contain('indent_inst', [$permission])) {
+                } elseif ($aliasName = startWith('indent_inst', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Indent Instansi"
                     ];
-                } elseif ($aliasName = contain('indent', [$permission])) {
+                } elseif ($aliasName = startWith('indent', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Indent Regular"
                     ];
-                } elseif ($aliasName = contain('neq_return', [$permission])) {
+                } elseif ($aliasName = startWith('neq_return', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Return NEQ"
                     ];
-                } elseif ($aliasName = contain('neq', [$permission])) {
+                } elseif ($aliasName = startWith('neq', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Transfer NEQ"
                     ];
-                } elseif ($aliasName = contain('return_event', [$permission])) {
+                } elseif ($aliasName = startWith('return_event', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Return Event"
                     ];
-                } elseif ($aliasName = contain('event', [$permission])) {
+                } elseif ($aliasName = startWith('event', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Transfer Event Event"
                     ];
-                } elseif ($aliasName = contain('delivery', [$permission])) {
+                } elseif ($aliasName = startWith('delivery', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Delivery"
                     ];
-                } elseif ($aliasName = contain('repair_return', [$permission])) {
+                } elseif ($aliasName = startWith('repair_return', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Return Repair"
                     ];
-                } elseif ($aliasName = contain('repair', [$permission])) {
+                } elseif ($aliasName = startWith('repair', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Repair"
                     ];
-                } elseif ($aliasName = contain('reapair', [$permission])) {
+                } elseif ($aliasName = startWith('reapair', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Repair"
                     ];
-                } elseif ($aliasName = contain('post_sync_data', [$permission])) {
+                } elseif ($aliasName = startWith('post_sync_data', [$permission])) {
                     $groupedPermissions[] = [
                         'name' => $permission->name,
-                        'alias_name' => $aliasName, // Use alias name if available
+                        'alias_name' => $parts->last(),
                         'group_name' => "Shipping Order"
                     ];
                 }
-                // Add other conditions for different groupings if needed
             }
 
             return ResponseFormatter::success($groupedPermissions);
         } catch (\Throwable $e) {
-            return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+            return ResponseFormatter::error($e->getMessage(), "Internal Server Error", 500);
         }
     }
+
+
+
+
+    // public function getPermissionAttribute()
+    // {
+    //     try {
+    //         $allPermission = Permission::latest()->get();
+
+    //         // return ResponseFormatter::success($allPermission);
+    //         $groupedPermissions = [];
+
+    //         // Function to convert permission name to a more human-readable format
+    //         function convertToHumanReadable($string)
+    //         {
+    //             // Define mapping for word replacements
+    //             $wordReplacements = [
+    //                 'put' => 'Edit',
+    //                 'post' => 'Create',
+    //                 // Add more replacements as needed
+    //             ];
+
+    //             // Replace words based on mapping
+    //             $string = str_replace(array_keys($wordReplacements), array_values($wordReplacements), $string);
+
+    //             return ucwords(str_replace('_', ' ', $string));
+    //         }
+
+    //         // Function to check if a permission name contains a certain string
+    //         function contain($string, $permissions)
+    //         {
+    //             foreach ($permissions as $permission) {
+    //                 if (strpos($permission->name, $string) !== false) {
+    //                     return convertToHumanReadable($permission->alias_name ?? $permission->name); // Return alias name if available, otherwise return permission name
+    //                 }
+    //             }
+    //             return false;
+    //         }
+
+    //         foreach ($allPermission as $permission) {
+    //             // Check if the permission name contains 'user'
+    //             if ($aliasName = contain('user', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "User"
+    //                 ];
+    //             }
+    //             // Check if the permission name contains 'pricelist'
+    //             elseif ($aliasName = contain('pricelist', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Price List"
+    //                 ];
+    //             } elseif ($aliasName = contain('shipping_order', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Shipping Order"
+    //                 ];
+    //             } elseif ($aliasName = contain('unit', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Unit"
+    //                 ];
+    //             } elseif ($aliasName = contain('po_inst', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "PO Instansi"
+    //                 ];
+    //             } elseif ($aliasName = contain('spk_inst', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "SPK Instansi"
+    //                 ];
+    //             } elseif ($aliasName = contain('payment_po_inst', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Payment PO Instansi"
+    //                 ];
+    //             } elseif ($aliasName = contain('payment_spk', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Payment SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('excess_payment', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Overpayment SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('spk', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('purchase_order_spk', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Purchase Order SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('delete_purchase_order', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Purchase Order SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('delete_dcmt_another', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('delete_dcmt_file_sk', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('delete_price_accessories', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "SPK"
+    //                 ];
+    //             } elseif ($aliasName = contain('retur_unit', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Return Unit"
+    //                 ];
+    //             } elseif ($aliasName = contain('delete_unit_list', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Return Unit"
+    //                 ];
+    //             } elseif ($aliasName = contain('master', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Master"
+    //                 ];
+    //             } elseif ($aliasName = contain('indent_inst', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Indent Instansi"
+    //                 ];
+    //             } elseif ($aliasName = contain('indent', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Indent Regular"
+    //                 ];
+    //             } elseif ($aliasName = contain('neq_return', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Return NEQ"
+    //                 ];
+    //             } elseif ($aliasName = contain('neq', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Transfer NEQ"
+    //                 ];
+    //             } elseif ($aliasName = contain('return_event', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Return Event"
+    //                 ];
+    //             } elseif ($aliasName = contain('event', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Transfer Event Event"
+    //                 ];
+    //             } elseif ($aliasName = contain('delivery', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Delivery"
+    //                 ];
+    //             } elseif ($aliasName = contain('repair_return', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Return Repair"
+    //                 ];
+    //             } elseif ($aliasName = contain('repair', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Repair"
+    //                 ];
+    //             } elseif ($aliasName = contain('reapair', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Repair"
+    //                 ];
+    //             } elseif ($aliasName = contain('post_sync_data', [$permission])) {
+    //                 $groupedPermissions[] = [
+    //                     'name' => $permission->name,
+    //                     'alias_name' => $aliasName, // Use alias name if available
+    //                     'group_name' => "Shipping Order"
+    //                 ];
+    //             }
+    //             // Add other conditions for different groupings if needed
+    //         }
+
+    //         return ResponseFormatter::success($groupedPermissions);
+    //     } catch (\Throwable $e) {
+    //         return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+    //     }
+    // }
 
 
 

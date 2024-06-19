@@ -2,265 +2,213 @@
 
 namespace App\Helpers;
 
-
 class PermmissionList
 {
-    const permissionUnit = [
-        "read_unit",
-        "read_unit_detail",
-        "update_unit_status"
+    const permissionDashboard = [
+        "dashboard.view_dashboard_data",
     ];
 
-    const permissionShippingOrder = [
-        "post_sync_data",
-        "read_shipping_order",
-        "read_shipping_order_detail",
-    ];
-
-    const permissionReturUnit = [
-        "read_retur_unit",
-        "post_retur_unit",
-        "read_retur_unit_detail",
-        "put_retur_unit",
-        "delete_retur_unit",
-        "put_confirm_return_unit",
-        "delete_unit_list"
-    ];
-
-
-    const permissionMaster = [
-        "read_motor_master",
-        "read_dealer_neq_master",
-        "read_mds_master",
-        "read_location_current_master",
-        "read_main_dealer_master",
-        "post_event_create_master",
-        "read_event_detail_master",
-        "update_event_master",
-        "update_event_status_master",
-        "read_event_master",
-        "get_sales_master",
-        "get_microfinance_master",
-        "get_leasing_master",
-        "get_color_master",
-        "get_bank_master",
-        "post_bank_master",
-        "delete_bank_master",
-        "put_status_bank_master",
-        "put_bank_master",
-        "get_marital_master",
-        "get_hobby_master",
-        "get_tenor_master",
-        "get_motor_brand_master",
-        "get_motor_detail_master"
-    ];
-
-    const permissionRepair = [
-        "post_repair_create",
-        "update_repair",
-        "update_repair_status",
-        "delete_reapair",
-        "delete_repair_unit",
-        "read_repair_detail",
-        "read_repair",
-        "post_repair_return_create",
-        "update_repair_return",
-        "update_repair_return_status",
-        "delete_repair_return_unit",
-        "delete_repair_return",
-        "read_repair_return_unit"
-    ];
-
-    const permissionRepairReturn = [
-        "read_repair_return",
-        "post_repair_return",
-        "read_repair_return_detail",
+    const permissionInventory = [
+        "inventory.shipping_order.sync_data",
+        "inventory.stock.read_stock_detail",
+        "inventory.return.add_new_return",
+        "inventory.return.read_return_detail",
+        "inventory.return.edit_return",
+        "inventory.return.confirm_return",
+        "inventory.return.delete_return",
+        "inventory.repair.add_new_repair",
+        "inventory.repair.read_surat_jalan",
+        "inventory.repair.read_repair_detail",
+        "inventory.repair.edit_repair",
+        "inventory.repair.confirm_repair",
+        "inventory.repair.delete_repair",
+        "inventory.repair.add_new_surat_jalan",
+        "inventory.repair_return.add_new_finish",
+        "inventory.repair_return.read_surat_jalan",
+        "inventory.repair_return.read_repair_return_detail",
+        "inventory.repair_return.edit_repair_return",
+        "inventory.repair_return.confirm_repair_return",
+        "inventory.repair_return.delete_repair_return",
+        "inventory.repair_return.print_repair_return"
     ];
 
     const permissionEvent = [
-        "read_event",
-        "read_event_detail",
-        "post_event",
-        "put_event",
-        "put_status_event",
-        "delete_unit_event",
-        "delete_event"
-    ];
-
-    const permissionEventReturn = [
-        "post_return_event",
-        "get_return_event",
-        "get_detail_return_event",
-        "put_status_return_event",
-        "put_return_event",
-        "delete_return_event",
-        "delete_unit_return_event",
-        "get_unit_return_event"
-    ];
-
-    const permissionTfEvent = [
-        "read_tf_event",
-        "read_tf_event_detail",
-        "post_tf_event"
-    ];
-
-    const permissionTfEventReturn = [
-        "read_tf_event_return",
-        "read_tf_event_detail_return",
-        "post_tf_event_return"
+        "event.list_event",
+        "event.add_new_payment",
+        "event.status_event",
+        "event.read_event_detail",
+        "event.edit_event",
+        "event.transfer_event",
+        "event.transfer_event.read_surat_jalan",
+        "event.transfer_event.read_transfer_detail",
+        "event.transfer_event.edit_transfer",
+        "event.transfer_event.confirm_transfer",
+        "event.transfer_event.delete_transfer",
+        "event.transfer_event.print_transfer",
+        "event.return_event",
+        "event.return_event.read_surat_jalan",
+        "event.return_event.read_return_detail",
+        "event.return_event.edit_return",
+        "event.return_event.confirm_return",
+        "event.return_event.delete_return",
+        "event.return_event.print_return"
     ];
 
     const permissionNeq = [
-        "read_neq",
-        "read_neq_detail",
-        "post_neq",
-        "put_status_neq",
-        "put_neq",
-        "delete_neq",
-        "delete_unit_neq"
+        "neq.transfer_neq",
+        "neq.transfer_neq.read_surat_jalan",
+        "neq.transfer_neq.read_transfer_detail",
+        "neq.transfer_neq.edit_transfer",
+        "neq.transfer_neq.confirm_transfer",
+        "neq.transfer_neq.delete_transfer",
+        "neq.transfer_neq.return_neq",
+        "neq.transfer_neq.return_neq.read_surat_jalan",
+        "neq.transfer_neq.return_neq.read_return_detail",
+        "neq.transfer_neq.return_neq.edit_return",
+        "neq.transfer_neq.return_neq.confirm_return",
+        "neq.transfer_neq.return_neq.delete_return"
     ];
 
-    const permissionNeqReturn = [
-        "read_neq_return",
-        "read_neq_detail_return",
-        "post_neq_return",
-        "put_neq_return",
-        "delete_neq_return",
-        "put_status_neq_return",
-        "delete_unit_neq_return",
-        "get_unit_neq_return"
+    const permissionTransaction = [
+        "transaction.instance_indent.add_new_indent",
+        "transaction.instance_indent.read_instance_detail",
+        "transaction.instance_indent.edit_instance",
+        "transaction.instance_indent.payment_instance",
+        "transaction.instance_indent.cancel_instance",
+        "transaction.instance_indent.print_instance",
+        "transaction.instance_indent.cashier_approve_instance",
+        "transaction.instance_indent.finance_approve_instance",
+        "transaction.instance_indent.refund_instance",
+        "transaction.instance_indent.delete_payment",
+        "transaction.instance_indent.print_payment",
+        "transaction.instance.add_new_po",
+        "transaction.instance.read_instance_detail",
+        "transaction.instance.edit_general_info",
+        "transaction.instance.edit_legal_info",
+        "transaction.instance.edit_delivery_info",
+        "transaction.instance.edit_additional_info",
+        "transaction.instance.edit_po",
+        "transaction.instance.finance_approve_po",
+        "transaction.instance.void_po",
+        "transaction.instance.publish_sph",
+        "transaction.unit_info.read_unit",
+        "transaction.unit_info.add_unit",
+        "transaction.unit_info.edit_unit",
+        "transaction.unit_info.delete_unit",
+        "transaction.unit_info.add_frame",
+        "transaction.unit_list.read_unit_list",
+        "transaction.unit_list.add_legal_info",
+        "transaction.unit_list.delivery_per_unit",
+        "transaction.unit_list.edit_additional_info",
+        "transaction.regular_indent.add_new_indent",
+        "transaction.regular_indent.read_surat_jalan",
+        "transaction.regular_indent.read_indent_detail",
+        "transaction.regular_indent.edit_indent",
+        "transaction.regular_indent.confirm_indent",
+        "transaction.regular_indent.delete_indent",
+        "transaction.regular_indent.print_indent",
+        "transaction.regular_spk.add_new_spk",
+        "transaction.regular_spk.read_surat_jalan",
+        "transaction.regular_spk.read_spk_detail",
+        "transaction.regular_spk.edit_spk",
+        "transaction.regular_spk.confirm_spk",
+        "transaction.regular_spk.delete_spk",
+        "transaction.regular_spk.print_spk",
+        "transaction.spk.read_spk",
+        "transaction.spk.edit_spk",
+        "transaction.spk.finance_approve_spk",
+        "transaction.spk.shipment",
+        "transaction.spk.surat_jalan",
+        "transaction.spk.void_spk"
     ];
 
-    const permissionIndent = [
-        "read_indent",
-        "read_indent_detail",
-        "post_indent",
-        "put_indent",
-        "post_payment_indent",
-        "pit_status_indent",
-        "delete_payment_indent",
-        "put_refund_all_payment_indent",
-        "put_cancel_payment_indent"
+    const permissionPayment = [
+        "payment.overpayment.read_payment",
+        "payment.overpayment.print_payment",
+        "payment.instance_payment.read_instance_payment",
+        "payment.instance_payment.edit_instance_payment",
+        "payment.instance_payment.payment_instance_payment",
+        "payment.instance_payment.cashier_approve_instance_payment",
+        "payment.instance_payment.finance_approve_instance_payment",
+        "payment.instance_payment.refund_instance_payment",
+        "payment.instance_payment.delete_payment",
+        "payment.instance_payment.print_payment",
+        "payment.regular_payment.read_regular_payment",
+        "payment.regular_payment.edit_regular_payment",
+        "payment.regular_payment.payment_regular_payment",
+        "payment.regular_payment.cashier_approve_regular_payment",
+        "payment.regular_payment.finance_approve_regular_payment",
+        "payment.regular_payment.refund_regular_payment",
+        "payment.regular_payment.delete_payment",
+        "payment.regular_payment.print_payment"
     ];
 
-    const permissionSPK = [
-        "read_spk",
-        "read_spk_detail",
-        "post_spk",
-        "put_spk",
-        "delete_spk",
-        "put_status_spk",
-        "post_shipment_spk",
-        "post_cro_spk",
-        "post_purchase_order_spk",
-        "put_act_tac_purchase_order_spk",
-        "delete_purchase_order",
-        "delete_dcmt_another",
-        "delete_dcmt_file_sk",
-        "delete_price_accessories",
-        "get_excess_payment",
-        "get_detail_excess_payment",
-        "get_payment_spk",
-        "get_detail_payment_spk",
-        "post_payment_spk",
-        "delete_payment_spk",
-        "refund_payment_spk",
-        "put_status_payment_spk",
+    const permissionCustomer = [
+        "customer.edit_general_info",
+        "customer.edit_transaction_info",
+        "customer.edit_unit_info"
     ];
 
-    const permissionSPKPayment = [
-        "read_spk_payment",
-        "read_spk_paymentd_detail",
-        "post_spk_paymentd",
-    ];
-
-    const permissionExcessSPK = [
-        "read_excess_spk",
-        "read_excess_spk_detail",
+    const permissionPricing = [
+        "pricing.edit_pricing_info",
+        "pricing.edit_off_the_road",
+        "pricing.edit_bbn"
     ];
 
     const permissionDelivery = [
-        "post_delivery",
-        "get_delivery",
-        "get_detail_delivery",
-        "put_status_delivery",
-        "put_delivery",
-        "delete_delivery"
+        "delivery.edit_delivery_info",
     ];
 
-    const permissionIndentInstansi = [
-        "get_indent_inst",
-        "post_indent_inst",
-        "put_indent_inst",
-        "put_status_indent_inst",
-        "get_detail_indent_inst",
-        "post_payment_indent_inst",
-        "put_cancel_payment_indent_inst",
-        "delete_payment_indent_inst",
-        "put_refund_all_payment_indent_inst",
+    const permissionPoLeasing = [
+        "po_leasing.create_po",
+        "po_leasing.reset_po",
+        "po_leasing.actual_tac_po"
     ];
 
-    const permissionPoInstansi = [
-        "get_po_inst",
-        "get_detail_po_inst",
-        "post_po_inst",
-        "put_po_inst",
-        "post_add_motor_po_inst",
-        "put_motor_po_inst",
-        "delete_motor_po_inst",
-        "post_add_unit_po_inst",
-        "put_unit_po_inst",
-        "delete_unit_po_inst",
-        "post_additional_po_inst",
-        "put_additional_po_inst",
-        "delete_additional_po_inst",
-        "delete_additional_file_po_inst",
-        "post_status_po_inst",
-        "post_publish_po_inst",
-        "cancel_po_inst",
-        "delete_po_inst",
-        "delete_delivery_file_po_inst",
-        "delete_delivery_uni_file_po_inst",
-        "post_payment_po_inst",
-        "delete_payment_po_inst",
-        "get_detail_payment_po_inst",
-        "refund_payment_po_inst",
-        "get_payment_po_inst",
-        "post_add_legal_po_inst",
-        "post_delivery_po_inst",
-        "get_spk_inst",
-        "get_detail_spk_inst",
-        "update_status_payment_spk_inst",
-        "post_add_cro_po_inst"
+    const permissionCRO = [
+        "cro.check_cro",
+        "cro.detail_cro"
+    ];
+
+    const permissionMaster = [
+        "master.dealer_list.read_dealer",
+        "master.dealer_list.sync_dealer",
+        "master.neq_list.read_neq_list",
+        "master.role_list.read_role_list",
+        "master.role_list.add_new_role",
+        "master.bank_list.read_bank_list",
+        "master.bank_list.add_new_bank",
+        "master.bank_list.edit_bank_detail",
+        "master.pricelist.clone_pricelist",
+        "master.pricelist.read_pricelist",
+        "master.pricelist.edit_pricelist_detail"
     ];
 
     const permissionUser = [
-        "post_assign_permission_user",
-        "get_permission_user",
-        "get_current_dealer_user",
-        "get_role_user",
-        "put_status_user",
-        "get_user",
-        "get_detail_user",
-        "post_user",
-        "put_user",
-        "remove_permission_user"
+        "user_list.add_new_user",
+        "user_list.read_user_detail",
+        "user_list.deactivate_user",
+        "user_list.reset_password",
+        "user_list.edit_user",
+        "user_list.read_permission_user"
     ];
-
-    const permissionPricelist = [
-        "post_pricelist",
-        "get_pricelist",
-        "get_detail_pricelist",
-        "post_clone_pricelist",
-        "put_pricelist"
-    ];
-
-
-
-
 
     public static function AllPermission()
     {
-        return array_merge(self::permissionUnit, self::permissionShippingOrder, self::permissionMaster, self::permissionRepair, self::permissionReturUnit, self::permissionRepairReturn, self::permissionEvent, self::permissionTfEvent, self::permissionTfEventReturn, self::permissionNeq, self::permissionNeqReturn, self::permissionIndent, self::permissionSPK, self::permissionSPKPayment, self::permissionExcessSPK, self::permissionDelivery, self::permissionEventReturn, self::permissionIndentInstansi, self::permissionPoInstansi, self::permissionIndentInstansi, self::permissionPricelist, self::permissionUser);
+        return array_merge(
+            self::permissionDashboard,
+            self::permissionInventory,
+            self::permissionEvent,
+            self::permissionNeq,
+            self::permissionTransaction,
+            self::permissionPayment,
+            self::permissionCustomer,
+            self::permissionPricing,
+            self::permissionDelivery,
+            self::permissionPoLeasing,
+            self::permissionCRO,
+            self::permissionMaster,
+            self::permissionUser
+        );
     }
 }

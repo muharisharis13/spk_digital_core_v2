@@ -19,11 +19,9 @@ class DeleteAllUserPermissionsAndRolesSeeder extends Seeder
         // Hapus semua permissions dan roles dari users
         User::all()->each(function ($user) {
             $user->syncPermissions([]);
-            $user->syncRoles([]);
         });
 
         // Hapus semua permissions dan roles
         Permission::query()->delete();
-        Role::query()->delete();
     }
 }
