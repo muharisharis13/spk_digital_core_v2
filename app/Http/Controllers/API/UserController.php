@@ -644,7 +644,7 @@ class UserController extends Controller
                 ->update(['isSelected' => false]);
 
             // Select the new dealer
-            $getDealer = DealerByUser::with(['dealer'])
+            $getDealer = DealerByUser::with(['dealer.dealer_logo'])
                 ->where('dealer_id', $request->dealer_id)
                 ->where("user_id", $user->user_id)
                 ->first();
