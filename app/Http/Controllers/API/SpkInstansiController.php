@@ -787,7 +787,7 @@ class SpkInstansiController extends Controller
                 ->whereHas("spk_instansi", function ($query) use ($getDealerByUserSelected) {
                     return $query->where("dealer_id", $getDealerByUserSelected->dealer_id)
                         ->where("spk_instansi_status", "publish")
-                        ->where("spk_instansi_status", "cancel");
+                        ->orWhere("spk_instansi_status", "cancel");
                 })
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
