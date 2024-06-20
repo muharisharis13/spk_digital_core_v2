@@ -347,13 +347,13 @@ class ReturUnitController extends Controller
 
                     ]);
                 } else {
-                    $getDetailUnit = ReturUnitList::where("retur_unit_id", $item["retur_unit_list_id"])
+                    $getDetailUnit = ReturUnitList::where("retur_unit_list_id", $item["retur_unit_list_id"])
                         ->where("unit_id", $item["unit_id"])
                         ->first();
 
 
                     if ($item["is_delete"] == "true") {
-                        if (!isset($getDetailUnit->retur_unit_id)) {
+                        if (!isset($getDetailUnit->retur_unit_list_id)) {
                             DB::rollBack();
                             return ResponseFormatter::error("retur unit not found", "bad request", 400);
                         }
