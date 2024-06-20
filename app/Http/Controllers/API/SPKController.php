@@ -513,7 +513,7 @@ class SPKController extends Controller
             SpkDeliveryDomicile::where("spk_id", $spk_id)->delete();
             SpkDeliveryKtp::where("spk_id", $spk_id)->delete();
             SpkDeliveryNeq::where("spk_id", $spk_id)->delete();
-            SpkGeneral::where("spk_id", $spk_id)->delete();
+            $getDetailSpkGeneral = SpkGeneral::where("spk_id", $spk_id)->first();
             SpkLegal::where("spk_id", $spk_id)->delete();
             SpkLog::where("spk_id", $spk_id)->delete();
             SpkPricing::where("spk_id", $spk_id)->delete();
@@ -522,6 +522,13 @@ class SPKController extends Controller
             SpkPurchaseOrder::where("spk_id", $spk_id)->delete();
             SpkTransaction::where("spk_id", $spk_id)->delete();
             SpkUnit::where("spk_id", $spk_id)->delete();
+            $getDetailSpkGeneral->delete();
+
+            if (isset($getDetailSpkGeneral->spk_general_id)) {
+                Indent::where("indent_id", $getDetailSpkGeneral->indent_id)->update([
+                    "indent_status" => "finance_check"
+                ]);
+            }
 
             DB::commit();
 
