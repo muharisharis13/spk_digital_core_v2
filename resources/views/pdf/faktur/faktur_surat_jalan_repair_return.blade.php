@@ -80,8 +80,8 @@
                 </td> --}}
                 <td>
                     <div style="height: 180px;">
-                        <img src="{{ $logo }}" alt="Company Logo" class="logo" width="100"
-                            style="margin-right: 20px; float: left;">
+                        <img src="{{ $logo ?? 'logo/alfa-scorpii-logo.png' }}" alt="Company Logo" class="logo"
+                            width="100" style="margin-right: 20px; float: left;">
 
                         <div>
                             <h3 style="margin-top: -5px">{{ $data->dealer->dealer_name }}</h3>

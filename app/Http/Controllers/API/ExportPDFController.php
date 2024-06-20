@@ -650,7 +650,20 @@ class ExportPDFController extends Controller
     private function suratJalanNeq($delivery)
     {
         // return ResponseFormatter::success($delivery);
-        $html = view('pdf.faktur.faktur_surat_jalan_neq', ["data" => $delivery])->render();
+        $user  = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        // Path gambar
+        $path = public_path("storage/$DataLogo->logo");
+
+        // Konversi gambar ke base64
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataImage = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+        $html = view('pdf.faktur.faktur_surat_jalan_neq', ["data" => $delivery, "logo" => $base64])->render();
 
         $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
 
@@ -660,6 +673,19 @@ class ExportPDFController extends Controller
     private function suratJalanEventReturn($delivery)
     {
         // return ResponseFormatter::success($delivery);
+        $user  = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        // Path gambar
+        $path = public_path("storage/$DataLogo->logo");
+
+        // Konversi gambar ke base64
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataImage = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
         $html = view('pdf.faktur.faktur_surat_jalan_event_return', ["data" => $delivery])->render();
 
         $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
@@ -670,7 +696,20 @@ class ExportPDFController extends Controller
     private function suratJalanEvent($delivery)
     {
         // return ResponseFormatter::success($delivery);
-        $html = view('pdf.faktur.faktur_surat_jalan_event', ["data" => $delivery])->render();
+        $user  = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        // Path gambar
+        $path = public_path("storage/$DataLogo->logo");
+
+        // Konversi gambar ke base64
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataImage = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+        $html = view('pdf.faktur.faktur_surat_jalan_event', ["data" => $delivery, "logo" => $base64])->render();
 
         $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
 
@@ -680,7 +719,20 @@ class ExportPDFController extends Controller
     private function suratJalanRepairReturn($delivery)
     {
         // return ResponseFormatter::success($delivery);
-        $html = view('pdf.faktur.faktur_surat_jalan_repair_return', ["data" => $delivery])->render();
+        $user  = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        // Path gambar
+        $path = public_path("storage/$DataLogo->logo");
+
+        // Konversi gambar ke base64
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataImage = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+        $html = view('pdf.faktur.faktur_surat_jalan_repair_return', ["data" => $delivery, "logo" => $base64])->render();
 
         $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
 
@@ -690,7 +742,20 @@ class ExportPDFController extends Controller
     private function suratJalanRepair($delivery)
     {
         // return ResponseFormatter::success($delivery);
-        $html = view('pdf.faktur.faktur_surat_jalan_repair', ["data" => $delivery])->render();
+        $user  = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        // Path gambar
+        $path = public_path("storage/$DataLogo->logo");
+
+        // Konversi gambar ke base64
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataImage = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+        $html = view('pdf.faktur.faktur_surat_jalan_repair', ["data" => $delivery, "logo" => $base64])->render();
 
         $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
 
@@ -700,7 +765,20 @@ class ExportPDFController extends Controller
     private function suratJalanSpk($delivery)
     {
         // return ResponseFormatter::success($delivery);
-        $html = view('pdf.faktur.faktur_surat_jalan', ["data" => $delivery])->render();
+        $user  = Auth::user();
+        $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
+
+
+        $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+
+        // Path gambar
+        $path = public_path("storage/$DataLogo->logo");
+
+        // Konversi gambar ke base64
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $dataImage = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+        $html = view('pdf.faktur.faktur_surat_jalan', ["data" => $delivery, "logo" => $base64])->render();
 
         $pdf = Pdf::loadHTML($html)->setPaper('a4', 'landscape');
 
