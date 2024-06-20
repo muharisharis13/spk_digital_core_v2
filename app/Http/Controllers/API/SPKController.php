@@ -505,8 +505,7 @@ class SPKController extends Controller
             if (!isset($getDetailSpk->spk_id)) {
                 return ResponseFormatter::error("spk not found", "bad request", 400);
             }
-            $getDetailSpk->delete();
-            SpkAdditionalDocument::where("spk_id")->delete();
+            SpkAdditionalDocument::where("spk_id", $spk_id)->delete();
             SpkAdditionalDocumentAnother::where("spk_id", $spk_id)->delete();
             SpkCustomer::where("spk_id", $spk_id)->delete();
             SpkDeliveryDealer::where("spk_id", $spk_id)->delete();
@@ -523,6 +522,8 @@ class SPKController extends Controller
             SpkTransaction::where("spk_id", $spk_id)->delete();
             SpkUnit::where("spk_id", $spk_id)->delete();
             $getDetailSpkGeneral->delete();
+
+            $getDetailSpk->delete();
 
             if (isset($getDetailSpkGeneral->spk_general_id)) {
                 Indent::where("indent_id", $getDetailSpkGeneral->indent_id)->update([
