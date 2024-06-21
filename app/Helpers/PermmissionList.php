@@ -10,6 +10,7 @@ class PermmissionList
 
     const permissionInventory = [
         "inventory.shipping_order.sync_data",
+        "inventory.shipping_order.read_data",
         "inventory.stock.read_stock_detail",
         "inventory.return.add_new_return",
         "inventory.return.read_return_detail",

@@ -24,3 +24,7 @@ Route::get('/faktur', function () {
 Route::get('/surat_jalan', function () {
     return view('pdf.surat_jalan.surat_jalan');
 });
+
+Route::get("/detail/indent", function () {
+    return view("detail.indent");
+});
