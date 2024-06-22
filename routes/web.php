@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\ExportPDFController;
+use App\Http\Controllers\WEB\DetailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,3 +29,7 @@ Route::get('/surat_jalan', function () {
 Route::get("/detail/indent", function () {
     return view("detail.indent");
 });
+Route::get("/detail/indent_instansi", [DetailController::class, "indentInstansi"]);
+Route::get("/detail/instansi", [DetailController::class, "instansi"]);
+Route::get("/detail/instansi_payment", [DetailController::class, "instansiPayment"]);
+Route::get("/detail/payment", [DetailController::class, "payment"]);
