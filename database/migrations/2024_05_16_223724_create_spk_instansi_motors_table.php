@@ -27,8 +27,8 @@ return new class extends Migration
             $table->integer("discount_over");
             $table->integer("commission");
             $table->integer("booster");
-            $table->integer("additional_cost");
-            $table->text("additional_cost_note");
+            $table->integer("additional_cost")->nullable();
+            $table->text("additional_cost_note")->nullable();
             $table->timestamps();
         });
     }
