@@ -20,6 +20,8 @@ use App\Models\DeliveryRepair;
 use App\Models\DeliveryRepairReturn;
 use App\Models\DeliverySpk;
 use App\Models\DeliverySpkInstansi;
+use App\Models\SpkInstansiUnit;
+use App\Models\SpkInstansiUnitDelivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +62,20 @@ class DeliveryController extends Controller
             }
             if ($getDetailDelivery->delivery_type === 'spk') {
                 DeliverySpk::where("delivery_id", $delivery_id)->delete();
+            }
+            if ($getDetailDelivery->delivery_type === "spk_instansi") {
+                $getDetailDeliverySpkInstansi = DeliverySpkInstansi::where("delivery_id", $delivery_id)->get();
+
+                foreach ($getDetailDeliverySpkInstansi as $item) {
+                    if ($item["type"] == "partial") {
+                        $getDetailSpkInstansiUnitDelivery = SpkInstansiUnitDelivery::where("spk_instansi_unit_delivery_id", $item["spk_instansi_unit_delivery_id"])->first();
+
+                        SpkInstansiUnit::where("spk_instansi_unit_id", $getDetailSpkInstansiUnitDelivery->spk_instansi_unit_id)->update([
+                            "is_delivery_partial" => 0
+                        ]);
+                    }
+                }
+                $getDetailDeliverySpkInstansi->delete();
             }
 
             $getDetailDelivery->delete();
