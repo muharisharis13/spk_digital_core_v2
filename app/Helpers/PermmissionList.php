@@ -1081,6 +1081,11 @@ class PermmissionList
             "group_name" => "master"
         ],
         [
+            "name" => "master.bank_list.add_new_bank",
+            "alias_name" => "bank list data",
+            "group_name" => "master"
+        ],
+        [
             "name" => "master.bank_list.data",
             "alias_name" => "bank list data",
             "group_name" => "master"

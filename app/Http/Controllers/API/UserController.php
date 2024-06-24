@@ -398,7 +398,7 @@ class UserController extends Controller
             $getUser = User::where("user_id", $user_id)->first();
 
             if ($getUser) {
-                if ($request->permission->count() > 0) {
+                if ($request->permission) {
                     foreach ($$request->permission as $item) {
                         $getUser->syncPermissions($item);
                     }
