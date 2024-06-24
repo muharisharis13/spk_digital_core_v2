@@ -30,4 +30,4 @@ Route::get("/detail/indent/{id}", [DetailController::class, "indent"]);
 Route::get("/detail/indent_instansi/{id}", [DetailController::class, "indentInstansi"]);
 Route::get("/detail/instansi", [DetailController::class, "instansi"]);
 Route::get("/detail/instansi_payment/{id}", [DetailController::class, "instansiPayment"]);
-Route::get("/detail/payment", [DetailController::class, "payment"]);
+Route::get("/detail/payment/{id}", [DetailController::class, "payment"]);

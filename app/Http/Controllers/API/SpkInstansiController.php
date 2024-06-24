@@ -1038,7 +1038,8 @@ class SpkInstansiController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "unit_id" => "required",
-                "motor_id" => "required"
+                "motor_id" => "required",
+                "spk_instansi_motor_id" => "required"
             ]);
 
             if ($validator->fails()) {
@@ -1060,13 +1061,24 @@ class SpkInstansiController extends Controller
                 return ResponseFormatter::error("Unit status sudah hold", "bad request", 400);
             }
 
+
+            $getDetailMotorIntsasi = SpkInstansiMotor::where("spk_instansi_motor_id", $request->spk_instansi_motor_id)->first();
+
+            // $total = ((($prev_off_the_road + $prev_bbn)) - $prev_discount - $prev_discount_over + $prev_additional_cost) * $prev_qty;
+            $resultInstansiUnit =
+                (($getDetailMotorIntsasi->off_the_road ?? 0) + ($getDetailMotorIntsasi->bbn ?? 0)) -
+                ($getDetailMotorIntsasi->discount ?? 0) -
+                ($getDetailMotorIntsasi->discount_over ?? 0) -
+                ($getDetailMotorIntsasi->additional_cost ?? 0);
+
             $createUnitInstansi  = SpkInstansiUnit::firstOrCreate([
                 "unit_id" => $request->unit_id,
                 "spk_instansi_id" => $spk_instansi_id
             ], [
                 "motor_id" => $request->motor_id,
                 "unit_id" => $request->unit_id,
-                "spk_instansi_id" => $spk_instansi_id
+                "spk_instansi_id" => $spk_instansi_id,
+                "total_amount" => $resultInstansiUnit
             ]);
 
             $user = Auth::user();

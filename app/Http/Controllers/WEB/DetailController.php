@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Indent;
 use App\Models\IndentInstansi;
 use App\Models\SpkInstansiPayment;
+use App\Models\SpkPayment;
 use Error;
 use Illuminate\Http\Request;
 
@@ -73,8 +74,77 @@ class DetailController extends Controller
             return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
         }
     }
-    public function payment()
+
+    function sumAmountTotalDp($getDetail)
     {
-        return view("detail.payment");
+        $result = null;
+        $spk = $getDetail->spk;
+
+        $result = ($spk->spk_transaction->spk_transaction_down_payment ?? 0) -
+            ($spk->spk_pricing->spk_pricing_indent_nominal ?? 0) -
+            ($spk->spk_pricing->spk_pricing_discount ?? 0) - ($spk->spk_pricing->spk_pricing_over_discount ?? 0) - ($spk->spk_pricing->spk_pricing_subsidi ?? 0);
+
+        return $result;
+    }
+
+    function sumAmountTotalLeasing($getDetail)
+    {
+        $spk = $getDetail->spk;
+
+        $onTheRoad = ($spk->spk_pricing->spk_pricing_on_the_road ?? 0);
+
+
+        return $onTheRoad - $spk->spk_transaction->spk_transaction_down_payment;
+    }
+
+
+    function sumAmountTotalCash($getDetail)
+    {
+        $result = null;
+        $spk = $getDetail->spk;
+
+        $result =
+            ($spk->spk_pricing->spk_pricing_on_the_road ?? 0) -
+            ($spk->spk_pricing->spk_pricing_indent_nominal ?? 0) -
+            ($spk->spk_pricing->spk_pricing_discount ?? 0) -
+            ($spk->spk_pricing->spk_pricing_over_discount ?? 0) -
+            ($spk->spk_pricing->spk_pricing_subsidi ?? 0);
+
+        return $result;
+    }
+    public function payment(Request $request, $spk_payment_id)
+    {
+
+        try {
+
+            $getDetail = SpkPayment::latest()
+                ->with(["spk"])
+                ->where("spk_payment_id", $spk_payment_id)
+                ->first();
+
+            if (!isset($getDetail->spk_payment_type)) {
+                return ResponseFormatter::error("payment not found", "Bad Request", 400);
+            }
+
+            if ($getDetail->spk_payment_type === "dp") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalDp($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "leasing") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalLeasing($getDetail);
+            }
+            if ($getDetail->spk_payment_type === "cash") {
+
+                $getDetail["spk_payment_amount_total"] = self::sumAmountTotalCash($getDetail);
+            }
+
+
+
+            return view("detail.payment", ["data" => $getDetail]);
+            // return ResponseFormatter::success($getDetail);
+        } catch (\Throwable $e) {
+            return ResponseFormatter::error($e->getMessage(), "internal server", 500);
+        }
     }
 }

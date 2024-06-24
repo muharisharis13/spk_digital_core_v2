@@ -375,7 +375,12 @@ class ExportPDFController extends Controller
             // Konversi gambar ke base64
             $type = pathinfo($path, PATHINFO_EXTENSION);
             $dataImage = file_get_contents($path);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
+            if ($dataImage) {
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+            } else {
+                $base64 = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1200px-No_image_available.svg.png";
+            }
 
 
             $getDetail = SpkPayment::latest()
