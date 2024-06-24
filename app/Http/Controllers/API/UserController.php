@@ -399,7 +399,7 @@ class UserController extends Controller
 
             if ($getUser) {
                 if ($request->permission) {
-                    foreach ($$request->permission as $item) {
+                    foreach ($request->permission as $item) {
                         $getUser->syncPermissions($item);
                     }
                 } else {
