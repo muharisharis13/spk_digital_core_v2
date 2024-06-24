@@ -64,16 +64,14 @@ class DeliveryController extends Controller
                 DeliverySpk::where("delivery_id", $delivery_id)->delete();
             }
             if ($getDetailDelivery->delivery_type === "spk_instansi") {
-                $getDetailDeliverySpkInstansi = DeliverySpkInstansi::where("delivery_id", $delivery_id)->get();
+                $getDetailDeliverySpkInstansi = DeliverySpkInstansi::where("delivery_id", $delivery_id)->first();
 
-                foreach ($getDetailDeliverySpkInstansi as $item) {
-                    if ($item["type"] == "partial") {
-                        $getDetailSpkInstansiUnitDelivery = SpkInstansiUnitDelivery::where("spk_instansi_unit_delivery_id", $item["spk_instansi_unit_delivery_id"])->first();
+                if ($getDetailDeliverySpkInstansi->type == "partial") {
+                    $getDetailSpkInstansiUnitDelivery = SpkInstansiUnitDelivery::where("spk_instansi_unit_delivery_id", $getDetailDeliverySpkInstansi->spk_instansi_unit_delivery_id)->first();
 
-                        SpkInstansiUnit::where("spk_instansi_unit_id", $getDetailSpkInstansiUnitDelivery->spk_instansi_unit_id)->update([
-                            "is_delivery_partial" => 0
-                        ]);
-                    }
+                    SpkInstansiUnit::where("spk_instansi_unit_id", $getDetailSpkInstansiUnitDelivery->spk_instansi_unit_id)->update([
+                        "is_delivery_partial" => 0
+                    ]);
                 }
                 $getDetailDeliverySpkInstansi->delete();
             }
