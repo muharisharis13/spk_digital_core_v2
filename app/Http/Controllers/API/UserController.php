@@ -333,7 +333,7 @@ class UserController extends Controller
         try {
             $user = Auth::user();
 
-            $getPermissionUser = User::findOrFail($user->user_id)->with("permissions")->first();
+            $getPermissionUser = User::where("user_id", $user->user_id)->with("permissions")->first();
 
 
             return ResponseFormatter::success($getPermissionUser);
