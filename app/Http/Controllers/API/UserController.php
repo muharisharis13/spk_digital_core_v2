@@ -333,7 +333,10 @@ class UserController extends Controller
         try {
             $user = Auth::user();
 
-            $getPermissionUser = User::where("user_id", $user->user_id)->with("permissions")->first();
+            $getPermissionUser = User::where("user_id", $user->user_id)->with(['permissions' => function ($query) {
+                $query->orderBy('group_name', 'ASC');
+            }])
+                ->first();
 
 
             return ResponseFormatter::success($getPermissionUser);

@@ -16,7 +16,7 @@ class AssignAllRolesToUserSeeder extends Seeder
     {
         //
 
-        $user = User::where("username", "Doni")->first();
+        $user = User::where("username", "arhakim")->first();
 
         $permission  = Permission::all();
 
