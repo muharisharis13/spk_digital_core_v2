@@ -72,7 +72,7 @@
             <h2>Indent Instansi</h2>
             <div>No.{{ $indent->indent_instansi_number }}</div>
             <div style="text-align: right;margin-top:10px">
-                <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
+                <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate(url("/detail/indent_instansi/$indent->indent_id"))) !!} ">
 
             </div>
             <div style="margin-top: 10px;font-weight:bold">

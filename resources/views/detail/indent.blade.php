@@ -13,49 +13,50 @@
                         <p class="detail-label">Tipe Motor</p>
                     </div>
                     <div class="col-span-6 lg:col-span-9">
-                        <p class="detail-label">: ALL NEW NMAX 155 </p>
+                        <p class="detail-label">: {{ $data->motor->motor_name ?? '-' }} </p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Warna</p>
                     </div>
                     <div class="col-span-6 lg:col-span-9">
-                        <p class="detail-label">: HITAM</p>
+                        <p class="detail-label">: {{ $data->color->color_name ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Konsumen</p>
                     </div>
                     <div class="col-span-6 lg:col-span-9">
-                        <p class="detail-label">: Kusnandar</p>
+                        <p class="detail-label">: {{ $data->spk_general->spk->spk_customer->spk_customer_name ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">NIK</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: 1271878987987654</p>
+                        <p class="detail-label">: {{ $data->spk_general->spk->spk_customer->spk_customer_nik ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Whatsapp</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: 082167874567</p>
+                        <p class="detail-label">: {{ $data->spk_general->spk->spk_customer->spk_customer_no_wa ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">No. Handphone</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: 082167874567</p>
+                        <p class="detail-label">: {{ $data->spk_general->spk->spk_customer->spk_customer_no_phone ?? '-' }}
+                        </p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Salesman</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: Alyson Christiansen MD</p>
+                        <p class="detail-label">: {{ $data->salesman_name ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Catatan</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: ini pembelian NMAX HITAM</p>
+                        <p class="detail-label">: {{ $data->indent_note ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -70,43 +71,53 @@
                         <p class="detail-label">Tanggal</p>
                     </div>
                     <div class="col-span-6 lg:col-span-9">
-                        <p class="detail-label">: 20 Jun 2024</p>
+                        <p class="detail-label">: {{ $data->spk_general->spk->created_at ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Nomor Indent</p>
                     </div>
                     <div class="col-span-6 lg:col-span-9">
-                        <p class="detail-label">: 0020/INDENT/PAS-AH/06/2024</p>
+                        <p class="detail-label">: {{ $data->indent_number ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Jenis Transaksi</p>
                     </div>
                     <div class="col-span-6 lg:col-span-9">
-                        <p class="detail-label">: CREDIT</p>
+                        <p class="detail-label">: {{ $data->indent_type ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label"> Leasing</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: FIF</p>
+                        <p class="detail-label">: {{ $data->leasing_name ?? '-' }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Amount</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: Rp 10.000.000</p>
+                        <p class="detail-label">: Rp. {{ number_format($data->amount_total, 0, ',', '.') }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Bayar</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: Rp 10.000.000</p>
+                        @php
+                            $totalAmount = 0;
+                        @endphp
+
+                        @foreach ($data->indent_payment as $payment)
+                            @php
+                                $totalAmount += $payment->indent_payment_amount;
+                            @endphp
+                        @endforeach
+
+                        <p class="detail-label">: Rp {{ number_format($totalAmount, 0, ',', '.') }}</p>
                     </div>
                     <div class="lg:col-span-3 col-span-6">
                         <p class="detail-label">Sisa</p>
                     </div>
                     <div class="lg:col-span-9 col-span-6">
-                        <p class="detail-label">: 0</p>
+                        <p class="detail-label">: {{ $data->amount_total - $totalAmount }}</p>
                     </div>
                 </div>
             </div>
@@ -117,7 +128,6 @@
             <table class="min-w-full bg-white border border-gray-200">
                 <thead>
                     <tr>
-                        <th class="py-2 px-4 bg-[#00029D] text-white">NO.</th>
                         <th class="py-2 px-4 bg-[#00029D] text-white">NOMOR</th>
                         <th class="py-2 px-4 bg-[#00029D] text-white">TANGGAL BAYAR</th>
                         <th class="py-2 px-4 bg-[#00029D] text-white">NOMINAL</th>
@@ -125,13 +135,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg-gray-100 border-b">
+                    @foreach ($data->indent_payment as $payment)
+                        <tr class="bg-gray-100 border-b">
+                            <td class="py-2 px-4 text-center">{{ $payment->indent_payment_number }}</td>
+                            <td class="py-2 px-4 text-center">{{ $payment->indent_payment_date }}</td>
+                            <td class="py-2 px-4 text-center">Rp
+                                {{ number_format($payment->indent_payment_amount, 0, ',', '.') }}</td>
+                            <td class="py-2 px-4 text-center text-uppercase">{{ $payment->indent_payment_method }}</td>
+                        </tr>
+                    @endforeach
+                    {{-- <tr class="bg-gray-100 border-b">
                         <td class="py-2 px-4 text-center">1</td>
                         <td class="py-2 px-4 text-center">0025/PAYMENT/PAS-AH/06/2024</td>
                         <td class="py-2 px-4 text-center">20 Jun 2024</td>
                         <td class="py-2 px-4 text-center">Rp 10.000.000</td>
                         <td class="py-2 px-4 text-center">BANK_TRANSFER</td>
-                    </tr>
+                    </tr> --}}
                 </tbody>
             </table>
         </div>

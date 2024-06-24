@@ -354,11 +354,37 @@ class UserController extends Controller
         }
     }
 
+    // public function assignPermission(Request $request)
+    // {
+    //     try {
+    //         $validator  = Validator::make($request->all(), [
+    //             "permission_name" => "required",
+    //             "user_id" => "required"
+    //         ]);
+
+    //         if ($validator->fails()) {
+    //             return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
+    //         }
+
+
+    //         $user_id = $request->user_id;
+
+    //         $getUser = User::where("user_id", $user_id)->first();
+
+    //         if ($getUser) {
+    //             $getUser->givePermissionTo($request->permission_name);
+    //         }
+
+    //         return ResponseFormatter::success("Permission assigned successfully");
+    //     } catch (\Throwable $e) {
+    //         return ResponseFormatter::error($e->getMessage(), "Internal Server", 500);
+    //     }
+    // }
     public function assignPermission(Request $request)
     {
         try {
             $validator  = Validator::make($request->all(), [
-                "permission_name" => "required",
+                "permission" => "required",
                 "user_id" => "required"
             ]);
 
@@ -372,7 +398,14 @@ class UserController extends Controller
             $getUser = User::where("user_id", $user_id)->first();
 
             if ($getUser) {
-                $getUser->givePermissionTo($request->permission_name);
+                if ($request->permission->count() > 0) {
+                    foreach ($$request->permission as $item) {
+                        $getUser->syncPermissions($item);
+                    }
+                } else {
+                    return
+                        ResponseFormatter::error("Permission assigned something error", "Bad request", 400);
+                }
             }
 
             return ResponseFormatter::success("Permission assigned successfully");

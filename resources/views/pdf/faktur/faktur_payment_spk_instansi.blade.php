@@ -83,7 +83,7 @@
             <h2 style="text-transform: uppercase">KWITANSI SPK</h2>
             <div>No.{{ $data->spk_instansi_payment_number }}</div>
             <div style="text-align: right;margin-top:10px">
-                <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate('https://google.com')) !!} ">
+                <img src="data:image/png;base64, {!! base64_encode(QrCode::size(100)->generate(url("/detail/instansi_payment/$data->spk_instansi_payment_id"))) !!} ">
                 {{-- {!!  !!} --}}
 
             </div>

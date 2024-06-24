@@ -213,8 +213,11 @@ class ExportPDFController extends Controller
             // Konversi gambar ke base64
             $type = pathinfo($path, PATHINFO_EXTENSION);
             $dataImage = file_get_contents($path);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
-
+            if ($dataImage) {
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+            } else {
+                $base64 = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1200px-No_image_available.svg.png";
+            }
 
             $getDetail = IndentInstansi::where("indent_instansi_id", $indent_instansi_id)
                 ->with(["dealer", "motor"])
@@ -242,14 +245,24 @@ class ExportPDFController extends Controller
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
             $DataLogo = DealerLogo::where("dealer_id", $getDealerSelected->dealer_id)->first();
+            $base64 = "";
 
             // Path gambar
             $path = public_path("storage/$DataLogo->logo");
-
             // Konversi gambar ke base64
             $type = pathinfo($path, PATHINFO_EXTENSION);
             $dataImage = file_get_contents($path);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+
+
+            if ($dataImage) {
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+            } else {
+                $base64 = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1200px-No_image_available.svg.png";
+            }
+
+
+
+
 
             $getDetailIndent = Indent::where("indent_id", $indent_id)
                 ->with(["sales", "motor", "color",  "indent_payment.bank", "dealer", "indent_payment" => function ($query) {
@@ -497,7 +510,11 @@ class ExportPDFController extends Controller
             // Konversi gambar ke base64
             $type = pathinfo($path, PATHINFO_EXTENSION);
             $dataImage = file_get_contents($path);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+            if ($dataImage) {
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataImage);
+            } else {
+                $base64 = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1200px-No_image_available.svg.png";
+            }
 
             $getDetail = SpkInstansiPayment::with(["spk_instansi_payment_refund", "spk_instansi", "spk_instansi_payment_list.bank", "spk_instansi_payment_list.spk_instansi_payment_list_file"])
                 ->where("spk_instansi_payment_id", $spk_instansi_payment_id)->first();
