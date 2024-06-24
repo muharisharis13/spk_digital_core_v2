@@ -399,9 +399,8 @@ class UserController extends Controller
 
             if ($getUser) {
                 if ($request->permission) {
-                    foreach ($request->permission as $item) {
-                        $getUser->syncPermissions($item);
-                    }
+
+                    $getUser->syncPermissions($request->permission);
                 } else {
                     return
                         ResponseFormatter::error("Permission assigned something error", "Bad request", 400);
