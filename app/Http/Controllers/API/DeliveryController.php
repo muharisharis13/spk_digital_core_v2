@@ -137,6 +137,10 @@ class DeliveryController extends Controller
                 ->where("delivery_id", $delivery_id)
                 ->first();
 
+            if (!$getDetailDelivery) {
+                return ResponseFormatter::error("delivery not found", "Bad Request", 400);
+            }
+
             switch ($getDetailDelivery->delivery_type) {
                 case "repair":
                     $getDetailDelivery->load([
