@@ -161,8 +161,15 @@ class SpkInstansiController extends Controller
                 })
                 ->when($q, function ($query) use ($q) {
                     return $query->where("spk_instansi_payment_number", "LIKE", "%$q%")
-                        ->whereHas("spk_instansi", function ($query) use ($q) {
-                            return $query->where("spk_instansi_number", "LIKE", "%$q%");
+                        ->orWhereHas("spk_instansi", function ($query) use ($q) {
+                            return $query->where("spk_instansi_number", "LIKE", "%$q%")
+                                ->orWhereHas("spk_instansi_general", function ($query) use ($q) {
+                                    return $query->where("po_no", "LIKE", "%$q%")
+                                        ->orWhere("po_number", "LIKE", "%$q%");
+                                })
+                                ->orWhereHas("spk_instansi_legal", function ($query) use ($q) {
+                                    return $query->where("instansi_name", "LIKE", "%$q%");
+                                });
                         });
                 })
                 ->paginate($limit);
