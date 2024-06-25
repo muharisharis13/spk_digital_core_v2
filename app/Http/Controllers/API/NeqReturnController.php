@@ -63,6 +63,15 @@ class NeqReturnController extends Controller
                 "neq_return_status" => $request->neq_return_status
             ]);
 
+            $user = Auth::user();
+
+
+            $createNeqReturnLog = NeqReturnLog::create([
+                "neq_return_id" => $neq_return_id,
+                "user_id" => $user->user_id,
+                "neq_return_log_action" => $request->neq_return_status,
+            ]);
+
             DB::commit();
 
             return ResponseFormatter::success($getDetailNeqReturn, "Successfully update status neq return");
@@ -75,9 +84,17 @@ class NeqReturnController extends Controller
     public function deleteNeqReturnUnit(Request $request,  $neq_return_unit_id)
     {
         try {
-            $getDetailNeqReturnUnit = NeqReturnUnit::where("neq_return_unit_id", $neq_return_unit_id);
+            $getDetailNeqReturnUnit = NeqReturnUnit::where("neq_return_unit_id", $neq_return_unit_id)->with(["neq_return"])->first();
             DB::beginTransaction();
             $getDetailNeqReturnUnit = $getDetailNeqReturnUnit->delete();
+            $user = Auth::user();
+
+
+            $createNeqReturnLog = NeqReturnLog::create([
+                "neq_return_id" => $getDetailNeqReturnUnit->neq_return_id,
+                "user_id" => $user->user_id,
+                "neq_return_log_action" => $getDetailNeqReturnUnit->neq_return->neq_return_status,
+            ]);
             DB::commit();
             return ResponseFormatter::success($getDetailNeqReturnUnit, "Successfully deleted unit");
         } catch (\Throwable $e) {
@@ -182,20 +199,6 @@ class NeqReturnController extends Controller
             DB::beginTransaction();
 
             foreach ($request->neq_return_unit as $item) {
-                // if (isset($item["neq_return_unit_id"])) {
-                //     $getDetailNeqReturnUnit = NeqReturnUnit::where("neq_return_unit_id", $item["neq_return_unit_id"])
-                //         ->where("neq_unit_id", $item["neq_unit_id"])->first();
-
-                //     if (!isset($getDetailNeqReturnUnit->neq_return_unit_id)) {
-                //         DB::rollBack();
-                //         return ResponseFormatter::error("neq return not found", "Bad Request", 400);
-                //     }
-
-                //     if ($item["is_delete"] == "true") {
-                //         $getDetailNeqReturnUnit->delete();
-                //     }
-                //     // continue; // Skip if neq_return_unit_id exists
-                // }
                 if (!isset($item["neq_return_unit_id"])) {
                     $createNeqReturnUnit[] = NeqReturnUnit::create([
                         "neq_return_id" => $neq_return_id,

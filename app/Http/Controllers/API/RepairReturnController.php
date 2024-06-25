@@ -13,6 +13,7 @@ use App\Helpers\GetDealerByUserSelected;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\RepairReturn;
+use App\Models\RepairReturnLog;
 use App\Models\RepairReturnUnit;
 use App\Models\RepairUnitList;
 use App\Models\Unit;
@@ -109,6 +110,12 @@ class RepairReturnController extends Controller
                 "repair_return_number" => str_replace('TEMP-', "", $getDetailRepairReturn->repair_return_number)
             ]);
 
+            RepairReturnLog::create([
+                "repair_return_id" => $repair_return_id,
+                "user_id" => $user->user_id,
+                "repair_return_log_action" => "update status repair return to $request->repair_return_status"
+            ]);
+
             DB::commit();
 
             return ResponseFormatter::success($getDetailRepairReturn, "Successfully change status repair return !");
@@ -164,6 +171,14 @@ class RepairReturnController extends Controller
             ]);
             $getDetaiRepairReturnUnit->delete();
 
+            $user = Auth::user();
+
+            RepairReturnLog::create([
+                "repair_return_id" => $getDetaiRepairReturnUnit->repair_return_id,
+                "user_id" => $user->user_id,
+                "repair_return_log_action" => "delete unit repair return"
+            ]);
+
             DB::commit();
 
             return ResponseFormatter::success($getDetaiRepairReturnUnit, "Successfully delete repair return unit !");
@@ -208,7 +223,7 @@ class RepairReturnController extends Controller
     public function getDetailRepairReturn(Request $request, $repair_return_id)
     {
         try {
-            $getDetailRepairReturn = RepairReturn::where("repair_return_id", $repair_return_id)->first();
+            $getDetailRepairReturn = RepairReturn::where("repair_return_id", $repair_return_id)->with(["repair_return_log.user"])->first();
 
 
             if (!$getDetailRepairReturn) {
@@ -235,6 +250,8 @@ class RepairReturnController extends Controller
             if ($validator->fails()) {
                 return ResponseFormatter::error($validator->errors(), "Bad Request", 400);
             }
+
+            $user = Auth::user();
 
             // update repair unit return
 
@@ -272,6 +289,13 @@ class RepairReturnController extends Controller
                     }
                 }
             }
+
+
+            RepairReturnLog::create([
+                "repair_return_id" => $repair_return_id,
+                "user_id" => $user->user_id,
+                "repair_return_log_action" => "update repair return"
+            ]);
 
             DB::commit();
 
@@ -323,6 +347,12 @@ class RepairReturnController extends Controller
                     "repair_unit_list_id" => $item["repair_unit_list_id"]
                 ]);
             }
+
+            RepairReturnLog::create([
+                "repair_return_id" => $createRepairReturn->repair_return_id,
+                "user_id" => $user->user_id,
+                "repair_return_log_action" => "create repair return"
+            ]);
 
             DB::commit();
 

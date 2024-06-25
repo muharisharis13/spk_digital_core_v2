@@ -145,7 +145,8 @@ class NeqController extends Controller
                         "user_id" => $user->user_id,
                         "unit_log_number" => "-",
                         "unit_log_action" => "on_hand",
-                        "unit_log_status" => "NEQ"
+                        "unit_log_status" => "NEQ",
+                        "unit_log_dealer_neq_name" => $getDetailNeq->dealer_neq->dealer_neq_name
                     ]);
                 }
             } else {

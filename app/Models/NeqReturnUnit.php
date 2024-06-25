@@ -19,4 +19,9 @@ class NeqReturnUnit extends Model
     {
         return $this->belongsTo(NeqUnit::class, "neq_unit_id");
     }
+
+    public function neq_return()
+    {
+        return $this->belongsTo(NeqReturn::class, "neq_return_id");
+    }
 }

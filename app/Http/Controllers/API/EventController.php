@@ -98,7 +98,8 @@ class EventController extends Controller
                         "user_id" => $user->user_id,
                         "unit_log_number" => "-",
                         "unit_log_action" => "on_hand",
-                        "unit_log_status" => UnitLogStatusEnum::EVENT
+                        "unit_log_status" => UnitLogStatusEnum::EVENT,
+                        "unit_log_event_name" => $getDetailEvent->event_name
                     ]);
                 }
             } else {

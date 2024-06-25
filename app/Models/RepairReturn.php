@@ -30,4 +30,9 @@ class RepairReturn extends Model
     {
         return $this->hasOne(DeliveryRepairReturn::class, "repair_return_id");
     }
+
+    public function repair_return_log()
+    {
+        return $this->hasMany(RepairReturnLog::class, "repair_return_id");
+    }
 }
