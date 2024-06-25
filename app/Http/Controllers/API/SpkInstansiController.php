@@ -716,7 +716,7 @@ class SpkInstansiController extends Controller
 
 
 
-            //update indent status jadi hold
+            //update indent status jadi finance check
 
             if (isset($getDetailSpkInstansi->indent_instansi_id)) {
                 IndentInstansi::where("indent_instansi_id", $getDetailSpkInstansi->indent_instansi_id)->update([
@@ -729,7 +729,20 @@ class SpkInstansiController extends Controller
                     "user_id" => $user->user_id,
                     "indent_instansi_log_action" => "update status to finance check"
                 ]);
+
+                $getDetailSpkInstansiPayment = SpkInstansiPayment::where("spk_instansi_id", $getDetailSpkInstansi->spk_instansi_id)->first();
+
+                $getDetailSpkInstansiPayment->update([
+                    "spk_instansi_payment_status" => "cancel"
+                ]);
+                SpkInstansiPaymentLog::create([
+                    "user_id" => $user->user_id,
+                    "spk_instansi_payment_id" =>  $getDetailSpkInstansiPayment->spk_instansi_payment_id,
+                    "spk_instansi_payment_log_note" => "update status payment to cancel"
+                ]);
             }
+
+
 
             $dataRequestLog = [
                 "spk_instansi_id" => $spk_instansi_id,

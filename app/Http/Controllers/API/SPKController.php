@@ -816,6 +816,16 @@ class SPKController extends Controller
                 //melakukan update indent menjadi finance check
 
                 $getDetailIndent = Indent::where("indent_id", $getSpk->spk_general->indent_id)->first();
+                $getDetailSpkPayment = SpkPayment::where("spk_id", $getSpk->spk_id)->first();
+
+                if (isset($getDetailSpkPayment->spk_payment_id)) {
+                    $getDetailSpkPayment->update([
+                        "spk_payment_status" => "cancel"
+                    ]);
+                } else {
+                    DB::rollBack();
+                    return ResponseFormatter::error("Payment Tidak ditemukan", "bad request!", 400);
+                }
 
                 if (isset($getDetailIndent->indent_id)) {
                     $getDetailIndent->update([
