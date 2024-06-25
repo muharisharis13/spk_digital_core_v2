@@ -438,9 +438,9 @@ class SPKController extends Controller
             $user = Auth::user();
             $getDealerSelected = GetDealerByUserSelected::GetUser($user->user_id);
 
-
-            $getPaginate = SpkPayment::latest()
-                ->with(["spk"])
+            // Build the query
+            $query = SpkPayment::latest()
+                ->with(["spk.spk_legal"])
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
                 })
@@ -469,23 +469,22 @@ class SPKController extends Controller
                                 return $queryTransaction->where("spk_transaction_method_payment", "LIKE", "%$q%");
                             });
                     })
-                        ->orWhere("spk_payment_status", "LIKE", "%$query%");
+                        ->orWhere("spk_payment_status", "LIKE", "%$q%");
                 })
-                ->where("dealer_id", $getDealerSelected->dealer_id)
-                ->paginate($limit);
+                ->where("dealer_id", $getDealerSelected->dealer_id);
 
+            // Get paginated results
+            $getPaginate = $query->paginate($limit);
 
+            // Calculate spk_payment_amount_total for each item
             foreach ($getPaginate as $item) {
                 if (isset($item->spk_payment_type) && $item->spk_payment_type === "dp") {
-
                     $item["spk_payment_amount_total"] = self::sumAmountTotalDp($item);
                 }
                 if (isset($item->spk_payment_type) &&  $item->spk_payment_type === "leasing") {
-
                     $item["spk_payment_amount_total"] = self::sumAmountTotalLeasing($item);
                 }
                 if (isset($item->spk_payment_type) &&  $item->spk_payment_type === "cash") {
-
                     $item["spk_payment_amount_total"] = self::sumAmountTotalCash($item);
                 }
             }
