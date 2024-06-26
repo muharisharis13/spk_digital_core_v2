@@ -183,7 +183,8 @@ class ReturUnitController extends Controller
             $createReturUnitToMD = Http::withHeaders([
                 'ALFA-API-KEY' => $getApiKeySecret->api_secret_key,
                 'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
-            ])->post("http://103.165.240.34:9003/api/v1" . $url, $data);
+            ])->post(env('API_MD_BASE') . $url, $data);
+            // ])->post("http://103.165.240.34:9003/api/v1" . $url, $data);
 
             $createReturUnitToMD = $createReturUnitToMD->json();
             $dataResponse = null;
