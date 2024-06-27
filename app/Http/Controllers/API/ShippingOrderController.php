@@ -52,8 +52,8 @@ class ShippingOrderController extends Controller
         $updateStatusUnitToMainDealer = Http::withHeaders([
             'ALFA-API-KEY' => $getApiKeySecret->api_secret_key,
             'ALFA-DEALER-CODE' => $getDealerSelected->dealer->dealer_code,
-        ])->post(env('API_MD_BASE') . $url, $data);
-        // ])->post("http://103.165.240.34:9003/api/v1" . $url, $data);
+            // ])->post(env('API_MD_BASE') . $url, $data);
+        ])->post("http://103.165.240.34:6102/api/v1" . $url, $data);
 
         $updateStatusUnitToMainDealer = $updateStatusUnitToMainDealer->json();
 
