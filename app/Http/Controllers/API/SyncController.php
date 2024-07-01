@@ -129,10 +129,10 @@ class SyncController extends Controller
                 "dealers.*.dealer_neq.*.dealer_neq_phone_number" => "nullable",
                 "dealers.*.dealer_neq.*.dealer_neq_code" => "nullable",
                 "dealers.*.dealer_neq.*.dealer_neq_city" => "nullable",
-                "colors" => "required|array",
-                "colors.*.color_name" => "required",
-                "motors" => "required|array",
-                "motors.*.motor_name" => "required",
+                "colors" => "nullable|array",
+                "colors.*.color_name" => "nullable",
+                "motors" => "nullable|array",
+                "motors.*.motor_name" => "nullable",
                 "user" => "required"
             ]);
 
